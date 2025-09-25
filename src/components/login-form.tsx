@@ -15,6 +15,9 @@ import { Label } from "@/src/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAppDispatch } from "@/src/store/hooks";
+import { setUser } from "@/src/store/slices/authSlice";
+
 
 export function LoginForm({
   className,
@@ -25,6 +28,7 @@ export function LoginForm({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,12 +37,14 @@ export function LoginForm({
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
       // Update this route to redirect to an authenticated route. The user already has an active session.
+      console.log(data);
+      dispatch(setUser({ user: data.user, isAuth: true }));
       router.push("/protected");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
