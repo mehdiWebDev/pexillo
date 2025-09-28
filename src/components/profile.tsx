@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { clearUser } from "@/src/store/slices/authSlice";
 import Link from "next/link";
+import { useTranslations } from 'next-intl';
+
 
 interface ProfileDropdownProps {
     user: any;
@@ -19,7 +21,8 @@ export function Profile({ user }: ProfileDropdownProps) {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const dispatch = useDispatch();
-
+    const t = useTranslations('common');
+    const t2 = useTranslations('navigation');
 
     // Logout function
     const handleLogout = async () => {
@@ -119,7 +122,7 @@ export function Profile({ user }: ProfileDropdownProps) {
                             onClick={handleMenuItemClick}
                         >
                             <UserCircle size={16} />
-                            <span>My Profile</span>
+                            <span>{t2('myProfile')}</span>
                         </Link>
 
                         <Link
@@ -128,7 +131,7 @@ export function Profile({ user }: ProfileDropdownProps) {
                             onClick={handleMenuItemClick}
                         >
                             <Settings size={16} />
-                            <span>Account Settings</span>
+                            <span>{t2('accountSettings')}</span>
                         </Link>
                     </div>
 
@@ -140,7 +143,7 @@ export function Profile({ user }: ProfileDropdownProps) {
                             className="profile-dropdown__item profile-dropdown__item--danger"
                         >
                             <LogOut size={16} />
-                            <span>Logout</span>
+                            <span>{t('logout')}</span>
                         </button>
                     </div>
                 </div>
