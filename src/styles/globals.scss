@@ -29,6 +29,13 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+
+    // colors
+    --primary-color: #333;
+    --accent-color: #AFA3F2;
+
+    // states
+    --color-state-hover-overlay: rgba(26, 18, 57, 0.05);
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -62,6 +69,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }

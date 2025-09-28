@@ -1,28 +1,51 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const initialState = {
+// Define a minimal shape for the authenticated user we store in Redux.
+// Extend this as needed to match your auth provider (e.g., Supabase) user object.
+export interface AuthUser {
+    id: string;
+    email?: string | null;
+    full_name?: string | null;
+    avatar_url?: string | null;
+}
+
+export interface AuthState {
+    user: AuthUser | null;
+    isAuth: boolean;
+    loading: boolean;
+    error: string | null;
+}
+
+const initialState: AuthState = {
     user: null,
     isAuth: false,
     loading: false,
-    error: null
-}
+    error: null,
+};
 
 const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-        setUser: (state, action) => {
-            state.user = action.payload
-            state.isAuth = true
+        setUser: (
+            state,
+            action: PayloadAction<{ user: AuthUser | null; isAuth: boolean }>
+        ) => {
+            state.user = action.payload.user;
+            state.isAuth = action.payload.isAuth;
         },
-        setLoading: (state, action) => {
-            state.loading = action.payload
+        clearUser: (state) => {
+            state.user = null;
+            state.isAuth = false;
         },
-        setError: (state, action) => {
-            state.error = action.payload
-        }
-    }
-})
+        setLoading: (state, action: PayloadAction<boolean>) => {
+            state.loading = action.payload;
+        },
+        setError: (state, action: PayloadAction<string | null>) => {
+            state.error = action.payload;
+        },
+    },
+});
 
-export const { setUser, setLoading, setError } = authSlice.actions
-export default authSlice.reducer
+export const { setUser, clearUser, setLoading, setError } = authSlice.actions;
+export default authSlice.reducer;

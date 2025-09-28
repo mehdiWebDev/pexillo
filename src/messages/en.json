@@ -1,0 +1,39 @@
+{
+    "navigation": {
+      "brand": "Brand",
+      "home": "Home",
+      "products": "Products",
+      "services": "Services",
+      "contact": "Contact",
+      "myProfile": "My Profile",
+      "accountSettings": "Account Settings",
+      "user": "User",
+      "toggleMenu": "Toggle mobile menu",
+      "closeMenu": "Close menu"
+    },
+    "common": {
+      "welcome": "Welcome",
+      "logout": "Logout",
+      "login": "Login",
+      "signup": "Sign up",
+      "dashboard": "Dashboard",
+      "products": "Products",
+      "loading": "Loading...",
+      "error": "Error",
+      "success": "Success",
+      "cancel": "Cancel",
+      "save": "Save",
+      "delete": "Delete",
+      "edit": "Edit",
+      "back": "Back",
+      "next": "Next",
+      "previous": "Previous",
+      "search": "Search",
+      "filter": "Filter",
+      "sort": "Sort"
+    },
+    "metadata": {
+      "title": "Next.js and Supabase Starter Kit",
+      "description": "The fastest way to build apps with Next.js and Supabase"
+    }
+  }

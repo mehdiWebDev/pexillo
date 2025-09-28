@@ -1,0 +1,39 @@
+{
+    "navigation": {
+        "brand": "Marque",
+        "home": "Accueil",
+        "products": "Produits",
+        "services": "Services",
+        "contact": "Contact",
+        "myProfile": "Mon Profil",
+        "accountSettings": "Paramètres du compte",
+        "user": "Utilisateur",
+        "toggleMenu": "Basculer le menu mobile",
+        "closeMenu": "Fermer le menu"
+    },
+    "common": {
+        "welcome": "Bienvenue",
+        "logout": "Déconnexion",
+        "login": "Connexion",
+        "signup": "S'inscrire",
+        "dashboard": "Tableau de bord",
+        "products": "Produits",
+        "loading": "Chargement...",
+        "error": "Erreur",
+        "success": "Succès",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "delete": "Supprimer",
+        "edit": "Modifier",
+        "back": "Retour",
+        "next": "Suivant",
+        "previous": "Précédent",
+        "search": "Rechercher",
+        "filter": "Filtrer",
+        "sort": "Trier"
+    },
+    "metadata": {
+        "title": "Kit de démarrage Next.js et Supabase",
+        "description": "La façon la plus rapide de créer des applications avec Next.js et Supabase"
+    }
+}

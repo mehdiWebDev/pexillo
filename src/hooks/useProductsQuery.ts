@@ -1,10 +1,10 @@
-
-import { useQuery } from "@tanstack/react-query";
+// src/hooks/useProductsQuery.ts
+import { useSupabaseQuery } from "./useSupabaseQuery";
 import { getProducts } from "@/src/services/productService";
 
 export function useProductsQuery() {
-  return useQuery({
-    queryKey: ["products"],
-    queryFn: getProducts,
+  return useSupabaseQuery(["products"], getProducts, {
+    staleTime: 10 * 1000, // 10 seconds
+    refetchOnWindowFocus: true
   });
 }

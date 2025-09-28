@@ -1,0 +1,36 @@
+// Desktop navigation language switcher styling
+.navigation__desktop-actions {
+    .language-switcher {
+        min-width: 120px;
+    }
+}
+
+// Mobile menu language switcher styling
+.mobile-menu__language-switcher {
+    padding: 1rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    button {
+        transition: all 0.2s ease;
+
+        &:hover {
+            transform: translateY(-1px);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+    }
+}
+
+.mobile-menu__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+}
