@@ -1,0 +1,460 @@
+// src/styles/components/product-categories.scss
+
+.product-categories {
+    padding: 5rem 0;
+    background: hsl(var(--background));
+    position: relative;
+    overflow: hidden;
+
+    // Top decorative stripe
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: repeating-linear-gradient(90deg,
+                hsl(var(--accent)),
+                hsl(var(--accent)) 20px,
+                hsl(var(--primary)) 20px,
+                hsl(var(--primary)) 40px,
+                hsl(var(--secondary)) 40px,
+                hsl(var(--secondary)) 60px);
+    }
+
+    &__container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    // Header Section
+    &__header {
+        text-align: center;
+        margin-bottom: 4rem;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    &__title-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+    &__title {
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        line-height: 1.2;
+        color: hsl(var(--foreground));
+    }
+
+    &__title-accent {
+        display: block;
+        color: hsl(var(--primary));
+        position: relative;
+    }
+
+    &__title-underline {
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 5px;
+        background: hsl(var(--accent));
+        animation: expandWidth 0.8s ease-out 0.2s both;
+    }
+
+    &__subtitle {
+        font-size: 1.125rem;
+        color: hsl(var(--muted-foreground));
+        max-width: 600px;
+        margin: 0 auto;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-weight: 600;
+    }
+
+    // Categories Grid
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+
+        @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+    }
+
+    // Bottom CTA Section
+    &__bottom-cta {
+        text-align: center;
+        padding: 3rem;
+        background: hsl(var(--card));
+        border: 4px solid hsl(var(--foreground));
+        position: relative;
+        animation: slideUp 0.8s ease-out 0.6s both;
+
+        // Decorative corner brackets
+        &::before,
+        &::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 4px solid hsl(var(--primary));
+        }
+
+        &::before {
+            top: -4px;
+            left: -4px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        &::after {
+            bottom: -4px;
+            right: -4px;
+            border-left: none;
+            border-top: none;
+        }
+    }
+
+    &__cta-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    &__cta-text {
+        font-size: 1.25rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: hsl(var(--foreground));
+        margin-bottom: 1.5rem;
+    }
+}
+
+// Category Card
+.category-card {
+    position: relative;
+    display: block;
+    background: hsl(var(--card));
+    border: 4px solid hsl(var(--foreground));
+    transition: all 0.3s ease;
+    text-decoration: none;
+    overflow: hidden;
+    animation: fadeInUp 0.8s ease-out both;
+
+    // Color variants
+    &--primary {
+        .category-card__icon-badge {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            border-color: hsl(var(--primary));
+        }
+
+        .category-card__count {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+        }
+
+        .category-card__cta-icon {
+            color: hsl(var(--primary));
+        }
+
+        &:hover {
+            border-color: hsl(var(--primary));
+            box-shadow:
+                10px 10px 0 hsl(var(--primary)),
+                10px 10px 0 4px hsl(var(--foreground));
+        }
+    }
+
+    &--secondary {
+        .category-card__icon-badge {
+            background: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+            border-color: hsl(var(--secondary));
+        }
+
+        .category-card__count {
+            background: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+        }
+
+        .category-card__cta-icon {
+            color: hsl(var(--secondary));
+        }
+
+        &:hover {
+            border-color: hsl(var(--secondary));
+            box-shadow:
+                10px 10px 0 hsl(var(--secondary)),
+                10px 10px 0 4px hsl(var(--foreground));
+        }
+    }
+
+    &--accent {
+        .category-card__icon-badge {
+            background: hsl(var(--accent));
+            color: hsl(var(--accent-foreground));
+            border-color: hsl(var(--accent));
+        }
+
+        .category-card__count {
+            background: hsl(var(--accent));
+            color: hsl(var(--accent-foreground));
+        }
+
+        .category-card__cta-icon {
+            color: hsl(var(--accent));
+        }
+
+        &:hover {
+            border-color: hsl(var(--accent));
+            box-shadow:
+                10px 10px 0 hsl(var(--accent)),
+                10px 10px 0 4px hsl(var(--foreground));
+        }
+    }
+
+    &--neutral {
+        .category-card__icon-badge {
+            background: hsl(var(--foreground));
+            color: hsl(var(--background));
+            border-color: hsl(var(--foreground));
+        }
+
+        .category-card__count {
+            background: hsl(var(--foreground));
+            color: hsl(var(--background));
+        }
+
+        .category-card__cta-icon {
+            color: hsl(var(--foreground));
+        }
+
+        &:hover {
+            border-color: hsl(var(--foreground));
+            box-shadow:
+                10px 10px 0 hsl(var(--muted)),
+                10px 10px 0 4px hsl(var(--foreground));
+        }
+    }
+
+    // Hover state
+    &:hover {
+        transform: translateY(-8px);
+
+        .category-card__image {
+            transform: scale(1.1);
+        }
+
+        .category-card__overlay {
+            opacity: 0.9;
+        }
+
+        .category-card__cta {
+            transform: translateX(5px);
+        }
+
+        .category-card__corner {
+            transform: scale(1.2);
+        }
+    }
+
+    // Icon Badge (Top Left)
+    &__icon-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid;
+        z-index: 10;
+        transition: all 0.3s ease;
+        transform: rotate(-5deg);
+        
+        &:hover {
+            transform: rotate(5deg) scale(1.1);
+        }
+    }
+
+    // Product Count Badge
+    &__count {
+        position: absolute;
+        bottom: 1rem;
+        left: 1rem;
+        padding: 0.5rem 1rem;
+        border: 3px solid hsl(var(--foreground));
+        font-size: 0.75rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        z-index: 10;
+    }
+
+    // Special Badge (for Custom Designs)
+    &__special-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.5rem 1rem;
+        background: hsl(var(--accent));
+        color: hsl(var(--accent-foreground));
+        border: 3px solid hsl(var(--foreground));
+        font-size: 0.75rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        animation: pulse 2s infinite;
+        transform: rotate(3deg);
+    }
+
+    // Image Container
+    &__image-container {
+        position: relative;
+        height: 280px;
+        overflow: hidden;
+        border-bottom: 4px solid hsl(var(--foreground));
+
+        @media (max-width: 640px) {
+            height: 220px;
+        }
+    }
+
+    &__image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    &__overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg,
+                transparent 0%,
+                hsla(var(--foreground) / 0.8) 100%);
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+    }
+
+    // Content Section
+    &__content {
+        padding: 2rem 1.5rem;
+    }
+
+    &__name {
+        font-size: 1.5rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: hsl(var(--foreground));
+        margin-bottom: 0.75rem;
+        line-height: 1.2;
+    }
+
+    &__description {
+        font-size: 0.875rem;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    // CTA Section
+    &__cta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 1rem;
+        border-top: 2px dashed hsl(var(--border));
+        transition: transform 0.3s ease;
+    }
+
+    &__cta-text {
+        font-size: 0.875rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: hsl(var(--foreground));
+    }
+
+    &__cta-icon {
+        width: 20px;
+        height: 20px;
+        transition: transform 0.3s ease;
+    }
+
+    // Decorative Corner
+    &__corner {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 40px;
+        height: 40px;
+        background: hsl(var(--accent));
+        clip-path: polygon(100% 0, 100% 100%, 0 100%);
+        transition: transform 0.3s ease;
+    }
+}
+
+// Animations
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes expandWidth {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 120px;
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: rotate(3deg) scale(1);
+    }
+
+    50% {
+        transform: rotate(3deg) scale(1.05);
+    }
+}

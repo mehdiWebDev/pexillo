@@ -1,0 +1,320 @@
+// src/styles/components/buttons.scss
+
+// Button Base Styles
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    border: 3px solid;
+    outline: none;
+    text-decoration: none;
+    
+    // Remove default button styles
+    background: none;
+    font-family: inherit;
+    
+    // Sizes
+    &--sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+        border-width: 2px;
+    }
+    
+    &--md {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+    }
+    
+    &--lg {
+        padding: 1rem 2.5rem;
+        font-size: 1rem;
+    }
+    
+    &--xl {
+        padding: 1.25rem 3rem;
+        font-size: 1.125rem;
+        border-width: 4px;
+    }
+    
+    // Full width
+    &--full {
+        width: 100%;
+    }
+    
+    // Primary Button - Red
+    &--primary {
+        background: hsl(var(--primary));
+        border-color: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        
+        &:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 10px 0 hsla(var(--primary-rgb), 0.5),
+                0 15px 25px hsla(var(--primary-rgb), 0.3);
+        }
+        
+        &:active:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 
+                0 5px 0 hsla(var(--primary-rgb), 0.5),
+                0 8px 15px hsla(var(--primary-rgb), 0.3);
+        }
+    }
+    
+    // Secondary Button - Blue
+    &--secondary {
+        background: hsl(var(--secondary));
+        border-color: hsl(var(--secondary));
+        color: hsl(var(--secondary-foreground));
+        
+        &:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 10px 0 hsla(var(--secondary-rgb), 0.5),
+                0 15px 25px hsla(var(--secondary-rgb), 0.3);
+        }
+        
+        &:active:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 
+                0 5px 0 hsla(var(--secondary-rgb), 0.5),
+                0 8px 15px hsla(var(--secondary-rgb), 0.3);
+        }
+    }
+    
+    // Accent Button - Yellow
+    &--accent {
+        background: hsl(var(--accent));
+        border-color: hsl(var(--foreground));
+        color: hsl(var(--accent-foreground));
+        
+        &:hover:not(:disabled) {
+            transform: translateY(-3px) rotate(-2deg);
+            box-shadow: 
+                5px 5px 0 hsl(var(--foreground)),
+                5px 5px 25px hsla(var(--accent-rgb), 0.4);
+        }
+        
+        &:active:not(:disabled) {
+            transform: translateY(-1px) rotate(-1deg);
+            box-shadow: 
+                2px 2px 0 hsl(var(--foreground)),
+                2px 2px 15px hsla(var(--accent-rgb), 0.4);
+        }
+    }
+    
+    // Outline Button
+    &--outline {
+        background: transparent;
+        
+        &-primary {
+            border-color: hsl(var(--primary));
+            color: hsl(var(--primary));
+            
+            &:hover:not(:disabled) {
+                background: hsl(var(--primary));
+                color: hsl(var(--primary-foreground));
+                transform: translateY(-3px);
+                box-shadow: 
+                    0 10px 0 hsla(var(--primary-rgb), 0.3),
+                    0 15px 25px hsla(var(--primary-rgb), 0.2);
+            }
+        }
+        
+        &-secondary {
+            border-color: hsl(var(--secondary));
+            color: hsl(var(--secondary));
+            
+            &:hover:not(:disabled) {
+                background: hsl(var(--secondary));
+                color: hsl(var(--secondary-foreground));
+                transform: translateY(-3px);
+                box-shadow: 
+                    0 10px 0 hsla(var(--secondary-rgb), 0.3),
+                    0 15px 25px hsla(var(--secondary-rgb), 0.2);
+            }
+        }
+    }
+    
+    // Ghost Button - No border
+    &--ghost {
+        border-color: transparent;
+        background: transparent;
+        color: hsl(var(--foreground));
+        
+        &:hover:not(:disabled) {
+            background: hsl(var(--muted));
+            transform: translateX(5px);
+        }
+    }
+    
+    // Brutalist Button - Hard shadow
+    &--brutalist {
+        background: hsl(var(--background));
+        border-color: hsl(var(--foreground));
+        color: hsl(var(--foreground));
+        box-shadow: 
+            5px 5px 0 hsl(var(--foreground));
+        
+        &:hover:not(:disabled) {
+            transform: translate(-2px, -2px);
+            box-shadow: 
+                7px 7px 0 hsl(var(--primary)),
+                7px 7px 0 2px hsl(var(--foreground));
+        }
+        
+        &:active:not(:disabled) {
+            transform: translate(0, 0);
+            box-shadow: 
+                3px 3px 0 hsl(var(--primary)),
+                3px 3px 0 2px hsl(var(--foreground));
+        }
+    }
+    
+    // Icon Buttons
+    &--icon-left {
+        svg {
+            margin-right: 0.5rem;
+        }
+    }
+    
+    &--icon-right {
+        svg {
+            margin-left: 0.5rem;
+        }
+    }
+    
+    &--icon-only {
+        aspect-ratio: 1;
+        padding: 0.75rem;
+        
+        &.btn--sm {
+            padding: 0.5rem;
+        }
+        
+        &.btn--lg {
+            padding: 1rem;
+        }
+    }
+    
+    // States
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    
+    &--loading {
+        color: transparent;
+        pointer-events: none;
+        
+        &::after {
+            content: '';
+            position: absolute;
+            width: 1rem;
+            height: 1rem;
+            border: 3px solid hsl(var(--primary-foreground));
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+    }
+    
+    // Responsive
+    @media (max-width: 640px) {
+        &--responsive {
+            width: 100%;
+            
+            &.btn--sm {
+                padding: 0.625rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            &.btn--md {
+                padding: 0.875rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            &.btn--lg {
+                padding: 1rem 2rem;
+                font-size: 1.125rem;
+            }
+        }
+    }
+}
+
+// Button Group
+.btn-group {
+    display: inline-flex;
+    gap: 0.5rem;
+    
+    &--vertical {
+        flex-direction: column;
+    }
+    
+    &--attached {
+        gap: 0;
+        
+        .btn {
+            border-radius: 0;
+            
+            &:not(:last-child) {
+                border-right: none;
+            }
+        }
+    }
+}
+
+// Floating Action Button
+.btn-fab {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: hsl(var(--primary));
+    border: 3px solid hsl(var(--foreground));
+    color: hsl(var(--primary-foreground));
+    box-shadow: 
+        5px 5px 0 hsl(var(--foreground)),
+        5px 5px 25px hsla(var(--foreground) / 0.3);
+    transition: all 0.2s ease;
+    z-index: 100;
+    
+    &:hover {
+        transform: scale(1.1) rotate(-10deg);
+        box-shadow: 
+            7px 7px 0 hsl(var(--accent)),
+            7px 7px 0 2px hsl(var(--foreground)),
+            7px 7px 30px hsla(var(--foreground) / 0.4);
+    }
+    
+    @media (max-width: 640px) {
+        bottom: 1rem;
+        right: 1rem;
+        width: 50px;
+        height: 50px;
+    }
+}
+
+// Animation
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

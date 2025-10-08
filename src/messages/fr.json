@@ -35,5 +35,169 @@
     "metadata": {
         "title": "Kit de démarrage Next.js et Supabase",
         "description": "La façon la plus rapide de créer des applications avec Next.js et Supabase"
+    },
+    "hero": {
+        "badge": "Offre de Lancement - 20% de Réduction",
+        "title": {
+            "line1": "Portez Votre ",
+            "highlight": "Imagination",
+            "line2": " sur des Vêtements Premium"
+        },
+        "description": "Transformez vos idées créatives en impressions personnalisées de haute qualité. Créez des t-shirts, hoodies et sweats d'hiver uniques qui expriment votre style.",
+        "cta": {
+            "primary": "Explorer les Designs",
+            "secondary": "Commencer à Créer"
+        },
+        "features": {
+            "quality": "Matériaux de Qualité Premium",
+            "shipping": "Livraison Rapide et Sécurisée",
+            "satisfaction": "Satisfaction Garantie"
+        },
+        "showcase": {
+            "featured": "Nouveauté"
+        },
+        "process": {
+            "title": "Comment ça Marche",
+            "design": "Choisir ou Créer",
+            "designDesc": "Choisissez dans notre collection ou téléchargez votre design",
+            "print": "Nous Imprimons",
+            "printDesc": "Impression haute qualité avec des encres écologiques",
+            "deliver": "Livraison Rapide",
+            "deliverDesc": "Expédié sous 3-5 jours ouvrables"
+        }
+    },
+    "home": {
+        "categories": {
+            "title": "Acheter par Catégorie",
+            "tshirts": "Confortable et élégant pour tous les jours",
+            "hoodies": "Confortable et chaud pour toute saison",
+            "sweats": "Parfait pour le confort hivernal"
+        },
+        "poweredBy": "Propulsé par"
+    },
+    "featuredProducts": {
+        "title": "En Vedette",
+        "titleAccent": "Meilleures Ventes",
+        "viewAll": "Voir Tous les Produits",
+        "quickView": "Vue Rapide",
+        "addToCart": "Ajouter au Panier",
+        "moreProducts": "Envie de voir plus de designs géniaux?",
+        "exploreAll": "Explorer Toutes les Collections",
+        "colors": "couleurs disponibles",
+        "outOfStock": "ÉPUISÉ",
+        "unavailable": "INDISPONIBLE",
+        "errorLoading": "Échec du chargement des produits. Veuillez réessayer.",
+        "retry": "RÉESSAYER",
+        "noProducts": "Aucun produit en vedette disponible pour le moment."
+    },
+    "categories": {
+        "title": {
+            "line1": "ACHETER PAR ",
+            "highlight": "CATÉGORIE"
+        },
+        "subtitle": "Trouvez exactement ce que vous cherchez",
+        "products": "Produits",
+        "shopNow": "MAGASINER",
+        "tshirts": {
+            "name": "T-Shirts",
+            "description": "Confort classique et designs audacieux. T-shirts de qualité supérieure pour tous les jours."
+        },
+        "hoodies": {
+            "name": "Chandails à Capuchon",
+            "description": "Restez au chaud avec style. Hoodies confortables avec impressions personnalisées."
+        },
+        "sweatshirts": {
+            "name": "Chandails",
+            "description": "Parfait pour toute saison. Chandails polyvalents avec vos designs uniques."
+        },
+        "custom": {
+            "name": "Designs Personnalisés",
+            "description": "Créez quelque chose d'unique. Concevez votre propre chef-d'œuvre de A à Z.",
+            "badge": "CRÉEZ LE VÔTRE",
+            "cta": "COMMENCER À DESIGNER"
+        },
+        "bottomCta": {
+            "text": "VOUS NE TROUVEZ PAS CE QUE VOUS CHERCHEZ?",
+            "button": "VOIR TOUS LES PRODUITS"
+        }
+    },
+    "productCard": {
+        "addToFavorites": "Ajouter aux favoris",
+        "rotateView": "Faire pivoter la vue",
+        "showFront": "Afficher la vue de face",
+        "showBack": "Afficher la vue de dos",
+        "quickView": "APERÇU RAPIDE",
+        "frontView": "FACE",
+        "backView": "DOS",
+        "colorsAvailable": "couleurs disponibles",
+        "color": "Couleur",
+        "size": "Taille",
+        "addToCart": "AJOUTER AU PANIER",
+        "unavailable": "INDISPONIBLE",
+        "outOfStock": "ÉPUISÉ",
+        "selectOptions": "Sélectionner les options",
+        "selectSize": "Sélectionner la taille",
+        "selectColor": "Sélectionner la couleur",
+        "viewDetails": "Voir les détails",
+        "loading": "Chargement..."
+    },
+    "valueProps": {
+        "quality": "Qualité Premium",
+        "qualityDesc": "Matériaux soigneusement sélectionnés",
+        "design": "Designs Uniques",
+        "designDesc": "Démarquez-vous",
+        "shipping": "Traitement Rapide",
+        "shippingDesc": "Gestion rapide des commandes",
+        "secure": "Paiement Sécurisé",
+        "secureDesc": "Vos données sont protégées"
+    },
+    "about": {
+        "title": "Notre",
+        "titleAccent": "Histoire",
+        "whyTitle": "Pourquoi Nous Avons Commencé",
+        "whyText": "Nous croyons que chacun mérite de s'exprimer à travers des vêtements de qualité abordables. Chaque pièce est conçue avec passion et souci du détail.",
+        "qualityTitle": "Nos Standards",
+        "qualityText": "Nous testons personnellement chaque produit. Si nous ne le porterions pas nous-mêmes, nous ne vous le vendrons pas. La qualité est notre promesse.",
+        "missionTitle": "Notre Mission",
+        "missionText": "Construire une communauté d'individus qui valorisent la qualité, la créativité et l'expression authentique à travers la mode.",
+        "ctaText": "Rejoignez-nous dans cette aventure. Chaque achat soutient une petite entreprise avec de grands rêves."
+    },
+    "newsletter": {
+        "title": "Rejoignez Notre",
+        "titleAccent": "Communauté",
+        "description": "Soyez les premiers informés des nouveautés et offres exclusives. Rejoignez notre communauté de lancement pour des réductions spéciales!",
+        "placeholder": "Entrez votre email",
+        "subscribe": "S'abonner",
+        "subscribing": "Inscription...",
+        "subscribed": "Inscrit!",
+        "success": "Bienvenue dans la communauté! Vérifiez votre email pour une offre spéciale.",
+        "errorInvalid": "Veuillez entrer un email valide",
+        "errorGeneral": "Une erreur s'est produite. Veuillez réessayer.",
+        "disclaimer": "Nous respectons votre vie privée. Désinscription possible à tout moment.",
+        "benefit1": "Accès anticipé aux ventes",
+        "benefit2": "Réductions exclusives",
+        "benefit3": "Alertes nouveautés"
+    },
+    "footer": {
+        "tagline": "Vêtements de qualité pour une expression authentique",
+        "shop": "Boutique",
+        "allProducts": "Tous les Produits",
+        "newArrivals": "Nouveautés",
+        "sale": "Soldes",
+        "categories": "Catégories",
+        "help": "Aide",
+        "contact": "Nous Contacter",
+        "sizeGuide": "Guide des Tailles",
+        "careInstructions": "Instructions d'Entretien",
+        "faq": "FAQ",
+        "info": "Info",
+        "about": "À Propos",
+        "privacy": "Politique de Confidentialité",
+        "terms": "Conditions d'Utilisation",
+        "securePayments": "Paiements Sécurisés",
+        "fastShipping": "Livraison Rapide",
+        "newWeekly": "Nouveautés Hebdomadaires",
+        "rights": "Tous droits réservés.",
+        "poweredBy": "Propulsé par"
     }
 }

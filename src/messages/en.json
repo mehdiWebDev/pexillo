@@ -1,39 +1,203 @@
 {
     "navigation": {
-      "brand": "Brand",
-      "home": "Home",
-      "products": "Products",
-      "services": "Services",
-      "contact": "Contact",
-      "myProfile": "My Profile",
-      "accountSettings": "Account Settings",
-      "user": "User",
-      "toggleMenu": "Toggle mobile menu",
-      "closeMenu": "Close menu"
+        "brand": "Brand",
+        "home": "Home",
+        "products": "Products",
+        "services": "Services",
+        "contact": "Contact",
+        "myProfile": "My Profile",
+        "accountSettings": "Account Settings",
+        "user": "User",
+        "toggleMenu": "Toggle mobile menu",
+        "closeMenu": "Close menu"
     },
     "common": {
-      "welcome": "Welcome",
-      "logout": "Logout",
-      "login": "Login",
-      "signup": "Sign up",
-      "dashboard": "Dashboard",
-      "products": "Products",
-      "loading": "Loading...",
-      "error": "Error",
-      "success": "Success",
-      "cancel": "Cancel",
-      "save": "Save",
-      "delete": "Delete",
-      "edit": "Edit",
-      "back": "Back",
-      "next": "Next",
-      "previous": "Previous",
-      "search": "Search",
-      "filter": "Filter",
-      "sort": "Sort"
+        "welcome": "Welcome",
+        "logout": "Logout",
+        "login": "Login",
+        "signup": "Sign up",
+        "dashboard": "Dashboard",
+        "products": "Products",
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "cancel": "Cancel",
+        "save": "Save",
+        "delete": "Delete",
+        "edit": "Edit",
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous",
+        "search": "Search",
+        "filter": "Filter",
+        "sort": "Sort"
     },
     "metadata": {
-      "title": "Next.js and Supabase Starter Kit",
-      "description": "The fastest way to build apps with Next.js and Supabase"
-    }
-  }
+        "title": "Next.js and Supabase Starter Kit",
+        "description": "The fastest way to build apps with Next.js and Supabase"
+    },
+    "hero": {
+        "badge": "Launch Special - 20% Off",
+        "title": {
+            "line1": "Wear Your ",
+            "highlight": "Imagination",
+            "line2": " on Premium Apparel"
+        },
+        "description": "Transform your creative ideas into high-quality custom prints. Design unique t-shirts, hoodies, and winter sweats that express your style.",
+        "cta": {
+            "primary": "Explore Designs",
+            "secondary": "Start Creating"
+        },
+        "features": {
+            "quality": "Premium Quality Materials",
+            "shipping": "Fast & Secure Shipping",
+            "satisfaction": "Satisfaction Guaranteed"
+        },
+        "showcase": {
+            "featured": "New Arrival"
+        },
+        "process": {
+            "title": "How It Works",
+            "design": "Choose or Create",
+            "designDesc": "Pick from our collection or upload your own design",
+            "print": "We Print",
+            "printDesc": "High-quality printing with eco-friendly inks",
+            "deliver": "Fast Delivery",
+            "deliverDesc": "Shipped within 3-5 business days"
+        }
+    },
+    "home": {
+        "categories": {
+            "title": "Shop by Category",
+            "tshirts": "Comfortable & stylish for everyday wear",
+            "hoodies": "Cozy and warm for any season",
+            "sweats": "Perfect for winter comfort"
+        },
+        "poweredBy": "Powered by"
+    },
+    "featuredProducts": {
+        "title": "Featured",
+        "titleAccent": "Best Sellers",
+        "viewAll": "View All Products",
+        "quickView": "Quick View",
+        "addToCart": "Add to Cart",
+        "moreProducts": "Want to see more awesome designs?",
+        "exploreAll": "Explore All Collections",
+        "colors": "colors available",
+        "outOfStock": "OUT OF STOCK",
+        "unavailable": "UNAVAILABLE",
+        "errorLoading": "Failed to load products. Please try again.",
+        "retry": "RETRY",
+        "noProducts": "No featured products available at the moment."
+    },
+    "categories": {
+        "title": {
+            "line1": "SHOP BY ",
+            "highlight": "CATEGORY"
+        },
+        "subtitle": "Find exactly what you're looking for",
+        "products": "Products",
+        "shopNow": "SHOP NOW",
+        "tshirts": {
+            "name": "T-Shirts",
+            "description": "Classic comfort meets bold designs. Premium quality tees for everyday wear."
+        },
+        "hoodies": {
+            "name": "Hoodies",
+            "description": "Stay warm in style. Cozy hoodies with eye-catching custom prints."
+        },
+        "sweatshirts": {
+            "name": "Sweatshirts",
+            "description": "Perfect for any season. Versatile sweatshirts with your unique designs."
+        },
+        "custom": {
+            "name": "Custom Designs",
+            "description": "Create something unique. Design your own masterpiece from scratch.",
+            "badge": "CREATE YOUR OWN",
+            "cta": "START DESIGNING"
+        },
+        "bottomCta": {
+            "text": "CAN'T FIND WHAT YOU'RE LOOKING FOR?",
+            "button": "VIEW ALL PRODUCTS"
+        }
+    },
+    "productCard": {
+        "addToFavorites": "Add to favorites",
+        "rotateView": "Rotate view",
+        "showFront": "Show front view",
+        "showBack": "Show back view",
+        "quickView": "QUICK VIEW",
+        "frontView": "FRONT",
+        "backView": "BACK",
+        "colorsAvailable": "colors available",
+        "color": "Color",
+        "size": "Size",
+        "addToCart": "ADD TO CART",
+        "unavailable": "UNAVAILABLE",
+        "outOfStock": "OUT OF STOCK",
+        "selectOptions": "Select options",
+        "selectSize": "Select size",
+        "selectColor": "Select color",
+        "viewDetails": "View details",
+        "loading": "Loading..."
+    },
+    "valueProps": {
+        "quality": "Premium Quality",
+        "qualityDesc": "Carefully crafted materials",
+        "design": "Unique Designs",
+        "designDesc": "Stand out from the crowd",
+        "shipping": "Fast Processing",
+        "shippingDesc": "Quick order handling",
+        "secure": "Secure Checkout",
+        "secureDesc": "Your data is protected"
+    },
+    "about": {
+        "title": "Our",
+        "titleAccent": "Story",
+        "whyTitle": "Why We Started",
+        "whyText": "We believe everyone deserves to express themselves through quality clothing that doesn't break the bank. Every piece is designed with passion and attention to detail.",
+        "qualityTitle": "Our Standards",
+        "qualityText": "We personally test every product. If we wouldn't wear it ourselves, we won't sell it to you. Quality is our promise.",
+        "missionTitle": "Our Mission",
+        "missionText": "Building a community of individuals who value quality, creativity, and authentic self-expression through fashion.",
+        "ctaText": "Join us on this journey. Every purchase supports a small business with big dreams."
+    },
+    "newsletter": {
+        "title": "Join Our",
+        "titleAccent": "Community",
+        "description": "Be the first to know about new arrivals and exclusive offers. Join our launch community for special early-bird discounts!",
+        "placeholder": "Enter your email",
+        "subscribe": "Subscribe",
+        "subscribing": "Subscribing...",
+        "subscribed": "Subscribed!",
+        "success": "Welcome to the community! Check your email for a special offer.",
+        "errorInvalid": "Please enter a valid email",
+        "errorGeneral": "Something went wrong. Please try again.",
+        "disclaimer": "We respect your privacy. Unsubscribe at any time.",
+        "benefit1": "Early access to sales",
+        "benefit2": "Exclusive discounts",
+        "benefit3": "New arrival alerts"
+    },
+    "footer": {
+        "tagline": "Quality clothing for authentic expression",
+        "shop": "Shop",
+        "allProducts": "All Products",
+        "newArrivals": "New Arrivals",
+        "sale": "Sale",
+        "categories": "Categories",
+        "help": "Help",
+        "contact": "Contact Us",
+        "sizeGuide": "Size Guide",
+        "careInstructions": "Care Instructions",
+        "faq": "FAQ",
+        "info": "Info",
+        "about": "About Us",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "securePayments": "Secure Payments",
+        "fastShipping": "Fast Shipping",
+        "newWeekly": "New Weekly",
+        "rights": "All rights reserved.",
+        "poweredBy": "Powered by"
+      }
+}

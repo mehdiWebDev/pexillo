@@ -88,8 +88,9 @@ export function ClientNavigationMenu({
 
   return (
     <>
-      <nav className={cn("navigation")}>
-        <div className="navigation__container">
+      <nav className={"navigation"}>
+
+        <div className="navigation__container container">
           {/* Left: logo + desktop menu */}
           <div className="navigation__left">
             <Link href="/" className="navigation__logo" onClick={closeMobileMenu}>
