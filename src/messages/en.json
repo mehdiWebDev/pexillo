@@ -199,5 +199,21 @@
         "newWeekly": "New Weekly",
         "rights": "All rights reserved.",
         "poweredBy": "Powered by"
+      },
+      "signUp": {
+        "title": "Sign up",
+        "description": "Create a new Pexillo account",
+        "emailLabel": "Email",
+        "emailPlaceholder": "m@example.com",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Enter your password",
+        "repeatPasswordLabel": "Repeat Password",
+        "repeatPasswordPlaceholder": "Confirm your password",
+        "passwordMismatch": "Passwords do not match",
+        "genericError": "An error occurred",
+        "signingUp": "Creating your account...",
+        "signUpButton": "Sign up",
+        "alreadyHaveAccount": "Already have an account?",
+        "loginLink": "Login"
       }
 }

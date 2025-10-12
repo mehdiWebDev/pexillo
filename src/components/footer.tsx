@@ -4,10 +4,10 @@
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { ThemeSwitcher } from '@/src/components/theme-switcher';
-import { 
-  Mail, 
-  Instagram, 
-  Twitter, 
+import {
+  Mail,
+  Instagram,
+  Twitter,
   Github,
   MapPin,
   Clock,
@@ -26,18 +26,18 @@ const Footer = () => {
         <div className="footer__content">
           {/* Brand Section */}
           <div className="footer__section footer__section--brand">
-            <h3 className="footer__brand-name">BRUTALIST</h3>
+            <h3 className="footer__brand-name">PEXILLO</h3>
             <p className="footer__brand-tagline">
               {t('tagline')}
             </p>
             <div className="footer__social">
-              <a href="#" className="footer__social-link" aria-label="Instagram">
+              <a href="https://instagram.com/pexillo" className="footer__social-link" aria-label="Instagram">
                 <Instagram size={20} />
               </a>
-              <a href="#" className="footer__social-link" aria-label="Twitter">
+              <a href="https://twitter.com/pexillo" className="footer__social-link" aria-label="Twitter">
                 <Twitter size={20} />
               </a>
-              <a href="#" className="footer__social-link" aria-label="Email">
+              <a href="mailto:hello@pexillo.com" className="footer__social-link" aria-label="Email">
                 <Mail size={20} />
               </a>
             </div>
@@ -94,13 +94,13 @@ const Footer = () => {
                 <span>{t('newWeekly')}</span>
               </div>
             </div>
-            
+
             <div className="footer__copyright">
-              <p>© {currentYear} BRUTALIST. {t('rights')}</p>
+              <p>© {currentYear} PEXILLO. {t('rights')}</p>
               <p className="footer__powered">
                 {t('poweredBy')}
                 <a
-                  href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
+                  href="https://supabase.com/?utm_source=pexillo"
                   target="_blank"
                   rel="noreferrer"
                   className="footer__powered-link"

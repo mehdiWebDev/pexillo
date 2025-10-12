@@ -2,7 +2,6 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
 import { Heart, Star, Zap } from 'lucide-react';
 
 const AboutSection = () => {
