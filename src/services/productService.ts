@@ -203,7 +203,4 @@ export async function getCartCount(): Promise<number> {
   return data || 0;
 }
 
-// Legacy function for backward compatibility
-export async function getProducts() {
-  return getFeaturedProducts();
-}
+

@@ -30,7 +30,12 @@
         "previous": "Précédent",
         "search": "Rechercher",
         "filter": "Filtrer",
-        "sort": "Trier"
+        "sort": "Trier",
+        "close": "Fermer",
+        "open": "Ouvrir",
+        "retry": "Réessayer",
+        "clear": "Effacer",
+        "apply": "Appliquer"
     },
     "metadata": {
         "title": "Kit de démarrage Next.js et Supabase",
@@ -215,5 +220,71 @@
         "signUpButton": "S'inscrire",
         "alreadyHaveAccount": "Vous avez déjà un compte?",
         "loginLink": "Se connecter"
+    },
+    "productsPage": {
+        "filters": "Filtres",
+        "showing": "Affichage de",
+        "of": "sur",
+        "products": "produits",
+        "allProducts": "Tous les Produits",
+        "browseCollection": "Parcourez notre collection complète de produits premium",
+        "productsAvailable": "produits disponibles",
+        "noProducts": "Aucun produit trouvé",
+        "noProductsDescription": "Essayez d'ajuster vos filtres ou parcourez tous les produits",
+        "loading": "Chargement des produits...",
+        "home": "Accueil"
+    },
+    "filters": {
+        "title": "Filtres",
+        "reset": "Réinitialiser",
+        "priceRange": "Gamme de Prix",
+        "min": "Min",
+        "max": "Max",
+        "categories": "Catégories",
+        "badges": "Étiquettes de Produits",
+        "featured": "En Vedette",
+        "featuredOnly": "Produits en Vedette",
+        "colors": "Couleurs",
+        "sizes": "Tailles",
+        "availability": "Disponibilité",
+        "inStockOnly": "En Stock Seulement",
+        "sale": "Promotion",
+        "onSaleOnly": "En Promotion Seulement"
+    },
+    "activeFilters": {
+        "price": "Prix",
+        "category": "Catégorie",
+        "size": "Taille",
+        "inStockOnly": "En Stock",
+        "onSaleOnly": "En Promotion",
+        "featuredOnly": "En Vedette",
+        "remove": "Retirer le filtre",
+        "clearAll": "Tout Effacer"
+    },
+    "sort": {
+        "sortBy": "Trier Par",
+        "newestFirst": "Plus Récents",
+        "oldestFirst": "Plus Anciens",
+        "priceLowToHigh": "Prix: Croissant",
+        "priceHighToLow": "Prix: Décroissant",
+        "bestRated": "Mieux Notés",
+        "mostPopular": "Plus Populaires",
+        "nameAZ": "Nom: A-Z",
+        "nameZA": "Nom: Z-A"
+    },
+    "productsGrid": {
+        "noProducts": "Aucun produit trouvé",
+        "tryAdjusting": "Essayez d'ajuster vos filtres pour trouver ce que vous cherchez.",
+        "previousPage": "Page précédente",
+        "nextPage": "Page suivante",
+        "previous": "Précédent",
+        "next": "Suivant"
+    },
+    "breadcrumbs": {
+        "home": "Accueil",
+        "products": "Produits",
+        "allProducts": "Tous les Produits",
+        "browseCollection": "Parcourez notre collection complète de produits premium.",
+        "productsAvailable": "produits disponibles"
     }
 }

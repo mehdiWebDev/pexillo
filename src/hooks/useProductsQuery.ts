@@ -12,6 +12,16 @@ import {
   getCartCount,
 } from '@/src/services/productService';
 
+import {
+  getProducts,
+  getFilterOptions,
+  getCategoryInfo,
+  type ProductFilters,
+} from '@/src/services/productListingService';
+
+
+
+
 // Featured Products Hook
 export function useFeaturedProducts(limit: number = 6, offset: number = 0) {
   return useQuery({
@@ -140,4 +150,49 @@ export function useCartCount() {
 // Legacy hook for backward compatibility
 export function useProductsQuery() {
   return useFeaturedProducts();
+}
+
+
+/**
+ * Hook to fetch products with filters
+ * Performance: 5-minute cache, background refetch
+ */
+export function useProductsEnhanced(filters: ProductFilters) {
+  return useQuery({
+    queryKey: ['products-enhanced', filters],
+    queryFn: () => getProducts(filters),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    refetchOnWindowFocus: false,
+    retry: 2,
+  });
+}
+
+/**
+ * Hook to fetch filter options
+ * Performance: 5-minute cache (filters change rarely)
+ */
+export function useFilterOptions(categorySlug?: string) {
+  return useQuery({
+    queryKey: ['filter-options', categorySlug],
+    queryFn: () => getFilterOptions(categorySlug),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+/**
+ * Hook to fetch category info
+ * Performance: 10-minute cache (categories change very rarely)
+ */
+export function useCategoryInfo(categorySlug?: string) {
+  return useQuery({
+    queryKey: ['category-info', categorySlug],
+    queryFn: () => (categorySlug ? getCategoryInfo(categorySlug) : null),
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 15 * 60 * 1000,
+    enabled: !!categorySlug,
+    refetchOnWindowFocus: false,
+  });
 }

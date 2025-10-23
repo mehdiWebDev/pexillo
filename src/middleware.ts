@@ -1,3 +1,4 @@
+// src/middleware.ts
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import createIntlMiddleware from 'next-intl/middleware'
@@ -63,23 +64,17 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect dashboard routes
-  if (pathWithoutLocale.startsWith('/dashboard') && !user) {
-    // Redirect to login with locale
-    const url = request.nextUrl.clone()
-    url.pathname = `/${locale}/auth/login`
-    return NextResponse.redirect(url)
-  }
+  // Protect dashboard routes - ADMIN ONLY
+  if (pathWithoutLocale.startsWith('/dashboard')) {
+    if (!user) {
+      // Redirect to login with locale
+      const url = request.nextUrl.clone()
+      url.pathname = `/${locale}/auth/login`
+      url.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(url)
+    }
 
-  // Protect admin routes
-  if (pathWithoutLocale.startsWith('/admin') && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = `/${locale}/auth/login`
-    return NextResponse.redirect(url)
-  }
-
-  // Check if user is admin for admin routes
-  if (pathWithoutLocale.startsWith('/admin') && user) {
+    // Check if user is admin - REQUIRED for dashboard access
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_admin')
@@ -87,8 +82,34 @@ export async function middleware(request: NextRequest) {
       .single()
 
     if (!profile?.is_admin) {
+      // Non-admin users get redirected to home page
+      console.log('❌ User is not admin, redirecting to home')
       const url = request.nextUrl.clone()
-      url.pathname = `/${locale}/dashboard`
+      url.pathname = `/${locale}`
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // Protect admin routes (if you have separate admin section)
+  if (pathWithoutLocale.startsWith('/admin')) {
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/${locale}/auth/login`
+      url.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(url)
+    }
+
+    // Admin routes also require is_admin flag
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile?.is_admin) {
+      // Redirect non-admin users to home page
+      const url = request.nextUrl.clone()
+      url.pathname = `/${locale}`
       return NextResponse.redirect(url)
     }
   }
@@ -96,8 +117,34 @@ export async function middleware(request: NextRequest) {
   // Redirect logged-in users away from auth pages
   const authPaths = ['/auth/login', '/auth/signup', '/auth/sign-up']
   if (authPaths.some(path => pathWithoutLocale === path || pathWithoutLocale.startsWith(`${path}/`)) && user) {
+    // Check if there's a redirect parameter
+    const redirectTo = request.nextUrl.searchParams.get('redirect')
+    if (redirectTo && redirectTo.startsWith('/')) {
+      // Check if redirect is to dashboard and user is not admin
+      if (redirectTo.includes('/dashboard')) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_admin')
+          .eq('id', user.id)
+          .single()
+
+        if (!profile?.is_admin) {
+          // Non-admin trying to access dashboard, redirect to home
+          const url = request.nextUrl.clone()
+          url.pathname = `/${locale}`
+          return NextResponse.redirect(url)
+        }
+      }
+
+      const url = request.nextUrl.clone()
+      url.pathname = redirectTo
+      url.searchParams.delete('redirect')
+      return NextResponse.redirect(url)
+    }
+    
+    // Default redirect to home (not dashboard since it's admin-only)
     const url = request.nextUrl.clone()
-    url.pathname = `/${locale}/dashboard`
+    url.pathname = `/${locale}`
     return NextResponse.redirect(url)
   }
 
