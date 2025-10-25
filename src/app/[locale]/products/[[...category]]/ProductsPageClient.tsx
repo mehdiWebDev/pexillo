@@ -11,6 +11,8 @@ import ActiveFilters from '@/src/components/products/ActiveFilters';
 import { useProductFilters } from '@/src/hooks/useProductFilters';
 import { useProductsEnhanced, useFilterOptions, useCategoryInfo } from '@/src/hooks/useProductsQuery';
 import { Filter, X } from 'lucide-react';
+import { useLocale } from 'next-intl';  // ADD THIS
+import { useTranslateProducts } from '@/src/hooks/useTranslatedProduct';  // ADD THIS
 
 // =============================================
 // CLIENT COMPONENT
@@ -22,6 +24,8 @@ interface ProductsPageClientProps {
 
 export default function ProductsPageClient({ categorySlug }: ProductsPageClientProps) {
   const t = useTranslations('productsPage');
+  const locale = useLocale();  // ADD THIS
+
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // Filter state management - All filter logic is handled here
@@ -55,10 +59,10 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
     // Multi-select filters
     sizeFilter: filters.sizes.length > 0 ? filters.sizes : undefined,
     colorFilter: filters.colors.length > 0 ? filters.colors : undefined,
-    categoryFilter: filters.categories.length > 0 ? filters.categories : undefined,  // NEW
-    badgeFilter: filters.badges.length > 0 ? filters.badges : undefined,            // NEW
+    categoryFilter: filters.categories.length > 0 ? filters.categories : undefined,  
+    badgeFilter: filters.badges.length > 0 ? filters.badges : undefined,
     // Toggle filters
-    featuredOnly: filters.featuredOnly,  // NEW
+    featuredOnly: filters.featuredOnly,
     inStockOnly: filters.inStockOnly,
     onSaleOnly: filters.onSaleOnly,
     // Sorting
@@ -70,6 +74,10 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
   });
 
   const products = productsData?.products || [];
+  const { products: translatedProducts } = useTranslateProducts(products);
+
+  console.log('translatedProducts', translatedProducts);
+
   const totalCount = productsData?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / 12);
 
@@ -179,7 +187,7 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
 
             {/* Products Grid */}
             <ProductsGrid
-              products={products}
+              products={translatedProducts}
               isLoading={productsLoading}
               currentPage={filters.page}
               totalPages={totalPages}

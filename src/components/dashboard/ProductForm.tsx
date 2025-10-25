@@ -15,7 +15,7 @@ import {
   Upload,
   Image as ImageIcon,
   Loader2,
-  Package
+  Languages,
 } from 'lucide-react';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
@@ -42,6 +42,7 @@ import { Switch } from '@/src/components/ui/switch';
 import { Badge } from '@/src/components/ui/badge';
 import { useToast } from '@/src/hooks/use-toast';
 import { createClient } from '@/lib/supabase/client';
+import ProductTranslationFields from './ProductTranslationFields';
 
 // Complete form validation schema with all database fields
 const productSchema = z.object({
@@ -520,6 +521,10 @@ export default function ProductForm({ productId }: ProductFormProps) {
             <TabsTrigger value="general">{t('general')}</TabsTrigger>
             <TabsTrigger value="images">{t('images')}</TabsTrigger>
             <TabsTrigger value="variants">{t('variants')}</TabsTrigger>
+            <TabsTrigger value="translations" disabled={!productId}>
+              <Languages className="mr-2 h-4 w-4" />
+              Translations
+            </TabsTrigger>
           </TabsList>
 
           {/* Enhanced General Tab with all database fields */}
@@ -1165,6 +1170,35 @@ export default function ProductForm({ productId }: ProductFormProps) {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Translations Tab */}
+          <TabsContent value="translations">
+            {productId ? (
+              <ProductTranslationFields 
+                productId={productId}
+                productData={{
+                  name: form.getValues('name'),
+                  short_description: form.getValues('short_description'),
+                  description: form.getValues('description'),
+                  material: form.getValues('material'),
+                  care_instructions: form.getValues('care_instructions'),
+                  badge: form.getValues('badge') || '',
+                  meta_title: form.getValues('meta_title'),
+                  meta_description: form.getValues('meta_description'),
+                  tags: form.getValues('tags'),
+                }}
+                variants={variants}
+              />
+            ) : (
+              <Card>
+                <CardContent className="py-10">
+                  <p className="text-center text-muted-foreground">
+                    Please save the product first to add translations
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </form>
