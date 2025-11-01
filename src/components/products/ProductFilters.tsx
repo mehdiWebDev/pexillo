@@ -14,6 +14,7 @@ import {
   Award,
   Star
 } from 'lucide-react';
+import { useTranslateCategories } from '@/src/hooks/useTranslateCategories';
 import type { FilterOptions } from '@/src/services/productListingService';
 import type { FilterState } from '@/src/hooks/useProductFilters';
 
@@ -24,9 +25,9 @@ interface ProductFiltersProps {
   onPriceChange: (min?: number, max?: number) => void;
   onSizeToggle: (size: string) => void;
   onColorToggle: (color: string) => void;
-  onCategoryToggle: (category: string) => void;  // NEW
-  onBadgeToggle: (badge: string) => void;        // NEW
-  onFeaturedToggle: (checked: boolean) => void;  // NEW
+  onCategoryToggle: (category: string) => void;  
+  onBadgeToggle: (badge: string) => void;        
+  onFeaturedToggle: (checked: boolean) => void;  
   onInStockToggle: (checked: boolean) => void;
   onSaleToggle: (checked: boolean) => void;
   onReset: () => void;
@@ -40,15 +41,18 @@ export default function ProductFilters({
   onPriceChange,
   onSizeToggle,
   onColorToggle,
-  onCategoryToggle,  // NEW
-  onBadgeToggle,      // NEW
-  onFeaturedToggle,   // NEW
+  onCategoryToggle,  
+  onBadgeToggle,      
+  onFeaturedToggle,   
   onInStockToggle,
   onSaleToggle,
   onReset,
   hasActiveFilters,
 }: ProductFiltersProps) {
   const t = useTranslations('filters');
+
+  // Translate categories
+  const translatedCategories = useTranslateCategories(filterOptions?.available_categories);
 
   // Local state for price slider (updates in real-time before debounce)
   const [localMinPrice, setLocalMinPrice] = useState<number>(currentFilters.minPrice || 0);
@@ -124,8 +128,8 @@ export default function ProductFilters({
         )}
       </div>
 
-      {/* NEW: Categories Filter */}
-      {filterOptions && filterOptions.available_categories && filterOptions.available_categories.length > 0 && (
+      {/* Categories Filter - Using translated categories */}
+      {translatedCategories && translatedCategories.length > 0 && (
         <div className="product-filters__section">
           <div className="product-filters__section-header">
             <FolderOpen size={16} />
@@ -133,16 +137,16 @@ export default function ProductFilters({
           </div>
 
           <div className="category-filter">
-            {filterOptions.available_categories.map(({ slug, name, count }) => (
-              <label key={slug} className="checkbox-filter">
+            {translatedCategories.map((category) => (
+              <label key={category.slug} className="checkbox-filter">
                 <input
                   type="checkbox"
-                  checked={currentFilters.categories.includes(slug)}
-                  onChange={() => onCategoryToggle(slug)}
+                  checked={currentFilters.categories.includes(category.slug)}
+                  onChange={() => onCategoryToggle(category.slug)}
                 />
                 <span className="checkbox-filter__label">
-                  {name} 
-                  <span className="checkbox-filter__count">({count})</span>
+                  {category.name} 
+                  <span className="checkbox-filter__count">({category.count})</span>
                 </span>
               </label>
             ))}
@@ -150,7 +154,7 @@ export default function ProductFilters({
         </div>
       )}
 
-      {/* NEW: Badges Filter */}
+      {/* Badges Filter */}
       {filterOptions && filterOptions.available_badges && filterOptions.available_badges.length > 0 && (
         <div className="product-filters__section">
           <div className="product-filters__section-header">
@@ -179,7 +183,7 @@ export default function ProductFilters({
         </div>
       )}
 
-      {/* NEW: Featured Filter */}
+      {/* Featured Filter */}
       {filterOptions && filterOptions.featured_products > 0 && (
         <div className="product-filters__section">
           <div className="product-filters__section-header">

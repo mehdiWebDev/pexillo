@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import ProductsHero from '@/src/components/products/ProductsHero';
 import ProductFilters from '@/src/components/products/ProductFilters';
 import ProductsGrid from '@/src/components/products/ProductsGrid';
@@ -11,8 +11,6 @@ import ActiveFilters from '@/src/components/products/ActiveFilters';
 import { useProductFilters } from '@/src/hooks/useProductFilters';
 import { useProductsEnhanced, useFilterOptions, useCategoryInfo } from '@/src/hooks/useProductsQuery';
 import { Filter, X } from 'lucide-react';
-import { useLocale } from 'next-intl';  // ADD THIS
-import { useTranslateProducts } from '@/src/hooks/useTranslatedProduct';  // ADD THIS
 
 // =============================================
 // CLIENT COMPONENT
@@ -24,8 +22,7 @@ interface ProductsPageClientProps {
 
 export default function ProductsPageClient({ categorySlug }: ProductsPageClientProps) {
   const t = useTranslations('productsPage');
-  const locale = useLocale();  // ADD THIS
-
+  const locale = useLocale();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // Filter state management - All filter logic is handled here
@@ -37,8 +34,8 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
     resetFilters,
     toggleSize,
     toggleColor,
-    toggleCategory,  // NEW
-    toggleBadge,     // NEW
+    toggleCategory,
+    toggleBadge,
     removeFilter,
     hasActiveFilters,
   } = useProductFilters();
@@ -59,7 +56,7 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
     // Multi-select filters
     sizeFilter: filters.sizes.length > 0 ? filters.sizes : undefined,
     colorFilter: filters.colors.length > 0 ? filters.colors : undefined,
-    categoryFilter: filters.categories.length > 0 ? filters.categories : undefined,  
+    categoryFilter: filters.categories.length > 0 ? filters.categories : undefined,
     badgeFilter: filters.badges.length > 0 ? filters.badges : undefined,
     // Toggle filters
     featuredOnly: filters.featuredOnly,
@@ -74,12 +71,34 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
   });
 
   const products = productsData?.products || [];
-  const { products: translatedProducts } = useTranslateProducts(products);
-
-  console.log('translatedProducts', translatedProducts);
-
   const totalCount = productsData?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / 12);
+  
+  // Apply translations inline - no hooks, no infinite loops!
+  const translatedProducts = locale === 'en' ? products : products.map(product => {
+    const trans = product.translations?.[locale] || {};
+    return {
+      ...product,
+      // Apply JSONB translations
+      name: trans.name || product.name,
+      short_description: trans.short_description || product.short_description,
+      badge: trans.badge || product.badge,
+      material: trans.material || product.material,
+      care_instructions: trans.care_instructions || product.care_instructions,
+      tags: trans.tags || product.tags,
+      // Keep original values for rich content (description, meta fields)
+      // These would need separate handling from translations table if needed
+      description: product.description,
+      meta_title: product.meta_title,
+      meta_description: product.meta_description,
+      // Translate variants
+      variants: product.variants?.map((v: any) => ({
+        ...v,
+        color_translated: v.translations?.[locale]?.color || v.color,
+        size_label: v.translations?.[locale]?.size_label || v.size,
+      })) || [],
+    };
+  });
 
   // Count active filters for mobile badge
   const activeFilterCount = [
@@ -87,9 +106,9 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
     filters.maxPrice && 1,
     filters.sizes.length,
     filters.colors.length,
-    filters.categories.length,  // NEW
-    filters.badges.length,      // NEW
-    filters.featuredOnly && 1,  // NEW
+    filters.categories.length,
+    filters.badges.length,
+    filters.featuredOnly && 1,
     filters.inStockOnly && 1,
     filters.onSaleOnly && 1,
   ].filter(Boolean).reduce((a, b) => (a as number) + (b as number), 0);
@@ -139,10 +158,10 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
               // Multi-select callbacks
               onSizeToggle={toggleSize}
               onColorToggle={toggleColor}
-              onCategoryToggle={toggleCategory}  // NEW
-              onBadgeToggle={toggleBadge}        // NEW
+              onCategoryToggle={toggleCategory}
+              onBadgeToggle={toggleBadge}
               // Toggle callbacks
-              onFeaturedToggle={(checked) => updateFilters({ featuredOnly: checked })}  // NEW
+              onFeaturedToggle={(checked) => updateFilters({ featuredOnly: checked })}
               onInStockToggle={(checked) => updateFilters({ inStockOnly: checked })}
               onSaleToggle={(checked) => updateFilters({ onSaleOnly: checked })}
               // Reset
@@ -161,7 +180,7 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
                   <div className="skeleton skeleton--text" style={{ width: '150px' }} />
                 ) : (
                   <p>
-                    {t('showing')} <strong>{products.length}</strong> {t('of')}{' '}
+                    {t('showing')} <strong>{translatedProducts.length}</strong> {t('of')}{' '}
                     <strong>{totalCount}</strong> {t('products')}
                   </p>
                 )}

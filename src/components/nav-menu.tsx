@@ -14,6 +14,8 @@ import { useRouter } from '@/src/i18n/routing';
 import { useUserQuery } from "@/src/hooks/useUserQuery";
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher, LanguageSwitcherCompact } from '@/src/components/language-switcher';
+import MiniCart from '@/src/components/cart/MiniCart';
+
 
 const BrandLogo = () => (
   <svg
@@ -119,6 +121,7 @@ export function ClientNavigationMenu({
             <div className="navigation__desktop-actions">
               <LanguageSwitcher />
               <ThemeSwitcher />
+              <MiniCart />
               {children}
             </div>
 

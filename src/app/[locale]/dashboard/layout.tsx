@@ -13,11 +13,10 @@ import {
   Users,
   Settings,
   ChevronRight,
-  Menu,
-  X
+  Menu
 } from 'lucide-react';
 import { Button } from '@/src/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/src/components/ui/sheet';
+import { Sheet, SheetContent } from '@/src/components/ui/sheet';
 import { useState } from 'react';
 
 interface DashboardLayoutProps {

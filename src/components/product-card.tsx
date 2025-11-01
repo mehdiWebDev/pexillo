@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ShoppingCart, Heart, Zap, ArrowRight, Palette, Ruler } from 'lucide-react';
+import { useCart } from '@/src/hooks/useCart';
+
 
 // Product variant interface
 export interface ProductVariant {
@@ -71,6 +73,8 @@ export default function ProductCard({
 }: ProductCardProps) {
   const t = useTranslations('productCard');
   const router = useRouter();
+  const { addToCart } = useCart();
+
   
   // Get unique colors from variants
   const availableColors = product.variants 
@@ -234,11 +238,29 @@ export default function ProductCard({
     }
   };
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (onAddToCart && selectedVariant) {
-      onAddToCart(product.id, selectedVariant.id);
+    
+    if (selectedVariant) {
+      // Pass everything including translations
+      await addToCart(
+        product.id,
+        selectedVariant.id,
+        {
+          name: product.name,
+          slug: product.slug,
+          image: product.primary_image_url,
+          unitPrice: displayPrice,
+          variantSize: selectedVariant.size,
+          variantColor: selectedVariant.color,
+          variantColorHex: selectedVariant.color_hex,
+          maxQuantity: selectedVariant.inventory_count,
+          // Include translations if the product has them
+          translations: product.translations,
+          variantTranslations: selectedVariant.translations,
+        }
+      );
     }
   };
 

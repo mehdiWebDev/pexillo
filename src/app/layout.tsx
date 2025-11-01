@@ -1,5 +1,7 @@
 import "@/src/styles/globals.scss";
 import "@/src/styles/main.scss";
+import { Toaster } from "@/src/components/ui/toaster";
+
 
 
 
@@ -9,5 +11,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      {children}
+      <Toaster />
+    </>
+  );
 }

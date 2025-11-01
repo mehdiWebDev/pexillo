@@ -9,8 +9,6 @@ import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import {
   Package,
-  DollarSign,
-  Users,
   TrendingUp,
   ShoppingCart,
   Eye,

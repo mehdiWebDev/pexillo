@@ -12,6 +12,10 @@ export interface ProductVariant {
   color_hex: string;
   inventory_count: number;
   is_active: boolean;
+  translations?: Record<string, {
+    color?: string;
+    size_label?: string;
+  }>;
 }
 
 export interface ProductImage {
@@ -46,6 +50,20 @@ export interface EnhancedProduct {
   total_count?: number;  // Total results for pagination
   is_featured?: boolean;  // NEW: Featured flag
   category_id?: string;   // NEW: Category reference
+  description?: string;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  material?: string | null;
+  care_instructions?: string | null;
+  tags?: string[] | null;
+  translations?: Record<string, {
+    name?: string;
+    short_description?: string;
+    badge?: 'NEW' | 'HOT' | 'SALE' | 'LIMITED' | null;
+    material?: string | null;
+    care_instructions?: string | null;
+    tags?: string[] | null;
+  }>;
 }
 
 export interface FilterOptions {

@@ -385,7 +385,6 @@
             "translations": "Translations",
             "translationsDescription": "Add translations for this product"
         },
-
         "categoriesPage": {
             "title": "Categories",
             "addCategory": "Add Category",
@@ -450,5 +449,26 @@
             "imageUploadError": "Please upload an image file",
             "imageSizeError": "Image size must be less than 2MB"
         }
+    },
+    "cart": {
+        "cart": "Cart",
+        "openCart": "Open cart",
+        "close": "Close",
+        "emptyCart": "Your cart is empty",
+        "continueShopping": "Continue Shopping",
+        "addedToCart": "Added to cart",
+        "remove": "Remove",
+        "increase": "Increase quantity",
+        "decrease": "Decrease quantity",
+        "subtotal": "Subtotal",
+        "viewCart": "View Cart",
+        "checkout": "Checkout",
+        "shippingCalculatedAtCheckout": "Shipping calculated at checkout",
+        "outOfStock": "Out of stock",
+        "itemRemoved": "Item removed from cart",
+        "updateFailed": "Failed to update cart",
+        "removeFailed": "Failed to remove item",
+        "error": "Error",
+        "success": "Success"
     }
 }

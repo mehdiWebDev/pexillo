@@ -3,18 +3,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useQueryClient } from '@tanstack/react-query';
-import {
-  Save,
-  Upload,
-  Image as ImageIcon,
-  Loader2,
-  X
-} from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Textarea } from '@/src/components/ui/textarea';
@@ -28,18 +20,48 @@ import {
   FormLabel,
   FormMessage,
 } from '@/src/components/ui/form';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src/components/ui/card';
-import { useToast } from '@/src/hooks/use-toast';
-import { createClient } from '@/lib/supabase/client';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/src/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/src/components/ui/tabs';
+import { Loader2, Upload, X, Languages } from 'lucide-react';
+import { toast } from '@/src/hooks/use-toast';
+import Image from 'next/image';
+import CategoryTranslationFields from './CategoryTranslationFields';
 
-// Form validation schema
-const categorySchema = z.object({
-  name: z.string().min(1, 'Category name is required').max(50, 'Name too long'),
-  slug: z.string().min(1, 'Slug is required').max(50, 'Slug too long'),
-  description: z.string().optional(),
-  sort_order: z.number().min(0, 'Sort order must be positive'),
+// Constants
+const MAX_FILE_SIZE = 5000000; // 5MB
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+// Form validation schema - matches database exactly
+const formSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  slug: z.string().min(1, 'Slug is required'),
+  description: z.string().nullable().optional(),
   is_active: z.boolean(),
+  sort_order: z.number().int().min(0),
+  // image_url is handled separately as it's not in the form
 });
+
+// Type for form data
+type FormData = z.infer<typeof formSchema>;
+
+// Database category type - matches your schema exactly
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at?: string;
+  translations?: Record<string, any>;
+}
 
 interface CategoryFormProps {
   categoryId?: string;
@@ -47,188 +69,163 @@ interface CategoryFormProps {
 
 export default function CategoryForm({ categoryId }: CategoryFormProps) {
   const router = useRouter();
-  const { toast } = useToast();
-  const t = useTranslations('dashboard.categories');
   const supabase = createClient();
-  const queryClient = useQueryClient();
-
+  
+  // State
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
-  const [existingImageUrl, setExistingImageUrl] = useState<string>('');
-  const [removeImage, setRemoveImage] = useState(false);
+
   const isEditing = !!categoryId;
-  
-  const form = useForm<z.infer<typeof categorySchema>>({
-    resolver: zodResolver(categorySchema),
+
+  // Initialize form with default values
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
       slug: '',
       description: '',
-      sort_order: 0,
       is_active: true,
+      sort_order: 0,
     },
   });
 
-  // Load category if editing
+  // Load category data if editing
   useEffect(() => {
-    if (categoryId) {
-      loadCategory();
+    if (isEditing && categoryId) {
+      fetchCategory();
     }
-  }, [categoryId]);
+  }, [categoryId, isEditing]);
 
-  const loadCategory = async () => {
+  const fetchCategory = async () => {
     if (!categoryId) return;
-    
-    const { data: category, error } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('id', categoryId)
-      .single();
 
-    if (error) {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('id', categoryId)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        const category = data as Category;
+        form.reset({
+          name: category.name,
+          slug: category.slug,
+          description: category.description || '',
+          is_active: category.is_active,
+          sort_order: category.sort_order,
+        });
+        setImageUrl(category.image_url);
+      }
+    } catch (error: any) {
+      console.error('Error fetching category:', error);
       toast({
         title: 'Error',
         description: 'Failed to load category',
         variant: 'destructive',
       });
-      router.push('/dashboard/categories');
-      return;
-    }
-
-    if (category) {
-      form.reset({
-        name: category.name,
-        slug: category.slug,
-        description: category.description || '',
-        sort_order: category.sort_order || 0,
-        is_active: category.is_active,
-      });
-      
-      if (category.image_url) {
-        setExistingImageUrl(category.image_url);
-        setImagePreview(category.image_url);
-      }
     }
   };
 
-  // Generate slug from name
-  const generateSlug = (name: string) => {
-    return name.toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-  };
-
-  // Handle image upload
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
       toast({
-        title: 'Error',
-        description: 'Please upload an image file',
+        title: 'Invalid file type',
+        description: 'Please upload a JPG, PNG or WebP image',
         variant: 'destructive',
       });
       return;
     }
 
-    // Validate file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
       toast({
-        title: 'Error',
-        description: 'Image size must be less than 2MB',
+        title: 'File too large',
+        description: 'Please upload an image smaller than 5MB',
         variant: 'destructive',
       });
       return;
     }
 
     setImageFile(file);
-    setRemoveImage(false);
-    
-    // Create preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    setImageUrl(URL.createObjectURL(file));
   };
 
-  // Remove image
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview('');
-    setRemoveImage(true);
-  };
-
-  // Upload image to Supabase Storage
-  const uploadImageToStorage = async (file: File): Promise<string> => {
+  const uploadImage = async (file: File): Promise<string | null> => {
     const fileExt = file.name.split('.').pop();
-    const fileName = `categories/${Date.now()}.${fileExt}`;
-    
-    const { data, error } = await supabase.storage
-      .from('product-images')
-      .upload(fileName, file);
+    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `categories/${fileName}`;
 
-    if (error) throw error;
-    
+    const { error: uploadError } = await supabase.storage
+      .from('category-images')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      toast({
+        title: 'Upload failed',
+        description: uploadError.message,
+        variant: 'destructive',
+      });
+      return null;
+    }
+
     const { data: { publicUrl } } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(fileName);
-    
+      .from('category-images')
+      .getPublicUrl(filePath);
+
     return publicUrl;
   };
 
-  // Delete image from storage
-  const deleteImageFromStorage = async (imageUrl: string) => {
-    try {
-      // Extract file path from URL
-      const urlParts = imageUrl.split('/');
-      const filePath = urlParts.slice(-2).join('/'); // categories/filename.ext
-      
-      await supabase.storage
-        .from('product-images')
-        .remove([filePath]);
-    } catch (error) {
-      console.error('Error deleting image:', error);
-    }
+  const removeImage = () => {
+    setImageFile(null);
+    setImageUrl(null);
   };
 
-  // Submit form
-  const onSubmit = async (data: z.infer<typeof categorySchema>) => {
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
+  const onSubmit = async (formData: FormData) => {
     setLoading(true);
 
     try {
-      let imageUrl = existingImageUrl;
+      let finalImageUrl = imageUrl;
 
-      // Handle image upload
+      // Upload new image if selected
       if (imageFile) {
         setUploading(true);
-        imageUrl = await uploadImageToStorage(imageFile);
+        const uploadedUrl = await uploadImage(imageFile);
         setUploading(false);
         
-        // Delete old image if replacing
-        if (existingImageUrl && existingImageUrl !== imageUrl) {
-          await deleteImageFromStorage(existingImageUrl);
+        if (uploadedUrl) {
+          finalImageUrl = uploadedUrl;
         }
-      } else if (removeImage && existingImageUrl) {
-        // Delete image if removed
-        await deleteImageFromStorage(existingImageUrl);
-        imageUrl = '';
       }
 
+      // Prepare data for database - matches schema exactly
       const categoryData = {
-        name: data.name,
-        slug: data.slug,
-        description: data.description || null,
-        sort_order: data.sort_order,
-        is_active: data.is_active,
-        image_url: imageUrl,
+        name: formData.name,
+        slug: formData.slug,
+        description: formData.description || null,
+        image_url: finalImageUrl,
+        is_active: formData.is_active,
+        sort_order: formData.sort_order,
       };
 
-      if (isEditing && categoryId) {
+      if (isEditing) {
         // Update existing category
         const { error } = await supabase
           .from('categories')
@@ -236,6 +233,11 @@ export default function CategoryForm({ categoryId }: CategoryFormProps) {
           .eq('id', categoryId);
 
         if (error) throw error;
+
+        toast({
+          title: 'Success',
+          description: 'Category updated successfully',
+        });
       } else {
         // Create new category
         const { error } = await supabase
@@ -243,109 +245,91 @@ export default function CategoryForm({ categoryId }: CategoryFormProps) {
           .insert([categoryData]);
 
         if (error) throw error;
-      }
 
-      // Invalidate cache
-      await queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
-      await queryClient.invalidateQueries({ queryKey: ['categories'] });
-      
-      toast({
-        title: 'Success',
-        description: isEditing ? 'Category updated successfully' : 'Category created successfully',
-      });
-
-      // Redirect to categories list
-      setTimeout(() => {
-        router.push('/dashboard/categories');
-      }, 500);
-      
-    } catch (error: any) {
-      console.error('Error saving category:', error);
-      
-      // Check for unique constraint violations
-      if (error.code === '23505') {
-        if (error.message.includes('categories_name_key')) {
-          form.setError('name', {
-            type: 'manual',
-            message: 'A category with this name already exists',
-          });
-        } else if (error.message.includes('categories_slug_key')) {
-          form.setError('slug', {
-            type: 'manual',
-            message: 'A category with this slug already exists',
-          });
-        }
-      } else {
         toast({
-          title: 'Error',
-          description: error.message || 'Failed to save category',
-          variant: 'destructive',
+          title: 'Success',
+          description: 'Category created successfully',
         });
       }
+
+      router.push('/dashboard/categories');
+      router.refresh();
+    } catch (error: any) {
+      console.error('Submit error:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Something went wrong',
+        variant: 'destructive',
+      });
+    } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            {isEditing ? 'Edit Category' : 'New Category'}
-          </h1>
-          <p className="text-muted-foreground">
-            {isEditing ? 'Update category information' : 'Add a new category to your store'}
-          </p>
-        </div>
-      </div>
+  const handleCancel = () => {
+    router.push('/dashboard/categories');
+  };
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Basic Information */}
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <Tabs defaultValue="general" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="general">General</TabsTrigger>
+            <TabsTrigger value="translations" disabled={!isEditing}>
+              <Languages className="mr-2 h-4 w-4" />
+              Translations
+            </TabsTrigger>
+          </TabsList>
+
+          {/* General Tab */}
+          <TabsContent value="general" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Basic Information</CardTitle>
                 <CardDescription>
-                  Category name and identification
+                  Configure the basic details of your category
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Name Field */}
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Category Name</FormLabel>
+                      <FormLabel>Name *</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
-                          placeholder="e.g., T-Shirts"
+                          placeholder="Category name"
                           onChange={(e) => {
                             field.onChange(e);
+                            // Auto-generate slug for new categories
                             if (!isEditing) {
-                              form.setValue('slug', generateSlug(e.target.value));
+                              const newSlug = generateSlug(e.target.value);
+                              form.setValue('slug', newSlug);
                             }
                           }}
                         />
                       </FormControl>
-                      <FormDescription>
-                        The display name for this category
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
+                {/* Slug Field */}
                 <FormField
                   control={form.control}
                   name="slug"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Slug</FormLabel>
+                      <FormLabel>Slug *</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="e.g., t-shirts" />
+                        <Input 
+                          {...field} 
+                          placeholder="category-slug"
+                        />
                       </FormControl>
                       <FormDescription>
                         URL-friendly version of the name
@@ -355,6 +339,7 @@ export default function CategoryForm({ categoryId }: CategoryFormProps) {
                   )}
                 />
 
+                {/* Description Field */}
                 <FormField
                   control={form.control}
                   name="description"
@@ -362,96 +347,69 @@ export default function CategoryForm({ categoryId }: CategoryFormProps) {
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          {...field} 
-                          rows={4}
-                          placeholder="Describe this category..."
+                        <Textarea
+                          {...field}
+                          value={field.value || ''}
+                          placeholder="Category description (optional)"
+                          rows={3}
                         />
                       </FormControl>
-                      <FormDescription>
-                        Optional description for this category
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </CardContent>
-            </Card>
 
-            {/* Image and Settings */}
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Category Image</CardTitle>
-                  <CardDescription>
-                    Upload an image to represent this category
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* Image Preview */}
-                    {imagePreview ? (
-                      <div className="relative aspect-square w-full max-w-xs mx-auto">
-                        <img
-                          src={imagePreview}
-                          alt="Category preview"
-                          className="w-full h-full object-cover rounded-lg"
+                {/* Image Upload */}
+                <div>
+                  <FormLabel>Category Image</FormLabel>
+                  <div className="mt-2 space-y-4">
+                    {imageUrl ? (
+                      <div className="relative w-full h-48 rounded-lg overflow-hidden border">
+                        <Image
+                          src={imageUrl}
+                          alt="Category"
+                          fill
+                          className="object-cover"
                         />
-                        <Button
+                        <button
                           type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-2 right-2"
-                          onClick={handleRemoveImage}
+                          onClick={removeImage}
+                          className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                         >
                           <X className="h-4 w-4" />
-                        </Button>
+                        </button>
                       </div>
                     ) : (
-                      <div className="aspect-square w-full max-w-xs mx-auto border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
                         <div className="text-center">
-                          <ImageIcon className="h-12 w-12 mx-auto text-gray-400" />
-                          <p className="mt-2 text-sm text-gray-500">No image uploaded</p>
+                          <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                          <div className="mt-2">
+                            <label
+                              htmlFor="image-upload"
+                              className="cursor-pointer text-sm text-blue-600 hover:text-blue-500"
+                            >
+                              <span>Upload an image</span>
+                              <input
+                                id="image-upload"
+                                type="file"
+                                className="sr-only"
+                                accept={ACCEPTED_IMAGE_TYPES.join(',')}
+                                onChange={handleImageUpload}
+                                disabled={uploading}
+                              />
+                            </label>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            PNG, JPG, WebP up to 5MB
+                          </p>
                         </div>
                       </div>
                     )}
-
-                    {/* Upload Button */}
-                    <div>
-                      <label htmlFor="image-upload" className="cursor-pointer">
-                        <div className="flex items-center justify-center w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                          {uploading ? (
-                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          ) : (
-                            <Upload className="h-4 w-4 mr-2" />
-                          )}
-                          {uploading ? 'Uploading...' : 'Upload Image'}
-                        </div>
-                      </label>
-                      <input
-                        id="image-upload"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageChange}
-                        disabled={uploading}
-                      />
-                      <p className="mt-1 text-xs text-gray-500">
-                        PNG, JPG, GIF up to 2MB
-                      </p>
-                    </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Settings</CardTitle>
-                  <CardDescription>
-                    Configure category visibility and ordering
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Sort Order Field */}
                   <FormField
                     control={form.control}
                     name="sort_order"
@@ -473,15 +431,16 @@ export default function CategoryForm({ categoryId }: CategoryFormProps) {
                     )}
                   />
 
+                  {/* Active Status */}
                   <FormField
                     control={form.control}
                     name="is_active"
                     render={({ field }) => (
-                      <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                          <FormLabel>Active</FormLabel>
+                          <FormLabel className="text-base">Active</FormLabel>
                           <FormDescription>
-                            Category is visible to customers
+                            Make this category visible
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -493,28 +452,54 @@ export default function CategoryForm({ categoryId }: CategoryFormProps) {
                       </FormItem>
                     )}
                   />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Form Actions */}
+            <div className="flex justify-end space-x-2">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleCancel}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={loading || uploading}
+              >
+                {(loading || uploading) && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                {isEditing ? 'Update' : 'Create'} Category
+              </Button>
+            </div>
+          </TabsContent>
+
+          {/* Translations Tab */}
+          <TabsContent value="translations">
+            {isEditing && categoryId ? (
+              <CategoryTranslationFields 
+                categoryId={categoryId}
+                categoryData={{
+                  name: form.getValues('name'),
+                  description: form.getValues('description') || '',
+                }}
+              />
+            ) : (
+              <Card>
+                <CardContent className="py-10">
+                  <p className="text-center text-muted-foreground">
+                    Please save the category first to add translations
+                  </p>
                 </CardContent>
               </Card>
-            </div>
-          </div>
-
-          {/* Form Actions */}
-          <div className="flex justify-end gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push('/dashboard/categories')}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading || uploading}>
-              {(loading || uploading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              <Save className="mr-2 h-4 w-4" />
-              {isEditing ? 'Update Category' : 'Create Category'}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </form>
+    </Form>
   );
 }
