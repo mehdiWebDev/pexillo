@@ -52,8 +52,6 @@ export default function CartPageClient() {
   const [removingItems, setRemovingItems] = useState<Set<string>>(new Set());
   const [isClearing, setIsClearing] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const hasLoadedOnce = useSelector((state: RootState) => state.cart.hasLoadedOnce);
-
 
   // CRITICAL: Load cart on mount
   useEffect(() => {
@@ -186,7 +184,7 @@ export default function CartPageClient() {
 
 
   // Show loading state while initializing
-  if (!hasLoadedOnce || cartIsLoading) {
+  if (!isInitialized || cartIsLoading) {
     return (
       <Loader text="Loading your cart..." fullScreen />
     );
