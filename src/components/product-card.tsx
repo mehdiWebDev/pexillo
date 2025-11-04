@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ShoppingCart, Heart, Zap, ArrowRight, Palette, Ruler } from 'lucide-react';
+import { ShoppingCart, Heart, Zap, ArrowRight, Palette, Ruler, AlertCircle, Check } from 'lucide-react';
 import { useCart } from '@/src/hooks/useCart';
-
+import { toast } from '@/src/hooks/use-toast';
 
 // Product variant interface
 export interface ProductVariant {
@@ -14,6 +14,7 @@ export interface ProductVariant {
   color: string;
   color_hex: string;
   inventory_count: number;
+  translations?: any;
 }
 
 // Product image interface
@@ -46,6 +47,7 @@ export interface ProductCardData {
   images?: ProductImage[];
   product_type?: 'apparel' | 'accessory' | 'other';
   has_multiple_views?: boolean;
+  translations?: any;
 }
 
 interface ProductCardProps {
@@ -56,8 +58,8 @@ interface ProductCardProps {
   isFavorite?: boolean;
   showColorSwitcher?: boolean;
   showSizePicker?: boolean;
-  showTooltips?: boolean; // New prop for tooltips
-  compactSizes?: boolean; // New prop for compact size style
+  showTooltips?: boolean;
+  compactSizes?: boolean;
 }
 
 export default function ProductCard({
@@ -73,14 +75,13 @@ export default function ProductCard({
 }: ProductCardProps) {
   const t = useTranslations('productCard');
   const router = useRouter();
-  const { addToCart } = useCart();
+  const { addToCart, getCartQuantity } = useCart();
 
-  
   // Get unique colors from variants
-  const availableColors = product.variants 
+  const availableColors = product.variants
     ? Array.from(new Map(
-        product.variants.map(v => [v.color, { color: v.color, hex: v.color_hex }])
-      ).values())
+      product.variants.map(v => [v.color, { color: v.color, hex: v.color_hex }])
+    ).values())
     : [];
 
   // Initialize with first color
@@ -93,13 +94,29 @@ export default function ProductCard({
   const [imageError, setImageError] = useState(false);
   const [isImageChanging, setIsImageChanging] = useState(false);
   const [hoveredColor, setHoveredColor] = useState<string | null>(null);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+
+  // Get current quantity in cart for selected variant
+  const currentCartQuantity = selectedVariant 
+    ? getCartQuantity(selectedVariant.id) 
+    : 0;
+  
+  // Check if can add more
+  const canAddMore = selectedVariant 
+    ? currentCartQuantity < selectedVariant.inventory_count 
+    : false;
+    
+  // Calculate remaining available
+  const remainingAvailable = selectedVariant 
+    ? selectedVariant.inventory_count - currentCartQuantity 
+    : 0;
 
   // Get all sizes with stock info for selected color
   const getSizesWithStock = () => {
     if (!product.variants || !selectedColor) return [];
-    
+
     const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-    
+
     // Get all sizes for the selected color
     const sizesMap = new Map<string, number>();
     product.variants
@@ -107,7 +124,7 @@ export default function ProductCard({
       .forEach(v => {
         sizesMap.set(v.size, v.inventory_count);
       });
-    
+
     // Convert to array and sort
     return Array.from(sizesMap.entries())
       .sort((a, b) => sizeOrder.indexOf(a[0]) - sizeOrder.indexOf(b[0]))
@@ -133,7 +150,7 @@ export default function ProductCard({
         v => v.color === selectedColor && v.size === selectedSize
       );
       setSelectedVariant(variant || null);
-      
+
       // Trigger image change animation
       setIsImageChanging(true);
       setTimeout(() => setIsImageChanging(false), 300);
@@ -150,7 +167,7 @@ export default function ProductCard({
       const variantImages = product.images.filter(
         img => img.variant_id === selectedVariant.id
       );
-      
+
       if (variantImages.length > 0) {
         return variantImages.sort((a, b) => {
           if (a.view_type === 'front') return -1;
@@ -167,7 +184,7 @@ export default function ProductCard({
   };
 
   const currentImages = getCurrentVariantImages();
-  
+
   // Check if we have both views
   const hasFrontView = currentImages.some(img => img.view_type === 'front');
   const hasBackView = currentImages.some(img => img.view_type === 'back');
@@ -208,26 +225,40 @@ export default function ProductCard({
 
   // Helper function to determine if a color is light
   const isLightColor = (hex: string): boolean => {
-    // Remove # if present
     const color = hex.replace('#', '');
-    
-    // Convert hex to RGB
     const r = parseInt(color.substr(0, 2), 16);
     const g = parseInt(color.substr(2, 2), 16);
     const b = parseInt(color.substr(4, 2), 16);
-    
-    // Calculate luminance
     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    
-    // Return true if color is light (luminance > 0.7)
     return luminance > 0.7;
   };
+
+  // Get stock info for display
+  const getStockInfo = () => {
+    if (!selectedVariant) return null;
+
+    // Use remaining available instead of total stock
+    const stockToShow = remainingAvailable;
+
+    if (stockToShow === 0) return null;
+    if (stockToShow <= 10) {
+      return {
+        count: stockToShow,
+        isCritical: stockToShow <= 3,
+        isLow: stockToShow > 3 && stockToShow <= 10
+      };
+    }
+
+    return null;
+  };
+
+  const stockInfo = getStockInfo();
 
   // Handlers
   const handleColorSelect = (color: string) => {
     if (color !== selectedColor) {
       setSelectedColor(color);
-      setShowBackView(false); // Reset to front view
+      setShowBackView(false);
       setImageError(false);
     }
   };
@@ -241,10 +272,29 @@ export default function ProductCard({
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    if (selectedVariant) {
-      // Pass everything including translations
-      await addToCart(
+
+    if (!selectedVariant) {
+      toast({
+        title: 'Select Options',
+        description: 'Please select size and color',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!canAddMore) {
+      toast({
+        title: 'Maximum quantity reached',
+        description: `You already have ${currentCartQuantity} in your cart (maximum available)`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsAddingToCart(true);
+
+    try {
+      const success = await addToCart(
         product.id,
         selectedVariant.id,
         {
@@ -256,11 +306,16 @@ export default function ProductCard({
           variantColor: selectedVariant.color,
           variantColorHex: selectedVariant.color_hex,
           maxQuantity: selectedVariant.inventory_count,
-          // Include translations if the product has them
           translations: product.translations,
           variantTranslations: selectedVariant.translations,
         }
       );
+
+      if (success && onAddToCart) {
+        onAddToCart(product.id, selectedVariant.id);
+      }
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -278,7 +333,7 @@ export default function ProductCard({
   const isCurrentVariantInStock = selectedVariant ? selectedVariant.inventory_count > 0 : product.in_stock;
 
   return (
-    <div 
+    <div
       className="product-card"
       onClick={handleCardClick}
       role="article"
@@ -309,7 +364,7 @@ export default function ProductCard({
       </button>
 
       {/* Image Container */}
-      <div 
+      <div
         className={`product-card__image-container ${isImageChanging ? 'product-card__image-container--changing' : ''}`}
         onMouseEnter={() => canFlip && setShowBackView(true)}
         onMouseLeave={() => canFlip && setShowBackView(false)}
@@ -320,7 +375,7 @@ export default function ProductCard({
           className="product-card__image"
           onError={() => setImageError(true)}
         />
-        
+
         {/* View Details Link */}
         <div className="product-card__view-details">
           <span>{t('viewDetails')}</span>
@@ -330,11 +385,11 @@ export default function ProductCard({
         {/* Flip indicator dots */}
         {canFlip && (
           <div className="product-card__view-dots">
-            <span 
+            <span
               className={`product-card__view-dot ${!showBackView ? 'product-card__view-dot--active' : ''}`}
               aria-label="Front view"
             />
-            <span 
+            <span
               className={`product-card__view-dot ${showBackView ? 'product-card__view-dot--active' : ''}`}
               aria-label="Back view"
             />
@@ -348,7 +403,7 @@ export default function ProductCard({
           <span className="product-card__category">
             {product.available_colors} {t('colorsAvailable')}
           </span>
-          
+
           <h3 className="product-card__name">{product.name}</h3>
 
           {product.short_description && (
@@ -440,21 +495,63 @@ export default function ProductCard({
             )}
           </div>
 
-          {/* Add to Cart Button */}
+          {/* Add to Cart Button with inventory check */}
           <button
-            className={`product-card__add-to-cart ${isLoading ? 'product-card__add-to-cart--loading' : ''}`}
+            className={`
+              product-card__add-to-cart 
+              ${isAddingToCart || isLoading ? 'product-card__add-to-cart--loading' : ''}
+              ${!canAddMore && selectedVariant ? 'opacity-50 cursor-not-allowed' : ''}
+            `}
             onClick={handleAddToCart}
-            disabled={isLoading || !isCurrentVariantInStock || !selectedVariant}
+            disabled={isAddingToCart || isLoading || !isCurrentVariantInStock || !selectedVariant || !canAddMore}
             aria-label={t('addToCart')}
-            title={!selectedVariant ? 'Select size' : isCurrentVariantInStock ? 'Add to cart' : 'Out of stock'}
+            title={
+              !selectedVariant 
+                ? 'Select size'
+                : !canAddMore 
+                ? `Maximum quantity (${currentCartQuantity}) in cart`
+                : isCurrentVariantInStock 
+                ? 'Add to cart'
+                : 'Out of stock'
+            }
           >
-            {isLoading ? (
+            {isAddingToCart || isLoading ? (
               <span className="btn__loader" />
+            ) : !canAddMore && selectedVariant ? (
+              <Check size={20} />
             ) : (
               <ShoppingCart size={20} />
             )}
           </button>
         </div>
+
+        {/* In Cart Badge */}
+        {currentCartQuantity > 0 && remainingAvailable > 0 && (
+          <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 text-xs rounded-full mt-1">
+            <Check size={12} />
+            <span>{currentCartQuantity} {t('inCart')}</span>
+          </div>
+        )}
+
+        {/* Low Stock Indicator - Shows remaining available */}
+        {stockInfo && canAddMore && (
+          <div className={`
+            inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium mt-2
+            ${stockInfo.isCritical
+              ? 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 animate-pulse'
+              : 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
+            }
+          `}>
+            {stockInfo.isCritical && (
+              <AlertCircle className="w-3.5 h-3.5" />
+            )}
+            <span>
+              {stockInfo.count === 1
+                ? t('lastOne')
+                : t('onlyXLeft', { count: stockInfo.count })}
+            </span>
+          </div>
+        )}
 
         {/* Stock Warning */}
         {selectedVariant && !isCurrentVariantInStock && (

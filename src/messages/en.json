@@ -144,7 +144,12 @@
         "selectSize": "Select size",
         "selectColor": "Select color",
         "viewDetails": "View details",
-        "loading": "Loading..."
+        "loading": "Loading...",
+        "onlyXLeft": "Only {count} left in stock",
+        "lastOne": "Last one!",
+        "lowStock": "Low stock",
+        "inStock": "In stock",
+        "inCart": "In cart"
     },
     "valueProps": {
         "quality": "Premium Quality",
@@ -469,6 +474,32 @@
         "updateFailed": "Failed to update cart",
         "removeFailed": "Failed to remove item",
         "error": "Error",
-        "success": "Success"
+        "success": "Success",
+        "pageTitle": "Shopping Cart",
+        "pageDescription": "View and manage items in your shopping cart",
+        "emptyCartTitle": "Your cart is empty",
+        "emptyCartMessage": "Looks like you haven't added anything to your cart yet",
+        "item": "item",
+        "items": "items",
+        "clearCart": "Clear Cart",
+        "clearConfirm": "Are you sure you want to remove all items from your cart?",
+        "size": "Size",
+        "color": "Color",
+        "each": "each",
+        "maxStock": "Max stock reached",
+        "orderSummary": "Order Summary",
+        "shipping": "Shipping",
+        "tax": "Tax (15%)",
+        "total": "Total",
+        "free": "FREE",
+        "freeShippingAt": "Add ${amount} more for free shipping",
+        "proceedToCheckout": "Proceed to Checkout",
+        "secureCheckout": "100% Secure Checkout",
+        "fastShipping": "Fast Shipping Available",
+        "paymentMethods": "Multiple Payment Methods",
+        "cartCleared": "Cart cleared successfully",
+        "clearFailed": "Failed to clear cart",
+        "maxQuantityExceeded": "Maximum available quantity is {max}",
+        "inCart": "in cart"
     }
 }
