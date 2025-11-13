@@ -154,6 +154,12 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
   const sameAsShipping = watch('sameAsShipping');
   const createAccount = watch('createAccount');
 
+  // Watch shipping fields to make them controlled
+  const city = watch('shipping.city');
+  const state = watch('shipping.state');
+  const country = watch('shipping.country');
+  const postalCode = watch('shipping.postalCode');
+
   // Type-safe error getter
   const getErrorMessage = (error: any): string => {
     if (typeof error === 'string') return error;
@@ -291,12 +297,12 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
 
           const fullAddress = `${components.street_number || ''} ${components.route || ''}`.trim();
 
-          // Update form values
-          setValue('shipping.address', fullAddress || place.formattedAddress || '');
-          setValue('shipping.city', components.locality || '');
-          setValue('shipping.state', components.administrative_area_level_1 || '');
-          setValue('shipping.country', components.country || '');
-          setValue('shipping.postalCode', components.postal_code || '');
+          // Update form values with validation
+          setValue('shipping.address', fullAddress || place.formattedAddress || '', { shouldValidate: true });
+          setValue('shipping.city', components.locality || '', { shouldValidate: true });
+          setValue('shipping.state', components.administrative_area_level_1 || '', { shouldValidate: true });
+          setValue('shipping.country', components.country || '', { shouldValidate: true });
+          setValue('shipping.postalCode', components.postal_code || '', { shouldValidate: true });
 
           // Update the hidden input value as well
           const hiddenInput = document.getElementById('shipping-address') as HTMLInputElement;
@@ -518,7 +524,8 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
               </label>
               <input
                 type="text"
-                {...register('shipping.city')}
+                value={city || ''}
+                onChange={(e) => setValue('shipping.city', e.target.value, { shouldValidate: true })}
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
               {form.getFieldState('shipping.city', form.formState).error && (
@@ -534,7 +541,8 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
               </label>
               <input
                 type="text"
-                {...register('shipping.state')}
+                value={state || ''}
+                onChange={(e) => setValue('shipping.state', e.target.value, { shouldValidate: true })}
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
               {form.getFieldState('shipping.state', form.formState).error && (
@@ -550,7 +558,8 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
               </label>
               <input
                 type="text"
-                {...register('shipping.postalCode')}
+                value={postalCode || ''}
+                onChange={(e) => setValue('shipping.postalCode', e.target.value, { shouldValidate: true })}
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
               {form.getFieldState('shipping.postalCode', form.formState).error && (
@@ -566,12 +575,15 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
               {t('country')} *
             </label>
             <select
-              {...register('shipping.country')}
+              value={country || ''}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              onChange={(e) => onAddressChange({
-                country: e.target.value,
-                state: getValues('shipping.state') || ''
-              })}
+              onChange={(e) => {
+                setValue('shipping.country', e.target.value, { shouldValidate: true });
+                onAddressChange({
+                  country: e.target.value,
+                  state: getValues('shipping.state') || ''
+                });
+              }}
             >
               <option value="">{t('selectCountry')}</option>
               <option value="US">United States</option>
