@@ -565,7 +565,15 @@
         "pleaseCompleteAllFields": "Veuillez remplir tous les champs requis",
         "paymentSetupFailed": "Échec de la configuration du paiement. Veuillez réessayer.",
         "paymentFailed": "Échec du paiement",
-        "somethingWentWrong": "Une erreur s'est produite. Veuillez réessayer."
+        "deliverTo": "Livraison à",
+        "searchAddress": "Rechercher votre adresse",
+        "searchAddressHelper": "Commencez à saisir votre adresse pour remplir les champs ci-dessous",
+        "loadingAddressAutocomplete": "Chargement de l'auto-complétion de l'adresse...",
+        "streetAddress": "Adresse",
+        "province": "Province",
+        "deliveryAvailable": "Livraison disponible",
+        "canadaOnly": "Canada seulement",
+        "billingAddressSearch": "Rechercher votre adresse de facturation"
     },
     "checkoutSuccess": {
         "loadingOrder": "Chargement des détails de la commande...",

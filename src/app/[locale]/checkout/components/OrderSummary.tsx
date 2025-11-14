@@ -13,16 +13,16 @@ interface OrderSummaryProps {
   total: number;
 }
 
-export default function OrderSummary({ 
-  items, 
-  subtotal, 
-  shipping, 
-  tax, 
-  total 
+export default function OrderSummary({
+  items,
+  subtotal,
+  shipping,
+  tax,
+  total
 }: OrderSummaryProps) {
   const t = useTranslations('checkout');
   const [showItems, setShowItems] = useState(true);
-  
+
   return (
     <div className="bg-card border rounded-lg p-6 sticky top-4">
       <div className="flex justify-between items-center mb-4">
@@ -47,10 +47,10 @@ export default function OrderSummary({
           )}
         </button>
       </div>
-      
+
       {/* Cart Items */}
       {showItems && (
-        <div className="space-y-4 pb-4 mb-4 border-b max-h-96 overflow-y-auto">
+        <div className="space-y-4 pb-4 mb-4 border-b max-h-96">
           {items.map((item) => (
             <div key={item.id} className="flex gap-3">
               <div className="relative">
@@ -63,7 +63,7 @@ export default function OrderSummary({
                   {item.quantity}
                 </span>
               </div>
-              
+
               <div className="flex-1">
                 <h4 className="font-medium text-sm">
                   {item.product_name}
@@ -79,14 +79,14 @@ export default function OrderSummary({
           ))}
         </div>
       )}
-      
+
       {/* Totals */}
       <div className="space-y-3">
         <div className="flex justify-between text-sm">
           <span>{t('subtotal')}</span>
           <span className="font-medium">${subtotal.toFixed(2)}</span>
         </div>
-        
+
         <div className="flex justify-between text-sm">
           <span className="flex items-center gap-1">
             <Truck size={14} />
@@ -100,20 +100,20 @@ export default function OrderSummary({
             )}
           </span>
         </div>
-        
+
         {shipping > 0 && (
           <div className="p-2 bg-amber-50 dark:bg-amber-950/20 rounded text-xs text-amber-800 dark:text-amber-200">
             {t('freeShippingAt', { amount: (150 - subtotal).toFixed(2) })}
           </div>
         )}
-        
+
         <div className="flex justify-between text-sm">
           <span>{t('tax')}</span>
           <span className="font-medium">
             {tax > 0 ? `$${tax.toFixed(2)}` : t('calculated')}
           </span>
         </div>
-        
+
         {/* Discount Code Input */}
         <div className="pt-3 border-t">
           <div className="flex gap-2">
@@ -130,7 +130,7 @@ export default function OrderSummary({
             </button>
           </div>
         </div>
-        
+
         <div className="pt-3 border-t">
           <div className="flex justify-between text-lg font-bold">
             <span>{t('total')}</span>
@@ -141,7 +141,7 @@ export default function OrderSummary({
           </div>
         </div>
       </div>
-      
+
       {/* Free Shipping Badge */}
       {shipping === 0 && (
         <div className="mt-4 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">

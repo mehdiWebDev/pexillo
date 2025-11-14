@@ -565,7 +565,16 @@
         "pleaseCompleteAllFields": "Please complete all required fields",
         "paymentSetupFailed": "Failed to set up payment. Please try again.",
         "paymentFailed": "Payment Failed",
-        "somethingWentWrong": "Something went wrong. Please try again."
+        "somethingWentWrong": "Something went wrong. Please try again.",
+        "deliverTo": "Deliver to",
+        "searchAddress": "Search for your address",
+        "searchAddressHelper": "Start typing your address to auto-fill the fields below",
+        "loadingAddressAutocomplete": "Loading address autocomplete...",
+        "streetAddress": "Street Address",
+        "province": "Province",
+        "deliveryAvailable": "Delivery available",
+        "canadaOnly": "Canada only",
+        "billingAddressSearch": "Search for billing address"
     },
     "checkoutSuccess": {
         "loadingOrder": "Loading order details...",
