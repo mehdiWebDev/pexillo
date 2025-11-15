@@ -101,8 +101,8 @@ export default function PaymentForm({
             .join('\n');
 
           toast({
-            title: t('outOfStock') || 'Items Out of Stock',
-            description: `The following items are no longer available:\n\n${itemsList}\n\nPlease update your cart and try again.`,
+            title: t('outOfStock'),
+            description: `${t('itemsNoLongerAvailable')}:\n\n${itemsList}\n\n${t('updateCartAndTryAgain')}`,
             variant: 'destructive',
             duration: 10000, // Show longer for multiple items
           });
