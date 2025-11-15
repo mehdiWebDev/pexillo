@@ -50,8 +50,24 @@ export async function POST(req: NextRequest) {
       shipping_amount,
       total_amount,
       create_account,
-      password
+      password,
+      currency,
     } = await req.json();
+
+    console.log('Received order request: !!!!', {
+      email,
+      phone,
+      shipping_address,
+      billing_address,
+      items,
+      subtotal,
+      tax_amount,
+      shipping_amount,
+      total_amount,
+      create_account,
+      password,
+      currency,
+    });
 
     // Check if user is logged in
     let userId = null;
@@ -113,6 +129,7 @@ export async function POST(req: NextRequest) {
           phone,
         },
         billing_address,
+        currency,
       })
       .select()
       .single();

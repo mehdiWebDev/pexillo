@@ -15,6 +15,7 @@ import {
     CreditCard,
     Truck,
     Lock,
+    Currency,
 } from 'lucide-react';
 import { RootState } from '@/src/store';
 import { selectCartItems, selectCartSubtotal, clearCartLocal } from '@/src/store/slices/cartSlice';
@@ -197,6 +198,7 @@ export default function CheckoutClient() {
                     amount: Math.round(total * 100), // Convert to cents
                     email: form.getValues('email'),
                     items: translatedItems,
+                    currency: 'cad',
                 }),
             });
 

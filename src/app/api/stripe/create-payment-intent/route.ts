@@ -8,36 +8,51 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: NextRequest) {
   try {
-    const { amount, email, items } = await req.json();
-    
+    const { amount, email, items, currency = 'cad' } = await req.json();
+
+    console.log('Received payment intent request: !!!!', {
+      amount,
+      email,
+      items,
+      currency,
+    });
+
     if (!amount || !email) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
-    
+
+    console.log('💳 Creating Stripe payment intent:', {
+      amount: `$${(amount / 100).toFixed(2)}`,
+      currency: currency.toUpperCase(),
+      email
+    });
+
     // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount), // Amount in cents
-      currency: 'usd',
+      currency: currency.toLowerCase(), // ✅ FIXED: Use CAD
       automatic_payment_methods: {
         enabled: true,
       },
       metadata: {
         email,
-        items: JSON.stringify(items.map(item => ({
+        items: JSON.stringify(items.map((item: any) => ({
           id: item.id,
           quantity: item.quantity,
         }))),
       },
     });
-    
+
+    console.log('✅ Payment intent created:', paymentIntent.id);
+
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
     });
   } catch (error) {
-    console.error('Payment intent error:', error);
+    console.error('❌ Payment intent error:', error);
     return NextResponse.json(
       { error: 'Failed to create payment intent' },
       { status: 500 }

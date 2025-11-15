@@ -81,6 +81,7 @@ export default function PaymentForm({
         total_amount: total,
         create_account: formData.createAccount,
         password: formData.password,
+        currency: 'CAD',
       };
 
       // Create order in database
@@ -124,6 +125,33 @@ export default function PaymentForm({
         });
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         // Payment successful
+        console.log('✅ Payment succeeded!', paymentIntent.id);
+
+        try {
+          const updateResponse = await fetch('/api/orders/update-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              orderId,
+              status: 'confirmed',  // ✅ This triggers inventory reduction!
+              paymentStatus: 'completed',
+              stripePaymentIntentId: paymentIntent.id,
+            }),
+          });
+
+          if (!updateResponse.ok) {
+            console.error('Failed to update order status');
+            // Don't fail the order, but log it for admin review
+          } else {
+            const updateResult = await updateResponse.json();
+            console.log('✅ Order confirmed:', updateResult);
+            console.log('🔔 Inventory should be reduced now!');
+          }
+        } catch (error) {
+          console.error('Error updating order status:', error);
+          // Don't fail the order, but log it
+        }
+
         // Clear cart
         if (isAuth && user?.id) {
           await dispatch(clearCartDB(user.id));
