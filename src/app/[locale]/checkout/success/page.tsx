@@ -6,10 +6,10 @@ import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/src/i18n/routing';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { 
-  CheckCircle, 
-  Mail, 
-  Package, 
+import {
+  CheckCircle,
+  Mail,
+  Package,
   ArrowRight,
   Copy,
   Printer
@@ -30,23 +30,25 @@ export default function CheckoutSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations('checkoutSuccess');
-  
+
+  console.log('i am here success page');
+
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
-  
+
   const orderNumber = searchParams.get('order');
-  
+
   useEffect(() => {
     if (!orderNumber) {
       router.push('/');
       return;
     }
-    
+
     // Fetch order details
     fetchOrderDetails(orderNumber);
   }, [orderNumber, router]);
-  
+
   const fetchOrderDetails = async (orderNum: string) => {
     try {
       const response = await fetch(`/api/orders/${orderNum}`);
@@ -63,34 +65,34 @@ export default function CheckoutSuccessPage() {
       setIsLoading(false);
     }
   };
-  
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    
+
     toast({
       title: t('copied'),
       description: t('orderNumberCopied'),
     });
   };
-  
+
   const handlePrint = () => {
     window.print();
   };
-  
+
   if (isLoading) {
     return <Loader type="default" text={t('loadingOrder')} fullScreen />;
   }
-  
+
   if (!orderDetails) {
     return null;
   }
-  
+
   // Calculate delivery date (7-10 business days)
   const deliveryDate = new Date();
   deliveryDate.setDate(deliveryDate.getDate() + 10);
-  
+
   return (
     <div className="min-h-screen bg-background py-12">
       <div className="container mx-auto px-4 max-w-4xl">
@@ -99,7 +101,7 @@ export default function CheckoutSuccessPage() {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 dark:bg-green-900/20 rounded-full mb-4">
             <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400" />
           </div>
-          
+
           <h1 className="text-3xl font-bold mb-2">
             {t('thankYou')}
           </h1>
@@ -107,7 +109,7 @@ export default function CheckoutSuccessPage() {
             {t('orderConfirmed')}
           </p>
         </div>
-        
+
         {/* Order Information */}
         <div className="bg-card border rounded-lg p-8 mb-6">
           <div className="flex justify-between items-start mb-6">
@@ -127,7 +129,7 @@ export default function CheckoutSuccessPage() {
                   <Copy size={16} />
                 </button>
               </div>
-              
+
               {orderDetails.guest_lookup_code && (
                 <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg">
                   <p className="text-sm text-amber-800 dark:text-amber-200">
@@ -139,7 +141,7 @@ export default function CheckoutSuccessPage() {
                 </div>
               )}
             </div>
-            
+
             <button
               onClick={handlePrint}
               className="p-2 hover:bg-muted rounded-lg transition-colors"
@@ -148,7 +150,7 @@ export default function CheckoutSuccessPage() {
               <Printer size={20} />
             </button>
           </div>
-          
+
           {/* Email Confirmation */}
           <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg mb-6">
             <Mail className="w-5 h-5 text-muted-foreground mt-0.5" />
@@ -159,14 +161,14 @@ export default function CheckoutSuccessPage() {
               </p>
             </div>
           </div>
-          
+
           {/* Estimated Delivery */}
           <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
             <Package className="w-5 h-5 text-muted-foreground mt-0.5" />
             <div>
               <p className="font-medium">{t('estimatedDelivery')}</p>
               <p className="text-sm text-muted-foreground">
-                {deliveryDate.toLocaleDateString('en-US', { 
+                {deliveryDate.toLocaleDateString('en-US', {
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',
@@ -176,13 +178,13 @@ export default function CheckoutSuccessPage() {
             </div>
           </div>
         </div>
-        
+
         {/* What's Next */}
         <div className="bg-card border rounded-lg p-8 mb-6">
           <h2 className="text-xl font-semibold mb-4">
             {t('whatsNext')}
           </h2>
-          
+
           <div className="space-y-4">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
@@ -195,7 +197,7 @@ export default function CheckoutSuccessPage() {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                 <span className="text-sm font-bold">2</span>
@@ -207,7 +209,7 @@ export default function CheckoutSuccessPage() {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                 <span className="text-sm font-bold">3</span>
@@ -221,7 +223,7 @@ export default function CheckoutSuccessPage() {
             </div>
           </div>
         </div>
-        
+
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           {orderDetails.guest_lookup_code ? (
@@ -241,7 +243,7 @@ export default function CheckoutSuccessPage() {
               <ArrowRight size={20} />
             </Link>
           )}
-          
+
           <Link
             href="/products"
             className="px-6 py-3 border rounded-lg hover:bg-muted flex items-center justify-center gap-2"

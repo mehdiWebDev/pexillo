@@ -25,30 +25,30 @@ interface PaymentFormProps {
   onBack: () => void;
 }
 
-export default function PaymentForm({ 
-  form, 
-  clientSecret, 
-  total, 
+export default function PaymentForm({
+  form,
+  clientSecret,
+  total,
   items,
-  onBack 
+  onBack
 }: PaymentFormProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const t = useTranslations('checkout');
   const stripe = useStripe();
   const elements = useElements();
-  
+
   const { isAuth, user } = useSelector((state: RootState) => state.auth);
   const [isProcessing, setIsProcessing] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!stripe || !elements) {
       return;
     }
-    
+
     if (!agreedToTerms) {
       toast({
         title: t('error'),
@@ -57,9 +57,9 @@ export default function PaymentForm({
       });
       return;
     }
-    
+
     setIsProcessing(true);
-    
+
     try {
       // Prepare order data
       const formData = form.getValues();
@@ -82,20 +82,20 @@ export default function PaymentForm({
         create_account: formData.createAccount,
         password: formData.password,
       };
-      
+
       // Create order in database
       const orderResponse = await fetch('/api/orders/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData),
       });
-      
+
       if (!orderResponse.ok) {
         throw new Error('Failed to create order');
       }
-      
+
       const { orderId, orderNumber } = await orderResponse.json();
-      
+
       // Confirm payment with Stripe
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
@@ -104,7 +104,7 @@ export default function PaymentForm({
         },
         redirect: 'if_required',
       });
-      
+
       if (error) {
         // Show error to customer
         toast({
@@ -112,7 +112,7 @@ export default function PaymentForm({
           description: error.message,
           variant: 'destructive',
         });
-        
+
         // Update order status to failed
         await fetch('/api/orders/update-status', {
           method: 'POST',
@@ -128,9 +128,9 @@ export default function PaymentForm({
         if (isAuth && user?.id) {
           await dispatch(clearCartDB(user.id));
         } else {
+          sessionStorage.setItem('payment_just_completed', 'true');
           dispatch(clearCartLocal());
         }
-        
         // Redirect to success page
         router.push(`/checkout/success?order=${orderNumber}`);
       }
@@ -145,7 +145,7 @@ export default function PaymentForm({
       setIsProcessing(false);
     }
   };
-  
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Payment Method */}
@@ -154,21 +154,21 @@ export default function PaymentForm({
           <Lock size={20} />
           {t('paymentMethod')}
         </h2>
-        
-        <PaymentElement 
+
+        <PaymentElement
           options={{
             layout: 'tabs',
             paymentMethodOrder: ['card', 'apple_pay', 'google_pay'],
           }}
         />
       </div>
-      
+
       {/* Order Review */}
       <div className="bg-card border rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">
           {t('reviewOrder')}
         </h2>
-        
+
         <div className="space-y-4">
           {/* Shipping Address Summary */}
           <div>
@@ -185,7 +185,7 @@ export default function PaymentForm({
               <p>{form.getValues('shipping.country')}</p>
             </div>
           </div>
-          
+
           {/* Contact Info */}
           <div>
             <h3 className="font-medium mb-2">{t('contactInfo')}</h3>
@@ -196,7 +196,7 @@ export default function PaymentForm({
           </div>
         </div>
       </div>
-      
+
       {/* Terms and Conditions */}
       <div className="bg-card border rounded-lg p-6">
         <div className="flex items-start gap-3">
@@ -208,7 +208,7 @@ export default function PaymentForm({
             className="mt-1 rounded"
           />
           <label htmlFor="terms" className="text-sm">
-            {t('agreeToTerms')} 
+            {t('agreeToTerms')}
             <a href="/terms" target="_blank" className="text-primary hover:underline ml-1">
               {t('termsAndConditions')}
             </a>
@@ -219,7 +219,7 @@ export default function PaymentForm({
           </label>
         </div>
       </div>
-      
+
       {/* Action Buttons */}
       <div className="flex justify-between items-center">
         <button
@@ -230,7 +230,7 @@ export default function PaymentForm({
           <ArrowLeft size={20} />
           {t('backToShipping')}
         </button>
-        
+
         <button
           type="submit"
           disabled={!stripe || isProcessing || !agreedToTerms}

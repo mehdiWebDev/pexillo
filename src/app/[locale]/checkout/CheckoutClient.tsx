@@ -124,12 +124,20 @@ export default function CheckoutClient() {
 
     // Load cart and check if empty
     useEffect(() => {
-        if (items.length === 0) {
+        const justCompletedPayment = sessionStorage.getItem('payment_just_completed');
+
+        if (items.length === 0 && !justCompletedPayment) {
             router.push('/cart');
-        } else {
-            setIsInitialized(true);
-            setShippingCost(shipping);
+            return;
         }
+
+        // Clear the flag after checking
+        if (justCompletedPayment) {
+            sessionStorage.removeItem('payment_just_completed');
+        }
+
+        setIsInitialized(true);
+        setShippingCost(shipping);
     }, [items, router, shipping]);
 
     // Calculate tax when address changes
