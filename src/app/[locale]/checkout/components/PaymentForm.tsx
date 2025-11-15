@@ -84,7 +84,7 @@ export default function PaymentForm({
         currency: 'CAD',
       };
 
-      // Create order in database
+      // Create order in database (includes inventory validation)
       const orderResponse = await fetch('/api/orders/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -92,7 +92,26 @@ export default function PaymentForm({
       });
 
       if (!orderResponse.ok) {
-        throw new Error('Failed to create order');
+        const errorData = await orderResponse.json();
+
+        // Handle inventory errors with detailed information
+        if (errorData.error === 'Insufficient inventory' && errorData.details) {
+          const itemsList = errorData.details
+            .map((item: any) => `• ${item.productName} (${item.variant}): ${item.message}`)
+            .join('\n');
+
+          toast({
+            title: t('outOfStock'),
+            description: `${t('itemsNoLongerAvailable')}:\n\n${itemsList}\n\n${t('updateCartAndTryAgain')}`,
+            variant: 'destructive',
+            duration: 10000, // Show longer for multiple items
+          });
+
+          setIsProcessing(false);
+          return; // Stop here - don't proceed to payment
+        }
+
+        throw new Error(errorData.error || 'Failed to create order');
       }
 
       const { orderId, orderNumber } = await orderResponse.json();
