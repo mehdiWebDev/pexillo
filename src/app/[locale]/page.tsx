@@ -1,4 +1,3 @@
-import { ThemeSwitcher } from "@/src/components/theme-switcher";
 import HeroBanner from "@/src/components/hero-banner";
 import FeaturedProducts from "@/src/components/featured-products";
 import ProductCategories from "@/src/components/product-categories";

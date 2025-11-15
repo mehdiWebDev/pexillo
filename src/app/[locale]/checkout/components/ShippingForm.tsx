@@ -622,7 +622,7 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
 
             {/* Billing Address Search */}
             <div>
-              <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+              <label className="text-sm font-medium mb-2 flex items-center gap-2">
                 <Search size={16} />
                 {t('billingAddressSearch')}
               </label>

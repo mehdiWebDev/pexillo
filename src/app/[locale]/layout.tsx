@@ -10,6 +10,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ClientNavigationMenu } from "@/src/components/nav-menu";
 import { AuthButton } from "@/src/components/auth-button";
 import { Geist } from "next/font/google";
+import Footer from "@/src/components/footer";
 
 const defaultUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
@@ -77,6 +78,7 @@ export default async function LocaleLayout({
                                     <AuthButton />
                                 </ClientNavigationMenu>
                                 {children}
+                                <Footer />
                             </NextIntlClientProvider>
                         </ThemeProvider>
                         <ReactQueryDevtools />
