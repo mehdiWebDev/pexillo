@@ -69,6 +69,63 @@ export async function POST(req: NextRequest) {
       currency,
     });
 
+    // ✅ CRITICAL: Check inventory availability BEFORE creating order
+    console.log('🔍 Checking inventory availability...');
+    const inventoryChecks = await Promise.all(
+      items.map(async (item: any) => {
+        const { data: variant, error } = await supabaseAdmin
+          .from('product_variants')
+          .select('id, inventory_count, size, color, products!inner(name)')
+          .eq('id', item.variant_id)
+          .single();
+
+        if (error || !variant) {
+          return {
+            valid: false,
+            variantId: item.variant_id,
+            error: 'Variant not found',
+          };
+        }
+
+        if (variant.inventory_count < item.quantity) {
+          return {
+            valid: false,
+            variantId: item.variant_id,
+            productName: variant.products.name,
+            variantDetails: `${variant.size} - ${variant.color}`,
+            requested: item.quantity,
+            available: variant.inventory_count,
+            error: variant.inventory_count === 0
+              ? 'Out of stock'
+              : `Only ${variant.inventory_count} available`,
+          };
+        }
+
+        return { valid: true, variantId: item.variant_id };
+      })
+    );
+
+    // Check if any items failed inventory validation
+    const invalidItems = inventoryChecks.filter(check => !check.valid);
+    if (invalidItems.length > 0) {
+      console.error('❌ Inventory validation failed:', invalidItems);
+      return NextResponse.json(
+        {
+          error: 'Insufficient inventory',
+          details: invalidItems.map(item => ({
+            productName: item.productName,
+            variant: item.variantDetails,
+            message: item.error,
+            requested: item.requested,
+            available: item.available,
+          })),
+        },
+        { status: 400 }
+      );
+    }
+
+    console.log('✅ Inventory check passed for all items');
+
     // Check if user is logged in
     let userId = null;
     const accessToken = cookieStore.get('sb-access-token')?.value;
