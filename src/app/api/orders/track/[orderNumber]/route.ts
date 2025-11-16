@@ -118,15 +118,28 @@ export async function GET(
 
     // Return tracking information
     return NextResponse.json({
-      order_number: order.order_number,
-      status: order.status,
-      created_at: order.created_at,
-      tracking_number: order.tracking_number,
-      shipping_carrier: order.shipping_carrier,
-      estimated_delivery_date: order.estimated_delivery_date,
-      total_amount: order.total_amount,
-      items,
-      shipping_address: order.shipping_address
+      order: {
+        id: order.id,
+        order_number: order.order_number,
+        created_at: order.created_at,
+        status: order.status,
+        payment_status: order.payment_status,
+        total_amount: order.total_amount,
+        currency: order.currency || 'CAD',
+        shipping_address: order.shipping_address,
+        shipping_carrier: order.shipping_carrier,
+        tracking_number: order.tracking_number,
+        estimated_delivery_date: order.estimated_delivery_date
+      },
+      items: (orderItems || []).map((item: any) => ({
+        product_name: item.products?.name || 'Unknown Product',
+        variant_size: item.product_variants?.size || '',
+        variant_color: item.product_variants?.color || '',
+        quantity: item.quantity,
+        unit_price: item.unit_price || 0,
+        total_price: item.total_price || 0,
+        image_url: item.image_url || null
+      }))
     });
   } catch (error: any) {
     console.error('Error in track order API:', error);
