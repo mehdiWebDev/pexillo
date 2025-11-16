@@ -65,6 +65,12 @@ export async function sendTrackingEmail(orderId: string): Promise<void> {
     ? JSON.parse(order.shipping_address)
     : order.shipping_address;
 
+  console.log('📍 Shipping address for language detection:', {
+    state: shippingAddress?.state,
+    country: shippingAddress?.country,
+    fullAddress: shippingAddress
+  });
+
   // Get customer email - Handle guest vs registered users
   let customerEmail = '';
   let customerName = '';
@@ -111,6 +117,12 @@ export async function sendTrackingEmail(orderId: string): Promise<void> {
 
   // Detect language from parsed shipping address
   const language = shippingAddress?.state === 'QC' ? 'fr' : 'en';
+
+  console.log('🌍 Language detection:', {
+    state: shippingAddress?.state,
+    detectedLanguage: language,
+    isQuebec: shippingAddress?.state === 'QC'
+  });
 
   // Generate tracking URL
   const carrier = CARRIERS[order.shipping_carrier as keyof typeof CARRIERS];
