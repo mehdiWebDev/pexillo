@@ -1,6 +1,7 @@
 // app/api/orders/create/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createClient as createServerClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
@@ -126,19 +127,16 @@ export async function POST(req: NextRequest) {
 
     console.log('✅ Inventory check passed for all items');
 
-    // Check if user is logged in
+    // Check if user is logged in using server-side client
     let userId = null;
-    const accessToken = cookieStore.get('sb-access-token')?.value;
+    const supabase = await createServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    userId = user?.id || null;
 
-    if (accessToken) {
-      // Create a regular client for auth check
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!
-      );
-      const { data: { user } } = await supabase.auth.getUser(accessToken);
-      userId = user?.id || null;
-    }
+    console.log('🔍 User authentication check:', {
+      isAuthenticated: !!userId,
+      userId: userId || 'guest'
+    });
 
     // Create account if requested (guest checkout)
     if (create_account && !userId && password) {
