@@ -17,13 +17,14 @@ const supabaseAdmin = createClient(
 
 export async function POST(req: NextRequest) {
   try {
-    const { orderId, status, paymentStatus, stripePaymentIntentId } = await req.json();
+    const { orderId, status, paymentStatus, stripePaymentIntentId, paymentMethod } = await req.json();
 
     console.log('🔄 Updating order status:', {
       orderId,
       status,
       paymentStatus,
-      stripePaymentIntentId
+      stripePaymentIntentId,
+      paymentMethod
     });
 
     if (!orderId) {
@@ -48,6 +49,10 @@ export async function POST(req: NextRequest) {
 
     if (stripePaymentIntentId) {
       updateData.stripe_payment_intent_id = stripePaymentIntentId;
+    }
+
+    if (paymentMethod) {
+      updateData.payment_method = paymentMethod;
     }
 
     console.log('📝 Update data:', updateData);
