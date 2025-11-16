@@ -146,7 +146,61 @@ export default function PaymentForm({
       if (!orderResponse.ok) {
         const errorData = await orderResponse.json();
 
-        // Handle inventory errors
+        // Handle specific error types
+
+        // Email already in use (account creation)
+        if (errorData.error === 'Email already in use' || orderResponse.status === 409) {
+          toast({
+            title: t('accountCreationFailed') || 'Account Creation Failed',
+            description: errorData.message || 'An account with this email already exists. Please sign in or use a different email.',
+            variant: 'destructive',
+            duration: 8000,
+          });
+          console.error('⚠️ Payment succeeded but account creation failed - email already exists');
+          setIsProcessing(false);
+          return;
+        }
+
+        // Invalid password
+        if (errorData.error === 'Invalid password') {
+          toast({
+            title: t('invalidPassword') || 'Invalid Password',
+            description: errorData.message || 'Password must be at least 8 characters long.',
+            variant: 'destructive',
+            duration: 6000,
+          });
+          console.error('⚠️ Payment succeeded but account creation failed - invalid password');
+          setIsProcessing(false);
+          return;
+        }
+
+        // Account or profile creation failed
+        if (errorData.error === 'Account creation failed' || errorData.error === 'Profile creation failed') {
+          toast({
+            title: t('accountCreationFailed') || 'Account Creation Failed',
+            description: errorData.message || 'Failed to create your account. Your payment was successful, but please contact support.',
+            variant: 'destructive',
+            duration: 10000,
+          });
+          console.error('⚠️ Payment succeeded but account/profile creation failed');
+          setIsProcessing(false);
+          return;
+        }
+
+        // Invalid cart data
+        if (errorData.error === 'Invalid cart data') {
+          toast({
+            title: t('invalidCartData') || 'Invalid Cart Data',
+            description: errorData.message || 'Some items in your cart are invalid. Please refresh and try again.',
+            variant: 'destructive',
+            duration: 8000,
+          });
+          console.error('⚠️ Payment succeeded but cart validation failed');
+          setIsProcessing(false);
+          return;
+        }
+
+        // Inventory errors
         if (errorData.error === 'Insufficient inventory' && errorData.details) {
           const itemsList = errorData.details
             .map((item: any) => `• ${item.productName} (${item.variant}): ${item.message}`)
@@ -161,12 +215,13 @@ export default function PaymentForm({
 
           // Payment already succeeded but order creation failed
           // User needs to contact support for refund
-          console.error('⚠️ Payment succeeded but order creation failed - refund needed');
+          console.error('⚠️ Payment succeeded but order creation failed - inventory issue');
           setIsProcessing(false);
           return;
         }
 
-        throw new Error(errorData.error || 'Failed to create order');
+        // Generic error
+        throw new Error(errorData.message || errorData.error || 'Failed to create order');
       }
 
       const { orderId, orderNumber } = await orderResponse.json();

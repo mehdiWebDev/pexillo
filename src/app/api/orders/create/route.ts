@@ -156,24 +156,81 @@ export async function POST(req: NextRequest) {
       userId: userId || 'guest'
     });
 
-    // Create account if requested (guest checkout)
+    // ✅ Create account if requested (guest checkout)
     if (create_account && !userId && password) {
+      console.log('🔐 Creating new account for:', email);
+
+      // Check if email already exists
+      const { data: existingUser, error: checkError } = await supabaseAdmin.auth.admin.listUsers();
+
+      const emailExists = existingUser?.users?.some(user => user.email?.toLowerCase() === email.toLowerCase());
+
+      if (emailExists) {
+        console.error('❌ Email already exists:', email);
+        return NextResponse.json(
+          {
+            error: 'Email already in use',
+            message: 'An account with this email already exists. Please sign in or use a different email address.',
+          },
+          { status: 409 } // 409 Conflict
+        );
+      }
+
+      // Validate password
+      if (!password || password.length < 8) {
+        return NextResponse.json(
+          {
+            error: 'Invalid password',
+            message: 'Password must be at least 8 characters long.',
+          },
+          { status: 400 }
+        );
+      }
+
+      // Create user account
       const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
         email,
         password,
         email_confirm: true, // Auto-confirm email
       });
 
+      if (authError) {
+        console.error('❌ Failed to create user account:', authError);
+        return NextResponse.json(
+          {
+            error: 'Account creation failed',
+            message: authError.message || 'Failed to create account. Please try again.',
+          },
+          { status: 500 }
+        );
+      }
+
       if (authData?.user) {
         userId = authData.user.id;
+        console.log('✅ User account created:', userId);
 
         // Create profile using admin client
-        await supabaseAdmin.from('profiles').insert({
+        const { error: profileError } = await supabaseAdmin.from('profiles').insert({
           id: userId,
           email,
           full_name: `${shipping_address.firstName} ${shipping_address.lastName}`.trim(),
           phone,
         });
+
+        if (profileError) {
+          console.error('❌ Failed to create profile:', profileError);
+          // Delete the auth user if profile creation fails
+          await supabaseAdmin.auth.admin.deleteUser(userId);
+          return NextResponse.json(
+            {
+              error: 'Profile creation failed',
+              message: 'Failed to create user profile. Please try again.',
+            },
+            { status: 500 }
+          );
+        }
+
+        console.log('✅ User profile created successfully');
       }
     }
 
