@@ -32,7 +32,7 @@ export async function PATCH(
     }
 
     // Validate production status
-    const validStatuses = ['pending', 'in_production', 'completed', 'shipped'];
+    const validStatuses = ['pending', 'design_review', 'approved', 'printing', 'completed'];
     if (!validStatuses.includes(production_status)) {
       return NextResponse.json(
         { error: 'Invalid production status' },
