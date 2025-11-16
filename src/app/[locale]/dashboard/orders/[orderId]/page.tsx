@@ -87,7 +87,6 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
   });
   const [newNote, setNewNote] = useState('');
   const [copiedLookupCode, setCopiedLookupCode] = useState(false);
-  const [updatingItemStatus, setUpdatingItemStatus] = useState<string | null>(null);
 
   useEffect(() => {
     fetchOrderDetail();
@@ -195,34 +194,6 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
         description: 'Failed to add note',
         variant: 'destructive'
       });
-    }
-  };
-
-  const handleUpdateItemStatus = async (itemId: string, production_status: string) => {
-    try {
-      setUpdatingItemStatus(itemId);
-      const response = await fetch(`/api/admin/orders/items/${itemId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ production_status })
-      });
-
-      if (!response.ok) throw new Error('Failed to update item');
-
-      toast({
-        title: 'Success',
-        description: 'Production status updated'
-      });
-
-      fetchOrderDetail();
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to update item status',
-        variant: 'destructive'
-      });
-    } finally {
-      setUpdatingItemStatus(null);
     }
   };
 
@@ -431,24 +402,8 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
                     {t('quantity')}: {item.quantity} × {formatCurrency(item.unit_price)}
                   </div>
                 </div>
-                <div className="text-right space-y-2">
+                <div className="text-right">
                   <div className="font-medium">{formatCurrency(item.total_price)}</div>
-                  <Select
-                    value={item.production_status || 'pending'}
-                    onValueChange={(value) => handleUpdateItemStatus(item.id, value)}
-                    disabled={updatingItemStatus === item.id}
-                  >
-                    <SelectTrigger className="w-[150px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">{tAdmin('productionStatuses.pending')}</SelectItem>
-                      <SelectItem value="design_review">{tAdmin('productionStatuses.design_review')}</SelectItem>
-                      <SelectItem value="approved">{tAdmin('productionStatuses.approved')}</SelectItem>
-                      <SelectItem value="printing">{tAdmin('productionStatuses.printing')}</SelectItem>
-                      <SelectItem value="completed">{tAdmin('productionStatuses.completed')}</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
               </div>
             ))}
