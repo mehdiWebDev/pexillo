@@ -40,7 +40,7 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 // Valid Canadian province codes
 const VALID_PROVINCE_CODES = ['AB', 'BC', 'MB', 'NB', 'NL', 'NT', 'NS', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT'];
 
-// Checkout form schema
+// Checkout form schema with conditional password validation
 const checkoutSchema = z.object({
     // Contact
     email: z.string().email('Invalid email address'),
@@ -77,7 +77,16 @@ const checkoutSchema = z.object({
 
     // Account
     createAccount: z.boolean().default(false),
-    password: z.string().min(8).optional(),
+    password: z.string().optional(),
+}).superRefine((data, ctx) => {
+    // If creating account, password is required and must be at least 8 characters
+    if (data.createAccount && (!data.password || data.password.length < 8)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Password must be at least 8 characters when creating an account',
+            path: ['password'],
+        });
+    }
 });
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;

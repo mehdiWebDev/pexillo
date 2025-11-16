@@ -65,7 +65,44 @@ export default function PaymentForm({
     setIsProcessing(true);
 
     try {
-      // Prepare order data
+      // ✅ STEP 1: Confirm payment with Stripe FIRST (before creating order)
+      console.log('💳 Step 1: Confirming payment with Stripe...');
+      const { error: paymentError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/checkout/success`,
+        },
+        redirect: 'if_required',
+      });
+
+      // If payment fails, stop here - don't create order
+      if (paymentError) {
+        console.error('❌ Payment failed:', paymentError);
+        toast({
+          title: t('paymentFailed'),
+          description: paymentError.message,
+          variant: 'destructive',
+        });
+        setIsProcessing(false);
+        return;
+      }
+
+      // If payment didn't succeed, stop here
+      if (!paymentIntent || paymentIntent.status !== 'succeeded') {
+        console.error('❌ Payment not completed:', paymentIntent?.status);
+        toast({
+          title: t('paymentFailed'),
+          description: t('somethingWentWrong'),
+          variant: 'destructive',
+        });
+        setIsProcessing(false);
+        return;
+      }
+
+      // ✅ STEP 2: Payment succeeded! Now create order in database
+      console.log('✅ Payment succeeded!', paymentIntent.id);
+      console.log('📝 Step 2: Creating order in database...');
+
       const formData = form.getValues();
       const subtotal = items.reduce((sum, item) => sum + item.total_price, 0);
 
@@ -91,9 +128,15 @@ export default function PaymentForm({
         create_account: formData.createAccount,
         password: formData.password,
         currency: 'CAD',
+        // Include payment details since payment already succeeded
+        stripe_payment_intent_id: paymentIntent.id,
+        payment_method: paymentIntent.payment_method,
+        // ⚠️ IMPORTANT: Create with 'pending' status first
+        // Then update to 'confirmed' to trigger inventory reduction
+        payment_status: 'pending',
+        status: 'pending',
       };
 
-      // Create order in database (includes inventory validation)
       const orderResponse = await fetch('/api/orders/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -103,7 +146,61 @@ export default function PaymentForm({
       if (!orderResponse.ok) {
         const errorData = await orderResponse.json();
 
-        // Handle inventory errors with detailed information
+        // Handle specific error types
+
+        // Email already in use (account creation)
+        if (errorData.error === 'Email already in use' || orderResponse.status === 409) {
+          toast({
+            title: t('accountCreationFailed') || 'Account Creation Failed',
+            description: errorData.message || 'An account with this email already exists. Please sign in or use a different email.',
+            variant: 'destructive',
+            duration: 8000,
+          });
+          console.error('⚠️ Payment succeeded but account creation failed - email already exists');
+          setIsProcessing(false);
+          return;
+        }
+
+        // Invalid password
+        if (errorData.error === 'Invalid password') {
+          toast({
+            title: t('invalidPassword') || 'Invalid Password',
+            description: errorData.message || 'Password must be at least 8 characters long.',
+            variant: 'destructive',
+            duration: 6000,
+          });
+          console.error('⚠️ Payment succeeded but account creation failed - invalid password');
+          setIsProcessing(false);
+          return;
+        }
+
+        // Account or profile creation failed
+        if (errorData.error === 'Account creation failed' || errorData.error === 'Profile creation failed') {
+          toast({
+            title: t('accountCreationFailed') || 'Account Creation Failed',
+            description: errorData.message || 'Failed to create your account. Your payment was successful, but please contact support.',
+            variant: 'destructive',
+            duration: 10000,
+          });
+          console.error('⚠️ Payment succeeded but account/profile creation failed');
+          setIsProcessing(false);
+          return;
+        }
+
+        // Invalid cart data
+        if (errorData.error === 'Invalid cart data') {
+          toast({
+            title: t('invalidCartData') || 'Invalid Cart Data',
+            description: errorData.message || 'Some items in your cart are invalid. Please refresh and try again.',
+            variant: 'destructive',
+            duration: 8000,
+          });
+          console.error('⚠️ Payment succeeded but cart validation failed');
+          setIsProcessing(false);
+          return;
+        }
+
+        // Inventory errors
         if (errorData.error === 'Insufficient inventory' && errorData.details) {
           const itemsList = errorData.details
             .map((item: any) => `• ${item.productName} (${item.variant}): ${item.message}`)
@@ -113,86 +210,60 @@ export default function PaymentForm({
             title: t('outOfStock'),
             description: `${t('itemsNoLongerAvailable')}:\n\n${itemsList}\n\n${t('updateCartAndTryAgain')}`,
             variant: 'destructive',
-            duration: 10000, // Show longer for multiple items
+            duration: 10000,
           });
 
+          // Payment already succeeded but order creation failed
+          // User needs to contact support for refund
+          console.error('⚠️ Payment succeeded but order creation failed - inventory issue');
           setIsProcessing(false);
-          return; // Stop here - don't proceed to payment
+          return;
         }
 
-        throw new Error(errorData.error || 'Failed to create order');
+        // Generic error
+        throw new Error(errorData.message || errorData.error || 'Failed to create order');
       }
 
       const { orderId, orderNumber } = await orderResponse.json();
+      console.log('✅ Order created:', orderNumber);
 
-      // Confirm payment with Stripe
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/checkout/success?order=${orderNumber}`,
-        },
-        redirect: 'if_required',
-      });
-
-      if (error) {
-        // Show error to customer
-        toast({
-          title: t('paymentFailed'),
-          description: error.message,
-          variant: 'destructive',
-        });
-
-        // Update order status to failed
-        await fetch('/api/orders/update-status', {
+      // ✅ STEP 3: Update order with payment confirmation (triggers email)
+      console.log('📧 Step 3: Updating order status and sending confirmation email...');
+      try {
+        const updateResponse = await fetch('/api/orders/update-status', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             orderId,
-            status: 'payment_failed',
+            status: 'confirmed',
+            paymentStatus: 'completed',
+            stripePaymentIntentId: paymentIntent.id,
+            paymentMethod: paymentIntent.payment_method,
           }),
         });
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Payment successful
-        console.log('✅ Payment succeeded!', paymentIntent.id);
 
-        try {
-          const updateResponse = await fetch('/api/orders/update-status', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              orderId,
-              status: 'confirmed',  // ✅ This triggers inventory reduction!
-              paymentStatus: 'completed',
-              stripePaymentIntentId: paymentIntent.id,
-              paymentMethod: paymentIntent.payment_method, // ✅ Add payment method
-            }),
-          });
-
-          if (!updateResponse.ok) {
-            console.error('Failed to update order status');
-            // Don't fail the order, but log it for admin review
-          } else {
-            const updateResult = await updateResponse.json();
-            console.log('✅ Order confirmed:', updateResult);
-            console.log('🔔 Inventory should be reduced now!');
-          }
-        } catch (error) {
-          console.error('Error updating order status:', error);
-          // Don't fail the order, but log it
-        }
-
-        // Clear cart
-        if (isAuth && user?.id) {
-          await dispatch(clearCartDB(user.id));
+        if (updateResponse.ok) {
+          console.log('✅ Order confirmed and email sent');
         } else {
-          sessionStorage.setItem('payment_just_completed', 'true');
-          dispatch(clearCartLocal());
+          console.error('⚠️ Failed to update order status');
         }
-        // Redirect to success page
-        router.push(`/checkout/success?order=${orderNumber}`);
+      } catch (error) {
+        console.error('Error updating order status:', error);
       }
+
+      // Clear cart
+      if (isAuth && user?.id) {
+        await dispatch(clearCartDB(user.id));
+      } else {
+        sessionStorage.setItem('payment_just_completed', 'true');
+        dispatch(clearCartLocal());
+      }
+
+      // Redirect to success page
+      router.push(`/checkout/success?order=${orderNumber}`);
+
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error('💥 Payment error:', error);
       toast({
         title: t('error'),
         description: t('somethingWentWrong'),

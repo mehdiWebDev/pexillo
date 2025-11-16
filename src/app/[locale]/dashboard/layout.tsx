@@ -13,7 +13,8 @@ import {
   Users,
   Settings,
   ChevronRight,
-  Menu
+  Menu,
+  ShoppingBag
 } from 'lucide-react';
 import { Button } from '@/src/components/ui/button';
 import { Sheet, SheetContent } from '@/src/components/ui/sheet';
@@ -33,6 +34,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       label: t('overview'),
       href: '/dashboard',
       icon: LayoutDashboard
+    },
+    {
+      label: 'Orders',
+      href: '/dashboard/orders',
+      icon: ShoppingBag
     },
     {
       label: t('products'),

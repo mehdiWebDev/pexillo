@@ -53,22 +53,40 @@ export async function POST(req: NextRequest) {
       create_account,
       password,
       currency,
+      // Payment details (if payment confirmed before order creation)
+      stripe_payment_intent_id,
+      payment_method,
+      payment_status,
+      status,
     } = await req.json();
 
-    console.log('Received order request: !!!!', {
+    console.log('Received order request:', {
       email,
       phone,
-      shipping_address,
-      billing_address,
-      items,
-      subtotal,
-      tax_amount,
-      shipping_amount,
+      hasPayment: !!stripe_payment_intent_id,
+      payment_status,
+      status,
       total_amount,
-      create_account,
-      password,
-      currency,
+      itemsCount: items.length,
     });
+
+    // ✅ VALIDATE: Ensure all items have variant_id
+    const itemsWithoutVariant = items.filter((item: any) => !item.variant_id || !item.product_id);
+    if (itemsWithoutVariant.length > 0) {
+      console.error('❌ Invalid cart data - items missing variant_id or product_id:', itemsWithoutVariant);
+      return NextResponse.json(
+        {
+          error: 'Invalid cart data',
+          message: 'Some items in your cart are missing required information. Please clear your cart and try again.',
+          details: itemsWithoutVariant.map((item: any) => ({
+            product_id: item.product_id || 'missing',
+            variant_id: item.variant_id || 'missing',
+            product_name: item.product_name || 'unknown',
+          }))
+        },
+        { status: 400 }
+      );
+    }
 
     // ✅ CRITICAL: Check inventory availability BEFORE creating order
     console.log('🔍 Checking inventory availability...');
@@ -138,25 +156,81 @@ export async function POST(req: NextRequest) {
       userId: userId || 'guest'
     });
 
-    // Create account if requested (guest checkout)
+    // ✅ Create account if requested (guest checkout)
     if (create_account && !userId && password) {
+      console.log('🔐 Creating new account for:', email);
+
+      // Check if email already exists
+      const { data: existingUser, error: checkError } = await supabaseAdmin.auth.admin.listUsers();
+
+      const emailExists = existingUser?.users?.some(user => user.email?.toLowerCase() === email.toLowerCase());
+
+      if (emailExists) {
+        console.error('❌ Email already exists:', email);
+        return NextResponse.json(
+          {
+            error: 'Email already in use',
+            message: 'An account with this email already exists. Please sign in or use a different email address.',
+          },
+          { status: 409 } // 409 Conflict
+        );
+      }
+
+      // Validate password
+      if (!password || password.length < 8) {
+        return NextResponse.json(
+          {
+            error: 'Invalid password',
+            message: 'Password must be at least 8 characters long.',
+          },
+          { status: 400 }
+        );
+      }
+
+      // Create user account
       const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
         email,
         password,
         email_confirm: true, // Auto-confirm email
       });
 
+      if (authError) {
+        console.error('❌ Failed to create user account:', authError);
+        return NextResponse.json(
+          {
+            error: 'Account creation failed',
+            message: authError.message || 'Failed to create account. Please try again.',
+          },
+          { status: 500 }
+        );
+      }
+
       if (authData?.user) {
         userId = authData.user.id;
+        console.log('✅ User account created:', userId);
 
         // Create profile using admin client
-        await supabaseAdmin.from('profiles').insert({
+        const { error: profileError } = await supabaseAdmin.from('profiles').insert({
           id: userId,
           email,
-          first_name: shipping_address.firstName,
-          last_name: shipping_address.lastName,
+          full_name: `${shipping_address.firstName} ${shipping_address.lastName}`.trim(),
           phone,
         });
+
+        if (profileError) {
+          console.error('❌ Failed to create profile:', profileError);
+          // Delete the auth user if profile creation fails
+          await supabaseAdmin.auth.admin.deleteUser(userId);
+          return NextResponse.json(
+            {
+              error: 'Profile creation failed',
+              message: 'Failed to create user profile. Please try again.',
+            },
+            { status: 500 }
+          );
+        }
+
+        console.log('✅ User profile created successfully');
       }
     }
 
@@ -165,27 +239,39 @@ export async function POST(req: NextRequest) {
     const lookupCode = userId ? null : generateLookupCode();
 
     // Create order using admin client (bypasses RLS)
+    const orderInsertData: any = {
+      user_id: userId,
+      guest_email: userId ? null : email,
+      guest_lookup_code: lookupCode,
+      order_number: orderNumber,
+      status: status || 'pending', // Use provided status or default to pending
+      payment_status: payment_status || 'pending', // Use provided payment_status or default to pending
+      subtotal,
+      tax_amount,
+      shipping_amount,
+      total_amount,
+      shipping_address: {
+        ...shipping_address,
+        email,
+        phone,
+      },
+      billing_address,
+      currency,
+    };
+
+    // Add payment details if payment was confirmed before order creation
+    if (stripe_payment_intent_id) {
+      orderInsertData.stripe_payment_intent_id = stripe_payment_intent_id;
+      console.log('✅ Order created with confirmed payment:', stripe_payment_intent_id);
+    }
+
+    if (payment_method) {
+      orderInsertData.payment_method = payment_method;
+    }
+
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
-      .insert({
-        user_id: userId,
-        guest_email: userId ? null : email,
-        guest_lookup_code: lookupCode,
-        order_number: orderNumber,
-        status: 'pending',
-        payment_status: 'pending',
-        subtotal,
-        tax_amount,
-        shipping_amount,
-        total_amount,
-        shipping_address: {
-          ...shipping_address,
-          email,
-          phone,
-        },
-        billing_address,
-        currency,
-      })
+      .insert(orderInsertData)
       .select()
       .single();
 
@@ -221,45 +307,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Send confirmation email with enhanced data for template
-    if (email) {
-      await sendOrderConfirmationEmail(email, {
-        // Basic order info
-        orderNumber,
-        lookupCode,
-
-        // Customer info
-        customerName: shipping_address.firstName || 'Valued Customer',
-
-        // All amounts
-        subtotal: subtotal.toFixed(2),
-        shippingAmount: shipping_amount.toFixed(2),
-        freeShipping: shipping_amount === 0,
-        taxAmount: tax_amount.toFixed(2),
-        totalAmount: total_amount.toFixed(2),
-
-        // Shipping address for template
-        shippingAddress: {
-          firstName: shipping_address.firstName,
-          lastName: shipping_address.lastName,
-          address: shipping_address.address,
-          apartment: shipping_address.apartment || '',
-          city: shipping_address.city,
-          state: shipping_address.state,
-          postalCode: shipping_address.postalCode,
-          country: shipping_address.country === 'CA' ? 'Canada' : 'United States'
-        },
-
-        // Items formatted for template
-        items: items.map((item: any) => ({
-          name: item.product_name || 'Product',
-          variant: `${item.variant_size || ''} - ${item.variant_color || ''}`.trim(),
-          quantity: item.quantity,
-          price: item.unit_price.toFixed(2),
-          total: (item.unit_price * item.quantity).toFixed(2)
-        }))
-      });
-    }
+    // ✅ IMPORTANT: Confirmation email is sent ONLY when payment is confirmed
+    // This happens in /api/orders/update-status when paymentStatus === 'completed'
+    // This prevents sending confirmation emails for failed/abandoned payments
+    console.log('✅ Order created successfully, awaiting payment confirmation');
 
     return NextResponse.json({
       orderId: order.id,
@@ -273,70 +324,5 @@ export async function POST(req: NextRequest) {
       { error: error.message || 'Failed to create order' },
       { status: 500 }
     );
-  }
-}
-
-// SendGrid email function with template support
-async function sendOrderConfirmationEmail(email: string, orderData: any) {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.log('SendGrid not configured, skipping email');
-    return;
-  }
-
-  try {
-    // Check if template is configured
-    const useTemplate = !!process.env.SENDGRID_ORDER_TEMPLATE_ID;
-
-    const emailPayload: any = {
-      personalizations: [{
-        to: [{ email }],
-      }],
-      from: {
-        email: process.env.FROM_EMAIL || 'orders@pixello.ca',
-        name: 'Pixello',
-      },
-    };
-
-    if (useTemplate) {
-      // Use template
-      emailPayload.personalizations[0].dynamic_template_data = orderData;
-      emailPayload.template_id = process.env.SENDGRID_ORDER_TEMPLATE_ID;
-    } else {
-      // Fallback to inline content if no template
-      emailPayload.personalizations[0].subject = `Order Confirmation - ${orderData.orderNumber}`;
-      emailPayload.content = [
-        {
-          type: 'text/html',
-          value: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h1 style="color: #333;">Thank you for your order!</h1>
-              <p>Order Number: <strong>${orderData.orderNumber}</strong></p>
-              ${orderData.lookupCode ? `<p>Guest Lookup Code: <strong>${orderData.lookupCode}</strong></p>` : ''}
-              <p>Total: <strong>$${orderData.totalAmount}</strong></p>
-              <p>We'll send you another email when your order ships.</p>
-            </div>
-          `
-        }
-      ];
-    }
-
-    const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(emailPayload),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      console.error('Email send failed:', error);
-    } else {
-      console.log('✅ Order confirmation email sent to:', email);
-    }
-  } catch (error) {
-    console.error('Email error:', error);
-    // Don't fail the order if email fails
   }
 }
