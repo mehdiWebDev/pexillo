@@ -139,9 +139,6 @@ export async function sendTrackingEmail(orderId: string): Promise<void> {
   const emailPayload = {
     personalizations: [{
       to: [{ email: customerEmail }],
-      subject: language === 'fr'
-        ? 'Votre commande Pixello a été expédiée! 📦'
-        : 'Your Pixello Order Has Shipped! 📦',
       dynamic_template_data: {
         language,
         customerName,
