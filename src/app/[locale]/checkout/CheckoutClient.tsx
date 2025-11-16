@@ -312,6 +312,8 @@ export default function CheckoutClient() {
                                     form={form}
                                     clientSecret={clientSecret}
                                     total={total}
+                                    tax={tax}
+                                    shipping={shipping}
                                     items={translatedItems}
                                     onBack={handlePreviousStep}
                                 />
