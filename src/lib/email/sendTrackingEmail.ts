@@ -180,6 +180,8 @@ export async function sendTrackingEmail(orderId: string): Promise<void> {
     template_id: process.env.SENDGRID_TRACKING_TEMPLATE_ID
   };
 
+  console.log('📧 SendGrid payload being sent:', JSON.stringify(emailPayload, null, 2));
+
   const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
     method: 'POST',
     headers: {
