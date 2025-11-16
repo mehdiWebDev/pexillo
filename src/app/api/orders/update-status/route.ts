@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { sendConfirmationEmailByOrderId } from '@/src/lib/email/sendOrderConfirmationEmail';
+import { sendAdminOrderNotification } from '@/src/lib/email/sendAdminOrderNotification';
 
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
@@ -137,6 +138,16 @@ export async function POST(req: NextRequest) {
       } catch (emailError) {
         console.error('⚠️ Failed to send confirmation email:', emailError);
         // Don't fail the order update if email fails
+      }
+
+      // ✅ Send admin notification email
+      console.log('📧 Sending admin notification for new order...');
+      try {
+        await sendAdminOrderNotification(orderId);
+        console.log('✅ Admin notification email sent successfully');
+      } catch (emailError) {
+        console.error('⚠️ Failed to send admin notification:', emailError);
+        // Don't fail the order update if admin email fails
       }
     }
 
