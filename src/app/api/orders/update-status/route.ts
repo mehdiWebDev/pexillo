@@ -17,13 +17,24 @@ const supabaseAdmin = createClient(
 
 export async function POST(req: NextRequest) {
   try {
-    const { orderId, status, paymentStatus, stripePaymentIntentId } = await req.json();
+    const {
+      orderId,
+      status,
+      paymentStatus,
+      stripePaymentIntentId,
+      shipping_carrier,
+      tracking_number,
+      estimated_delivery_date
+    } = await req.json();
 
     console.log('🔄 Updating order status:', {
       orderId,
       status,
       paymentStatus,
-      stripePaymentIntentId
+      stripePaymentIntentId,
+      shipping_carrier,
+      tracking_number,
+      estimated_delivery_date
     });
 
     if (!orderId) {
@@ -32,6 +43,13 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Get current order to check previous status
+    const { data: currentOrder } = await supabaseAdmin
+      .from('orders')
+      .select('status, tracking_number, shipping_carrier')
+      .eq('id', orderId)
+      .single();
 
     // Build update object
     const updateData: any = {
@@ -48,6 +66,18 @@ export async function POST(req: NextRequest) {
 
     if (stripePaymentIntentId) {
       updateData.stripe_payment_intent_id = stripePaymentIntentId;
+    }
+
+    if (shipping_carrier !== undefined) {
+      updateData.shipping_carrier = shipping_carrier;
+    }
+
+    if (tracking_number !== undefined) {
+      updateData.tracking_number = tracking_number;
+    }
+
+    if (estimated_delivery_date !== undefined) {
+      updateData.estimated_delivery_date = estimated_delivery_date;
     }
 
     console.log('📝 Update data:', updateData);
@@ -77,6 +107,24 @@ export async function POST(req: NextRequest) {
       console.log('🔔 Inventory reduction trigger should fire now!');
     }
 
+    // Auto-send tracking email if status changed to 'shipped' and tracking exists
+    if (
+      status === 'shipped' &&
+      currentOrder?.status !== 'shipped' &&
+      order.tracking_number &&
+      order.shipping_carrier
+    ) {
+      console.log('📧 Auto-sending tracking email...');
+      try {
+        // Call send tracking email API internally
+        await sendTrackingEmail(orderId);
+        console.log('✅ Tracking email sent automatically');
+      } catch (emailError) {
+        console.error('⚠️ Failed to send tracking email:', emailError);
+        // Don't fail the order update if email fails
+      }
+    }
+
     return NextResponse.json({
       success: true,
       order: {
@@ -92,5 +140,147 @@ export async function POST(req: NextRequest) {
       { error: error.message || 'Failed to update order' },
       { status: 500 }
     );
+  }
+}
+
+// Helper function to send tracking email
+async function sendTrackingEmail(orderId: string) {
+  const CARRIERS = {
+    canada_post: {
+      trackingUrl: (trackingNumber: string) =>
+        `https://www.canadapost-postescanada.ca/track-reperage/en#/search?searchFor=${trackingNumber}`
+    },
+    purolator: {
+      trackingUrl: (trackingNumber: string) =>
+        `https://www.purolator.com/en/shipping/tracker?pin=${trackingNumber}`
+    },
+    ups: {
+      trackingUrl: (trackingNumber: string) =>
+        `https://www.ups.com/track?loc=en_CA&tracknum=${trackingNumber}`
+    },
+    fedex: {
+      trackingUrl: (trackingNumber: string) =>
+        `https://www.fedex.com/fedextrack/?trknbr=${trackingNumber}`
+    }
+  };
+
+  // Fetch order with full details
+  const { data: order } = await supabaseAdmin
+    .from('orders')
+    .select('*')
+    .eq('id', orderId)
+    .single();
+
+  if (!order || !order.tracking_number || !order.shipping_carrier) {
+    throw new Error('Tracking information not available');
+  }
+
+  // Get customer email
+  let customerEmail = '';
+  let customerName = '';
+
+  if (order.user_id) {
+    const { data: userProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('email, first_name')
+      .eq('id', order.user_id)
+      .single();
+
+    if (userProfile) {
+      customerEmail = userProfile.email || '';
+      customerName = userProfile.first_name || 'Valued Customer';
+    }
+  } else {
+    customerEmail = order.guest_email || order.shipping_address?.email || '';
+    customerName = order.shipping_address?.firstName || 'Valued Customer';
+  }
+
+  if (!customerEmail) {
+    throw new Error('Customer email not found');
+  }
+
+  // Get order items
+  const { data: orderItems } = await supabaseAdmin
+    .from('order_items')
+    .select(`
+      quantity,
+      total_price,
+      products (name),
+      product_variants (size, color)
+    `)
+    .eq('order_id', orderId);
+
+  const items = (orderItems || []).map((item: any) => ({
+    name: item.products?.name || 'Product',
+    variant: `${item.product_variants?.size || ''} - ${item.product_variants?.color || ''}`.trim(),
+    quantity: item.quantity,
+    total: item.total_price.toFixed(2)
+  }));
+
+  const language = order.shipping_address?.state === 'QC' ? 'fr' : 'en';
+  const carrier = CARRIERS[order.shipping_carrier as keyof typeof CARRIERS];
+  const trackingUrl = carrier.trackingUrl(order.tracking_number);
+
+  let estimatedDelivery = '';
+  if (order.estimated_delivery_date) {
+    const date = new Date(order.estimated_delivery_date);
+    estimatedDelivery = date.toLocaleDateString(
+      language === 'fr' ? 'fr-CA' : 'en-CA',
+      { year: 'numeric', month: 'long', day: 'numeric' }
+    );
+  }
+
+  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_TRACKING_TEMPLATE_ID) {
+    console.log('SendGrid not configured, skipping tracking email');
+    return;
+  }
+
+  const emailPayload = {
+    personalizations: [{
+      to: [{ email: customerEmail }],
+      dynamic_template_data: {
+        language,
+        customerName,
+        orderNumber: order.order_number,
+        trackingNumber: order.tracking_number,
+        carrier: order.shipping_carrier,
+        trackingUrl,
+        estimatedDelivery,
+        totalAmount: order.total_amount.toFixed(2),
+        items,
+        shippingAddress: {
+          firstName: order.shipping_address?.firstName || '',
+          lastName: order.shipping_address?.lastName || '',
+          address: order.shipping_address?.address || '',
+          apartment: order.shipping_address?.apartment || '',
+          city: order.shipping_address?.city || '',
+          state: order.shipping_address?.state || '',
+          postalCode: order.shipping_address?.postalCode || '',
+          country: order.shipping_address?.country === 'CA' ? 'Canada' : 'United States'
+        }
+      }
+    }],
+    from: {
+      email: process.env.FROM_EMAIL || 'orders@pixello.ca',
+      name: 'Pixello'
+    },
+    template_id: process.env.SENDGRID_TRACKING_TEMPLATE_ID,
+    subject: language === 'fr'
+      ? 'Votre commande Pixello a été expédiée! 📦'
+      : 'Your Pixello Order Has Shipped! 📦'
+  };
+
+  const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(emailPayload),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`SendGrid error: ${error}`);
   }
 }
