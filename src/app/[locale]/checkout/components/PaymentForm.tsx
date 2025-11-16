@@ -131,8 +131,10 @@ export default function PaymentForm({
         // Include payment details since payment already succeeded
         stripe_payment_intent_id: paymentIntent.id,
         payment_method: paymentIntent.payment_method,
-        payment_status: 'completed',
-        status: 'confirmed',
+        // ⚠️ IMPORTANT: Create with 'pending' status first
+        // Then update to 'confirmed' to trigger inventory reduction
+        payment_status: 'pending',
+        status: 'pending',
       };
 
       const orderResponse = await fetch('/api/orders/create', {
