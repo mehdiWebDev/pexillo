@@ -384,8 +384,8 @@ export default function ProductForm({ productId }: ProductFormProps) {
         if (error) throw error;
         finalProductId = productId;
 
+        // Delete only product_images, not variants (we'll upsert variants instead)
         await supabase.from('product_images').delete().eq('product_id', productId);
-        await supabase.from('product_variants').delete().eq('product_id', productId);
       } else {
         const { data: newProduct, error } = await supabase
           .from('products')
@@ -398,7 +398,8 @@ export default function ProductForm({ productId }: ProductFormProps) {
       }
 
       const savedVariantIds: string[] = [];
-      
+
+      // Use upsert to handle both new and existing variants
       for (const variant of variants) {
         const variantData = {
           product_id: finalProductId,
@@ -411,9 +412,13 @@ export default function ProductForm({ productId }: ProductFormProps) {
           is_active: variant.is_active,
         };
 
+        // ✅ Use upsert with onConflict to update existing variants
         const { data: savedVariant, error: variantError } = await supabase
           .from('product_variants')
-          .insert([variantData])
+          .upsert(variantData, {
+            onConflict: 'product_id,size,color', // Match on unique constraint
+            ignoreDuplicates: false, // Update if exists
+          })
           .select()
           .single();
 
