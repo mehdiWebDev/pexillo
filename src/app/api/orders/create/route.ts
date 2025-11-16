@@ -53,21 +53,21 @@ export async function POST(req: NextRequest) {
       create_account,
       password,
       currency,
+      // Payment details (if payment confirmed before order creation)
+      stripe_payment_intent_id,
+      payment_method,
+      payment_status,
+      status,
     } = await req.json();
 
-    console.log('Received order request: !!!!', {
+    console.log('Received order request:', {
       email,
       phone,
-      shipping_address,
-      billing_address,
-      items,
-      subtotal,
-      tax_amount,
-      shipping_amount,
+      hasPayment: !!stripe_payment_intent_id,
+      payment_status,
+      status,
       total_amount,
-      create_account,
-      password,
-      currency,
+      itemsCount: items.length,
     });
 
     // ✅ CRITICAL: Check inventory availability BEFORE creating order
@@ -164,27 +164,39 @@ export async function POST(req: NextRequest) {
     const lookupCode = userId ? null : generateLookupCode();
 
     // Create order using admin client (bypasses RLS)
+    const orderInsertData: any = {
+      user_id: userId,
+      guest_email: userId ? null : email,
+      guest_lookup_code: lookupCode,
+      order_number: orderNumber,
+      status: status || 'pending', // Use provided status or default to pending
+      payment_status: payment_status || 'pending', // Use provided payment_status or default to pending
+      subtotal,
+      tax_amount,
+      shipping_amount,
+      total_amount,
+      shipping_address: {
+        ...shipping_address,
+        email,
+        phone,
+      },
+      billing_address,
+      currency,
+    };
+
+    // Add payment details if payment was confirmed before order creation
+    if (stripe_payment_intent_id) {
+      orderInsertData.stripe_payment_intent_id = stripe_payment_intent_id;
+      console.log('✅ Order created with confirmed payment:', stripe_payment_intent_id);
+    }
+
+    if (payment_method) {
+      orderInsertData.payment_method = payment_method;
+    }
+
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
-      .insert({
-        user_id: userId,
-        guest_email: userId ? null : email,
-        guest_lookup_code: lookupCode,
-        order_number: orderNumber,
-        status: 'pending',
-        payment_status: 'pending',
-        subtotal,
-        tax_amount,
-        shipping_amount,
-        total_amount,
-        shipping_address: {
-          ...shipping_address,
-          email,
-          phone,
-        },
-        billing_address,
-        currency,
-      })
+      .insert(orderInsertData)
       .select()
       .single();
 
