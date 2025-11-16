@@ -294,6 +294,7 @@
     "dashboard": {
         "overview": "Aperçu",
         "products": "Produits",
+        "inventory": "Inventaire",
         "media": "Bibliothèque média",
         "categories": "Catégories",
         "customers": "Clients",
