@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
+import { sendConfirmationEmailByOrderId } from '@/src/lib/email/sendOrderConfirmationEmail';
 
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
@@ -125,6 +126,18 @@ export async function POST(req: NextRequest) {
     // Check if this update should trigger inventory reduction
     if (order.status === 'confirmed' || order.status === 'processing') {
       console.log('🔔 Inventory reduction trigger should fire now!');
+    }
+
+    // ✅ Send order confirmation email when payment is confirmed
+    if (paymentStatus === 'completed') {
+      console.log('📧 Payment confirmed - sending order confirmation email...');
+      try {
+        await sendConfirmationEmailByOrderId(orderId);
+        console.log('✅ Order confirmation email sent successfully');
+      } catch (emailError) {
+        console.error('⚠️ Failed to send confirmation email:', emailError);
+        // Don't fail the order update if email fails
+      }
     }
 
     // Auto-send tracking email if status changed to 'shipped' and tracking exists
