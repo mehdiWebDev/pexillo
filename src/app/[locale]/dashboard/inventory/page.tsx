@@ -42,17 +42,17 @@ interface InventoryTransaction {
   admin_name: string | null;
 }
 
-const TRANSACTION_TYPES = [
-  { value: 'all', label: 'All Types' },
-  { value: 'sale', label: 'Sale', icon: TrendingDown, color: 'text-red-600' },
-  { value: 'restock', label: 'Restock', icon: TrendingUp, color: 'text-green-600' },
-  { value: 'adjustment', label: 'Adjustment', icon: RefreshCw, color: 'text-blue-600' },
-  { value: 'return', label: 'Return', icon: RotateCcw, color: 'text-yellow-600' },
-  { value: 'cancellation', label: 'Cancellation', icon: XCircle, color: 'text-gray-600' },
-];
-
 export default function InventoryPage() {
-  const t = useTranslations('dashboard');
+  const t = useTranslations('dashboard.inventoryPage');
+
+  const TRANSACTION_TYPES = [
+    { value: 'all', label: t('allTypes') },
+    { value: 'sale', label: t('sale'), icon: TrendingDown, color: 'text-red-600' },
+    { value: 'restock', label: t('restock'), icon: TrendingUp, color: 'text-green-600' },
+    { value: 'adjustment', label: t('adjustment'), icon: RefreshCw, color: 'text-blue-600' },
+    { value: 'return', label: t('return'), icon: RotateCcw, color: 'text-yellow-600' },
+    { value: 'cancellation', label: t('cancellation'), icon: XCircle, color: 'text-gray-600' },
+  ];
   const [transactions, setTransactions] = useState<InventoryTransaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -85,10 +85,10 @@ export default function InventoryPage() {
       console.error('Failed to fetch transactions:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load inventory transactions',
+        description: 'Error loading transactions',
         variant: 'destructive',
       });
-    } finally {
+    } finally{
       setIsLoading(false);
     }
   };
@@ -118,26 +118,26 @@ export default function InventoryPage() {
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <Package className="h-8 w-8" />
-          Inventory Transactions
+          {t('title')}
         </h1>
         <p className="text-muted-foreground mt-2">
-          View and track all inventory changes
+          {t('description')}
         </p>
       </div>
 
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle>Filters</CardTitle>
+          <CardTitle>{t('filters')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Search */}
             <div className="space-y-2">
-              <Label>Search Product</Label>
+              <Label>{t('searchProduct')}</Label>
               <div className="flex gap-2">
                 <Input
-                  placeholder="Search by product name..."
+                  placeholder={t('searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -150,7 +150,7 @@ export default function InventoryPage() {
 
             {/* Transaction Type */}
             <div className="space-y-2">
-              <Label>Transaction Type</Label>
+              <Label>{t('transactionType')}</Label>
               <Select value={filterType} onValueChange={setFilterType}>
                 <SelectTrigger>
                   <SelectValue />
@@ -178,7 +178,7 @@ export default function InventoryPage() {
                   fetchTransactions();
                 }}
               >
-                Reset Filters
+                {t('resetFilters')}
               </Button>
             </div>
           </div>
@@ -188,9 +188,9 @@ export default function InventoryPage() {
       {/* Transactions Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Transaction History</CardTitle>
+          <CardTitle>{t('transactionHistory')}</CardTitle>
           <CardDescription>
-            Showing {transactions.length} transactions
+            {t('showingTransactions', { count: transactions.length })}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -200,22 +200,22 @@ export default function InventoryPage() {
             </div>
           ) : transactions.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              No transactions found
+              {t('noTransactionsFound')}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium">Date</th>
-                    <th className="text-left py-3 px-4 font-medium">Product</th>
-                    <th className="text-left py-3 px-4 font-medium">Variant</th>
-                    <th className="text-left py-3 px-4 font-medium">Type</th>
-                    <th className="text-right py-3 px-4 font-medium">Change</th>
-                    <th className="text-right py-3 px-4 font-medium">Before</th>
-                    <th className="text-right py-3 px-4 font-medium">After</th>
-                    <th className="text-left py-3 px-4 font-medium">Order</th>
-                    <th className="text-left py-3 px-4 font-medium">Reason</th>
+                    <th className="text-left py-3 px-4 font-medium">{t('date')}</th>
+                    <th className="text-left py-3 px-4 font-medium">{t('product')}</th>
+                    <th className="text-left py-3 px-4 font-medium">{t('variant')}</th>
+                    <th className="text-left py-3 px-4 font-medium">{t('type')}</th>
+                    <th className="text-right py-3 px-4 font-medium">{t('change')}</th>
+                    <th className="text-right py-3 px-4 font-medium">{t('before')}</th>
+                    <th className="text-right py-3 px-4 font-medium">{t('after')}</th>
+                    <th className="text-left py-3 px-4 font-medium">{t('order')}</th>
+                    <th className="text-left py-3 px-4 font-medium">{t('reason')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -281,7 +281,7 @@ export default function InventoryPage() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-6">
               <p className="text-sm text-muted-foreground">
-                Page {currentPage} of {totalPages}
+                {t('page', { current: currentPage, total: totalPages })}
               </p>
               <div className="flex gap-2">
                 <Button
@@ -290,7 +290,7 @@ export default function InventoryPage() {
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 >
-                  Previous
+                  {t('previous')}
                 </Button>
                 <Button
                   variant="outline"
@@ -298,7 +298,7 @@ export default function InventoryPage() {
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 >
-                  Next
+                  {t('next')}
                 </Button>
               </div>
             </div>

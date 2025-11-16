@@ -20,7 +20,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/src/components/ui/alert';
 
 export default function SettingsPage() {
-  const t = useTranslations('dashboard');
+  const t = useTranslations('dashboard.settingsPage');
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [adminEmail, setAdminEmail] = useState('');
@@ -45,8 +45,8 @@ export default function SettingsPage() {
     } catch (error) {
       console.error('Failed to fetch settings:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load settings',
+        title: t('errorLoading'),
+        description: t('errorLoading'),
         variant: 'destructive',
       });
     } finally {
@@ -59,8 +59,8 @@ export default function SettingsPage() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (adminEmail && !emailRegex.test(adminEmail)) {
       toast({
-        title: 'Invalid Email',
-        description: 'Please enter a valid email address',
+        title: t('invalidEmail'),
+        description: t('invalidEmailDescription'),
         variant: 'destructive',
       });
       return;
@@ -84,14 +84,14 @@ export default function SettingsPage() {
       }
 
       toast({
-        title: 'Settings Saved',
-        description: 'Your settings have been updated successfully',
+        title: t('settingsSaved'),
+        description: t('settingsSavedDescription'),
       });
     } catch (error) {
       console.error('Failed to save settings:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to save settings',
+        title: t('errorSaving'),
+        description: t('errorSaving'),
         variant: 'destructive',
       });
     } finally {
@@ -113,10 +113,10 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <SettingsIcon className="h-8 w-8" />
-          Settings
+          {t('title')}
         </h1>
         <p className="text-muted-foreground mt-2">
-          Manage your store settings and preferences
+          {t('description')}
         </p>
       </div>
 
@@ -125,20 +125,19 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            Order Notifications
+            {t('orderNotifications')}
           </CardTitle>
           <CardDescription>
-            Configure email notifications for new orders
+            {t('orderNotificationsDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Info Alert */}
           <Alert>
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>How it works</AlertTitle>
+            <AlertTitle>{t('howItWorks')}</AlertTitle>
             <AlertDescription>
-              When a customer completes a purchase, an email notification will be sent to the address below.
-              The email includes order details, customer information, and items purchased.
+              {t('howItWorksDescription')}
             </AlertDescription>
           </Alert>
 
@@ -146,18 +145,18 @@ export default function SettingsPage() {
           <div className="space-y-2">
             <Label htmlFor="adminEmail" className="flex items-center gap-2">
               <Mail className="h-4 w-4" />
-              Admin Email Address
+              {t('adminEmail')}
             </Label>
             <Input
               id="adminEmail"
               type="email"
-              placeholder="admin@example.com"
+              placeholder={t('adminEmailPlaceholder')}
               value={adminEmail}
               onChange={(e) => setAdminEmail(e.target.value)}
               className="max-w-md"
             />
             <p className="text-sm text-muted-foreground">
-              This email will receive notifications for all new orders
+              {t('adminEmailDescription')}
             </p>
           </div>
 
@@ -171,7 +170,7 @@ export default function SettingsPage() {
               className="h-4 w-4 rounded border-gray-300"
             />
             <Label htmlFor="enableNotifications" className="cursor-pointer">
-              Enable order notifications
+              {t('enableNotifications')}
             </Label>
           </div>
 
@@ -185,12 +184,12 @@ export default function SettingsPage() {
               {isSaving ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving...
+                  {t('saving')}
                 </>
               ) : (
                 <>
                   <Save className="h-4 w-4" />
-                  Save Settings
+                  {t('saveSettings')}
                 </>
               )}
             </Button>
@@ -201,22 +200,22 @@ export default function SettingsPage() {
       {/* Future Settings Sections */}
       <Card className="opacity-60">
         <CardHeader>
-          <CardTitle>Store Information</CardTitle>
-          <CardDescription>Coming soon</CardDescription>
+          <CardTitle>{t('storeInformation')}</CardTitle>
+          <CardDescription>{t('comingSoon')}</CardDescription>
         </CardHeader>
       </Card>
 
       <Card className="opacity-60">
         <CardHeader>
-          <CardTitle>Payment Settings</CardTitle>
-          <CardDescription>Coming soon</CardDescription>
+          <CardTitle>{t('paymentSettings')}</CardTitle>
+          <CardDescription>{t('comingSoon')}</CardDescription>
         </CardHeader>
       </Card>
 
       <Card className="opacity-60">
         <CardHeader>
-          <CardTitle>Shipping Settings</CardTitle>
-          <CardDescription>Coming soon</CardDescription>
+          <CardTitle>{t('shippingSettings')}</CardTitle>
+          <CardDescription>{t('comingSoon')}</CardDescription>
         </CardHeader>
       </Card>
     </div>
