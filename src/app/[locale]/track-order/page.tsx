@@ -290,11 +290,11 @@ export default function TrackOrderPage() {
                   </div>
                   <div>
                     <span className="text-gray-600">{t('paymentStatus')}:</span>
-                    <p className="font-medium">
+                    <div className="font-medium">
                       <Badge className={statusColors[trackingData.order.payment_status] || ''}>
                         {tOrders(`paymentStatuses.${trackingData.order.payment_status}`)}
                       </Badge>
-                    </p>
+                    </div>
                   </div>
                   <div className="col-span-2">
                     <span className="text-gray-600">{t('totalAmount')}:</span>

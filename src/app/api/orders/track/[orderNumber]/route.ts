@@ -88,7 +88,7 @@ export async function GET(
       }, { status: 200 }); // Return 200 so UI can display the message
     }
 
-    // Get order items
+    // Get order items with images
     const { data: orderItems, error: itemsError } = await supabaseAdmin
       .from('order_items')
       .select(`
@@ -96,7 +96,8 @@ export async function GET(
         quantity,
         unit_price,
         total_price,
-        image_url,
+        product_id,
+        variant_id,
         products (
           name
         ),
@@ -111,12 +112,47 @@ export async function GET(
       console.error('Error fetching order items:', itemsError);
     }
 
-    // Format items
-    const items = (orderItems || []).map((item: any) => ({
-      product_name: item.products?.name || 'Unknown Product',
-      variant_size: item.product_variants?.size || '',
-      variant_color: item.product_variants?.color || '',
-      quantity: item.quantity
+    // Get images for each item (prefer variant image, fallback to product image)
+    const itemsWithImages = await Promise.all((orderItems || []).map(async (item: any) => {
+      let imageUrl = null;
+
+      // Try to get variant-specific image first
+      if (item.variant_id) {
+        const { data: variantImage } = await supabaseAdmin
+          .from('product_images')
+          .select('image_url')
+          .eq('variant_id', item.variant_id)
+          .eq('is_primary', true)
+          .single();
+
+        if (variantImage) {
+          imageUrl = variantImage.image_url;
+        }
+      }
+
+      // Fallback to product image if no variant image
+      if (!imageUrl && item.product_id) {
+        const { data: productImage } = await supabaseAdmin
+          .from('product_images')
+          .select('image_url')
+          .eq('product_id', item.product_id)
+          .eq('is_primary', true)
+          .single();
+
+        if (productImage) {
+          imageUrl = productImage.image_url;
+        }
+      }
+
+      return {
+        product_name: item.products?.name || 'Unknown Product',
+        variant_size: item.product_variants?.size || '',
+        variant_color: item.product_variants?.color || '',
+        quantity: item.quantity,
+        unit_price: item.unit_price || 0,
+        total_price: item.total_price || 0,
+        image_url: imageUrl
+      };
     }));
 
     // Return tracking information
@@ -134,15 +170,7 @@ export async function GET(
         tracking_number: order.tracking_number,
         estimated_delivery_date: order.estimated_delivery_date
       },
-      items: (orderItems || []).map((item: any) => ({
-        product_name: item.products?.name || 'Unknown Product',
-        variant_size: item.product_variants?.size || '',
-        variant_color: item.product_variants?.color || '',
-        quantity: item.quantity,
-        unit_price: item.unit_price || 0,
-        total_price: item.total_price || 0,
-        image_url: item.image_url || null
-      }))
+      items: itemsWithImages
     });
   } catch (error: any) {
     console.error('Error in track order API:', error);
