@@ -295,6 +295,13 @@ export async function PATCH(
       );
     }
 
+    // Get current order to check previous status (for auto-email trigger)
+    const { data: currentOrder } = await supabaseAdmin
+      .from('orders')
+      .select('status, tracking_number, shipping_carrier')
+      .eq('id', orderId)
+      .single();
+
     // Build update object
     const updateData: any = {
       updated_at: new Date().toISOString()
@@ -321,6 +328,33 @@ export async function PATCH(
         { error: 'Failed to update order' },
         { status: 500 }
       );
+    }
+
+    // Auto-send tracking email if status changed to 'shipped' and tracking exists
+    if (
+      body.status === 'shipped' &&
+      currentOrder?.status !== 'shipped' &&
+      order.tracking_number &&
+      order.shipping_carrier
+    ) {
+      console.log('📧 Auto-sending tracking email for order:', order.order_number);
+      try {
+        // Call the send tracking email endpoint internally
+        const emailResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/orders/send-tracking-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: order.id })
+        });
+
+        if (emailResponse.ok) {
+          console.log('✅ Tracking email sent automatically');
+        } else {
+          console.error('⚠️ Failed to send tracking email:', await emailResponse.text());
+        }
+      } catch (emailError) {
+        console.error('⚠️ Failed to send tracking email:', emailError);
+        // Don't fail the order update if email fails
+      }
     }
 
     return NextResponse.json({
