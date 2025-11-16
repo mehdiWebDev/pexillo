@@ -153,8 +153,7 @@ export async function POST(req: NextRequest) {
         await supabaseAdmin.from('profiles').insert({
           id: userId,
           email,
-          first_name: shipping_address.firstName,
-          last_name: shipping_address.lastName,
+          full_name: `${shipping_address.firstName} ${shipping_address.lastName}`.trim(),
           phone,
         });
       }

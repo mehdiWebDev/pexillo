@@ -128,13 +128,13 @@ export async function GET(req: NextRequest) {
           // Registered user
           const { data: profile } = await supabaseAdmin
             .from('profiles')
-            .select('email, first_name, last_name')
+            .select('email, full_name')
             .eq('id', order.user_id)
             .single();
 
           if (profile) {
             customerEmail = profile.email || '';
-            customerName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+            customerName = profile.full_name || '';
           }
         } else {
           // Guest order - Parse JSONB address

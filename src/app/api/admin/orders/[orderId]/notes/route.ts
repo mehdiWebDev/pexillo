@@ -85,7 +85,8 @@ export async function POST(
         created_at,
         created_by,
         profiles (
-          email
+          email,
+          full_name
         )
       `)
       .single();
@@ -104,7 +105,7 @@ export async function POST(
       note: newNote.note,
       created_at: newNote.created_at,
       created_by: newNote.profiles
-        ? newNote.profiles.email
+        ? newNote.profiles.full_name || newNote.profiles.email
         : 'System'
     };
 

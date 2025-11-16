@@ -110,13 +110,13 @@ export async function POST(req: NextRequest) {
     if (order.user_id) {
       const { data: userProfile } = await supabaseAdmin
         .from('profiles')
-        .select('email, first_name, last_name')
+        .select('email, full_name')
         .eq('id', order.user_id)
         .single();
 
       if (userProfile) {
         customerEmail = userProfile.email || '';
-        customerName = userProfile.first_name || 'Valued Customer';
+        customerName = userProfile.full_name || 'Valued Customer';
       }
     } else {
       // Guest order

@@ -208,13 +208,13 @@ async function sendTrackingEmail(orderId: string) {
     // Registered user
     const { data: userProfile } = await supabaseAdmin
       .from('profiles')
-      .select('email, first_name')
+      .select('email, full_name')
       .eq('id', order.user_id)
       .single();
 
     if (userProfile) {
       customerEmail = userProfile.email || '';
-      customerName = userProfile.first_name || 'Valued Customer';
+      customerName = userProfile.full_name || 'Valued Customer';
     }
   } else {
     // Guest order

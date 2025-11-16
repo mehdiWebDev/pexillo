@@ -74,7 +74,7 @@ export async function GET(
     if (order.user_id) {
       const { data: userProfile } = await supabaseAdmin
         .from('profiles')
-        .select('email, first_name, last_name, phone')
+        .select('email, full_name, phone')
         .eq('id', order.user_id)
         .single();
 
@@ -85,7 +85,7 @@ export async function GET(
           : order.shipping_address;
 
         customer = {
-          name: `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim(),
+          name: userProfile.full_name || '',
           email: userProfile.email || '',
           phone: userProfile.phone || shippingAddress?.phone || '',
           accountType: 'registered',
@@ -172,7 +172,8 @@ export async function GET(
         created_at,
         created_by,
         profiles (
-          email
+          email,
+          full_name
         )
       `)
       .eq('order_id', orderId)
@@ -188,7 +189,7 @@ export async function GET(
       note: note.note,
       created_at: note.created_at,
       created_by: note.profiles
-        ? note.profiles.email
+        ? note.profiles.full_name || note.profiles.email
         : 'System'
     }));
 
