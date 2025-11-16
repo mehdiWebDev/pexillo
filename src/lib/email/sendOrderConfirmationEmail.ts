@@ -43,7 +43,7 @@ interface OrderConfirmationData {
 }
 
 export async function sendOrderConfirmationEmail(email: string, orderData: OrderConfirmationData) {
-  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_CONFIRMATION_TEMPLATE_ID) {
+  if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_ORDER_TEMPLATE_ID) {
     console.log('⚠️ SendGrid not configured, skipping confirmation email');
     return;
   }
@@ -75,7 +75,7 @@ export async function sendOrderConfirmationEmail(email: string, orderData: Order
       email: process.env.FROM_EMAIL || 'orders@pixello.ca',
       name: 'Pixello'
     },
-    template_id: process.env.SENDGRID_CONFIRMATION_TEMPLATE_ID
+    template_id: process.env.SENDGRID_ORDER_TEMPLATE_ID
   };
 
   const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
