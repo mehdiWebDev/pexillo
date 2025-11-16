@@ -79,21 +79,29 @@ export async function GET(
         .single();
 
       if (userProfile) {
+        // Parse JSONB for registered users too (for phone)
+        const shippingAddress = typeof order.shipping_address === 'string'
+          ? JSON.parse(order.shipping_address)
+          : order.shipping_address;
+
         customer = {
           name: `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim(),
           email: userProfile.email || '',
-          phone: userProfile.phone || order.shipping_address?.phone || '',
+          phone: userProfile.phone || shippingAddress?.phone || '',
           accountType: 'registered',
           lookupCode: null
         };
       }
     } else {
-      // Guest order
-      const shippingAddress = order.shipping_address || {};
+      // Guest order - Parse JSONB address
+      const shippingAddress = typeof order.shipping_address === 'string'
+        ? JSON.parse(order.shipping_address)
+        : order.shipping_address;
+
       customer = {
-        name: `${shippingAddress.firstName || ''} ${shippingAddress.lastName || ''}`.trim(),
-        email: order.guest_email || shippingAddress.email || '',
-        phone: shippingAddress.phone || '',
+        name: `${shippingAddress?.firstName || ''} ${shippingAddress?.lastName || ''}`.trim() || order.guest_email?.split('@')[0] || 'Guest',
+        email: order.guest_email || '',
+        phone: shippingAddress?.phone || '',
         accountType: 'guest',
         lookupCode: order.guest_lookup_code
       };

@@ -740,6 +740,7 @@
         "statusPending": "Commande reçue",
         "statusConfirmed": "Paiement confirmé",
         "statusProcessing": "En production",
+        "statusPrinting": "Impression",
         "statusShipped": "Expédiée",
         "statusDelivered": "Livrée",
         "statusCancelled": "Annulée",
@@ -759,6 +760,7 @@
             "pending": "En attente",
             "confirmed": "Confirmée",
             "processing": "En traitement",
+            "printing": "Impression",
             "shipped": "Expédiée",
             "delivered": "Livrée",
             "cancelled": "Annulée",
@@ -767,14 +769,17 @@
         "paymentStatuses": {
             "all": "Tous les paiements",
             "pending": "En attente",
+            "processing": "En traitement",
             "completed": "Complété",
-            "failed": "Échoué"
+            "failed": "Échoué",
+            "refunded": "Remboursé"
         },
         "productionStatuses": {
             "pending": "En attente",
-            "in_production": "En production",
-            "completed": "Complété",
-            "shipped": "Expédié"
+            "design_review": "Révision du design",
+            "approved": "Approuvé",
+            "printing": "Impression",
+            "completed": "Complété"
         }
     }
 }

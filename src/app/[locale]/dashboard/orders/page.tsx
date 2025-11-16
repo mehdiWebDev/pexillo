@@ -79,6 +79,7 @@ const statusColors: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
   confirmed: 'bg-blue-100 text-blue-800',
   processing: 'bg-purple-100 text-purple-800',
+  printing: 'bg-indigo-100 text-indigo-800',
   shipped: 'bg-green-100 text-green-800',
   delivered: 'bg-gray-100 text-gray-800',
   cancelled: 'bg-red-100 text-red-800',
@@ -87,8 +88,10 @@ const statusColors: Record<string, string> = {
 
 const paymentStatusColors: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
+  processing: 'bg-blue-100 text-blue-800',
   completed: 'bg-green-100 text-green-800',
-  failed: 'bg-red-100 text-red-800'
+  failed: 'bg-red-100 text-red-800',
+  refunded: 'bg-gray-100 text-gray-800'
 };
 
 export default function OrdersPage() {
@@ -273,6 +276,7 @@ export default function OrdersPage() {
                 <SelectItem value="pending">{tAdmin('statuses.pending')}</SelectItem>
                 <SelectItem value="confirmed">{tAdmin('statuses.confirmed')}</SelectItem>
                 <SelectItem value="processing">{tAdmin('statuses.processing')}</SelectItem>
+                <SelectItem value="printing">{tAdmin('statuses.printing')}</SelectItem>
                 <SelectItem value="shipped">{tAdmin('statuses.shipped')}</SelectItem>
                 <SelectItem value="delivered">{tAdmin('statuses.delivered')}</SelectItem>
                 <SelectItem value="cancelled">{tAdmin('statuses.cancelled')}</SelectItem>
@@ -287,8 +291,10 @@ export default function OrdersPage() {
               <SelectContent>
                 <SelectItem value="">{tAdmin('paymentStatuses.all')}</SelectItem>
                 <SelectItem value="pending">{tAdmin('paymentStatuses.pending')}</SelectItem>
+                <SelectItem value="processing">{tAdmin('paymentStatuses.processing')}</SelectItem>
                 <SelectItem value="completed">{tAdmin('paymentStatuses.completed')}</SelectItem>
                 <SelectItem value="failed">{tAdmin('paymentStatuses.failed')}</SelectItem>
+                <SelectItem value="refunded">{tAdmin('paymentStatuses.refunded')}</SelectItem>
               </SelectContent>
             </Select>
 

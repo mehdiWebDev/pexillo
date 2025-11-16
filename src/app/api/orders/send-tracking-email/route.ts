@@ -98,7 +98,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get customer email
+    // Parse shipping address from JSONB
+    const shippingAddress = typeof order.shipping_address === 'string'
+      ? JSON.parse(order.shipping_address)
+      : order.shipping_address;
+
+    // Get customer email - Handle guest vs registered users
     let customerEmail = '';
     let customerName = '';
 
@@ -114,8 +119,9 @@ export async function POST(req: NextRequest) {
         customerName = userProfile.first_name || 'Valued Customer';
       }
     } else {
-      customerEmail = order.guest_email || order.shipping_address?.email || '';
-      customerName = order.shipping_address?.firstName || 'Valued Customer';
+      // Guest order
+      customerEmail = order.guest_email || '';
+      customerName = shippingAddress?.firstName || 'Valued Customer';
     }
 
     if (!customerEmail) {
@@ -145,8 +151,8 @@ export async function POST(req: NextRequest) {
       total: item.total_price.toFixed(2)
     }));
 
-    // Detect language from shipping address state
-    const language = order.shipping_address?.state === 'QC' ? 'fr' : 'en';
+    // Detect language from parsed shipping address
+    const language = shippingAddress?.state === 'QC' ? 'fr' : 'en';
 
     // Generate tracking URL
     const carrier = CARRIERS[order.shipping_carrier as keyof typeof CARRIERS];
@@ -192,14 +198,14 @@ export async function POST(req: NextRequest) {
           totalAmount: order.total_amount.toFixed(2),
           items,
           shippingAddress: {
-            firstName: order.shipping_address?.firstName || '',
-            lastName: order.shipping_address?.lastName || '',
-            address: order.shipping_address?.address || '',
-            apartment: order.shipping_address?.apartment || '',
-            city: order.shipping_address?.city || '',
-            state: order.shipping_address?.state || '',
-            postalCode: order.shipping_address?.postalCode || '',
-            country: order.shipping_address?.country === 'CA' ? 'Canada' : 'United States'
+            firstName: shippingAddress?.firstName || '',
+            lastName: shippingAddress?.lastName || '',
+            address: shippingAddress?.address || '',
+            apartment: shippingAddress?.apartment || '',
+            city: shippingAddress?.city || '',
+            state: shippingAddress?.state || '',
+            postalCode: shippingAddress?.postalCode || '',
+            country: shippingAddress?.country === 'CA' ? 'Canada' : 'United States'
           }
         }
       }],

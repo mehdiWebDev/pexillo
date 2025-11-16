@@ -137,17 +137,19 @@ export async function GET(req: NextRequest) {
             customerName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
           }
         } else {
-          // Guest order
+          // Guest order - Parse JSONB address
           customerEmail = order.guest_email || '';
-          const shippingAddress = order.shipping_address || {};
-          customerName = `${shippingAddress.firstName || ''} ${shippingAddress.lastName || ''}`.trim();
+          const shippingAddress = typeof order.shipping_address === 'string'
+            ? JSON.parse(order.shipping_address)
+            : order.shipping_address;
+          customerName = `${shippingAddress?.firstName || ''} ${shippingAddress?.lastName || ''}`.trim();
         }
 
         return {
           id: order.id,
           order_number: order.order_number,
           created_at: order.created_at,
-          customer_name: customerName || 'N/A',
+          customer_name: customerName || customerEmail || 'N/A',
           customer_email: customerEmail,
           total_amount: order.total_amount,
           status: order.status,
