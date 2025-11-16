@@ -67,11 +67,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create user account
+    // Create user account with metadata for the trigger
+    const fullName = `${firstName || ''} ${lastName || ''}`.trim() || '';
+
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
       email_confirm: true, // Auto-confirm email
+      user_metadata: {
+        full_name: fullName,
+      },
     });
 
     if (authError) {
@@ -98,28 +103,24 @@ export async function POST(request: Request) {
     const userId = authData.user.id;
     console.log('✅ User account created during checkout:', userId);
 
-    // Create profile using admin client
-    const { error: profileError } = await supabaseAdmin.from('profiles').insert({
-      id: userId,
-      email,
-      full_name: `${firstName || ''} ${lastName || ''}`.trim() || null,
-      phone: phone || null,
-    });
+    // The database trigger already created the profile
+    // Now update it with the phone number if provided
+    if (phone) {
+      const { error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .update({ phone })
+        .eq('id', userId);
 
-    if (profileError) {
-      console.error('❌ Failed to create profile:', profileError);
-      // Delete the auth user if profile creation fails (rollback)
-      await supabaseAdmin.auth.admin.deleteUser(userId);
-      return NextResponse.json(
-        {
-          error: 'Profile creation failed',
-          message: 'Failed to create user profile. Please try again.',
-        },
-        { status: 500 }
-      );
+      if (profileError) {
+        console.error('❌ Failed to update profile with phone:', profileError);
+        // Don't fail the whole process just because phone update failed
+        // The account was created successfully
+      } else {
+        console.log('✅ User profile updated with phone number');
+      }
     }
 
-    console.log('✅ User profile created successfully');
+    console.log('✅ User profile created successfully by trigger');
 
     return NextResponse.json({
       success: true,
