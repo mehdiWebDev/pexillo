@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { UseFormReturn } from 'react-hook-form';
 import { Mail, Phone, Home, CreditCard, Search } from 'lucide-react';
+import { CANADIAN_PROVINCES } from '@/src/data/canadianProvinces';
 
 // TypeScript declarations for Google Maps
 declare global {
@@ -516,12 +517,28 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
               <label htmlFor="shipping-state" className="block text-sm font-medium mb-2">
                 {t('province')} *
               </label>
-              <input
+              <select
                 id="shipping-state"
-                type="text"
-                {...register('shipping.state')}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              />
+                {...register('shipping.state', {
+                  onChange: (e) => {
+                    const selectedProvince = e.target.value;
+                    if (selectedProvince) {
+                      onAddressChange({
+                        state: selectedProvince,
+                        country: 'CA'
+                      });
+                    }
+                  }
+                })}
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white"
+              >
+                <option value="">{t('selectProvince')}</option>
+                {CANADIAN_PROVINCES.map((province) => (
+                  <option key={province.code} value={province.code}>
+                    {province.name}
+                  </option>
+                ))}
+              </select>
               {errors.shipping?.state && (
                 <p className="text-sm text-destructive mt-1">
                   {errors.shipping.state.message as string}
@@ -695,12 +712,18 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
                 <label htmlFor="billing-state" className="block text-sm font-medium mb-2">
                   {t('province')} *
                 </label>
-                <input
+                <select
                   id="billing-state"
-                  type="text"
                   {...register('billing.state')}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white"
+                >
+                  <option value="">{t('selectProvince')}</option>
+                  {CANADIAN_PROVINCES.map((province) => (
+                    <option key={province.code} value={province.code}>
+                      {province.name}
+                    </option>
+                  ))}
+                </select>
                 {errors.billing?.state && (
                   <p className="text-sm text-destructive mt-1">
                     {errors.billing.state.message as string}

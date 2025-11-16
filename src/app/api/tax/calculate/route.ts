@@ -11,31 +11,59 @@ export async function POST(req: NextRequest) {
     try {
         const { country, state } = await req.json();
 
-        if (!country || !state) {
+        if (!country) {
             return NextResponse.json(
-                { rate: 0, message: 'Missing location data' },
+                { rate: 0, message: 'Missing country data' },
                 { status: 200 }
             );
         }
 
-        // Fetch tax rate from database
-        const { data: taxRate, error } = await supabase
-            .from('tax_rates')
-            .select('rate')
-            .eq('country_code', country.toUpperCase())
-            .eq('state_code', state.toUpperCase())
-            .single();
+        const countryCode = country.toUpperCase();
+        const stateCode = state?.toUpperCase();
 
-        if (error || !taxRate) {
-            // Default tax rate if not found
-            console.log('Tax rate not found for:', country, state);
-            return NextResponse.json({ rate: 0 });
+        // Try to fetch state-specific tax rate first (if state is provided)
+        if (stateCode) {
+            const { data: stateTaxRate, error: stateError } = await supabase
+                .from('tax_rates')
+                .select('rate')
+                .eq('country_code', countryCode)
+                .eq('state_code', stateCode)
+                .single();
+
+            if (!stateError && stateTaxRate) {
+                return NextResponse.json({
+                    rate: stateTaxRate.rate,
+                    country: countryCode,
+                    state: stateCode,
+                    level: 'state'
+                });
+            }
         }
 
+        // Fallback to country-level tax rate
+        const { data: countryTaxRate, error: countryError } = await supabase
+            .from('tax_rates')
+            .select('rate')
+            .eq('country_code', countryCode)
+            .is('state_code', null)
+            .single();
+
+        if (!countryError && countryTaxRate) {
+            return NextResponse.json({
+                rate: countryTaxRate.rate,
+                country: countryCode,
+                state: stateCode,
+                level: 'country'
+            });
+        }
+
+        // No tax rate found
+        console.log('Tax rate not found for:', countryCode, stateCode);
         return NextResponse.json({
-            rate: taxRate.rate,
-            country,
-            state
+            rate: 0,
+            country: countryCode,
+            state: stateCode,
+            level: 'none'
         });
     } catch (error) {
         console.error('Tax calculation error:', error);

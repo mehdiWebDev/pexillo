@@ -21,6 +21,8 @@ interface PaymentFormProps {
   form: UseFormReturn<any>;
   clientSecret: string;
   total: number;
+  tax: number;
+  shipping: number;
   items: any[];
   onBack: () => void;
 }
@@ -29,6 +31,8 @@ export default function PaymentForm({
   form,
   clientSecret,
   total,
+  tax,
+  shipping,
   items,
   onBack
 }: PaymentFormProps) {
@@ -63,6 +67,8 @@ export default function PaymentForm({
     try {
       // Prepare order data
       const formData = form.getValues();
+      const subtotal = items.reduce((sum, item) => sum + item.total_price, 0);
+
       const orderData = {
         email: formData.email,
         phone: formData.phone,
@@ -74,10 +80,13 @@ export default function PaymentForm({
           quantity: item.quantity,
           unit_price: item.unit_price,
           total_price: item.total_price,
+          product_name: item.product_name,
+          variant_size: item.variant_size,
+          variant_color: item.variant_color,
         })),
-        subtotal: items.reduce((sum, item) => sum + item.total_price, 0),
-        tax_amount: form.getValues('taxAmount') || 0,
-        shipping_amount: form.getValues('shippingAmount') || 0,
+        subtotal,
+        tax_amount: tax,
+        shipping_amount: shipping,
         total_amount: total,
         create_account: formData.createAccount,
         password: formData.password,

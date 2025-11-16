@@ -37,6 +37,9 @@ if (!stripeKey) {
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
+// Valid Canadian province codes
+const VALID_PROVINCE_CODES = ['AB', 'BC', 'MB', 'NB', 'NL', 'NT', 'NS', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT'];
+
 // Checkout form schema
 const checkoutSchema = z.object({
     // Contact
@@ -50,7 +53,11 @@ const checkoutSchema = z.object({
         address: z.string().min(5, 'Address is required'),
         apartment: z.string().optional(),
         city: z.string().min(2, 'City is required'),
-        state: z.string().min(2, 'State is required'),
+        state: z.string()
+            .min(2, 'Province is required')
+            .refine((val) => VALID_PROVINCE_CODES.includes(val), {
+                message: 'Please select a valid Canadian province'
+            }),
         postalCode: z.string().min(5, 'Postal code is required'),
         country: z.string().min(2, 'Country is required'),
     }),
@@ -305,6 +312,8 @@ export default function CheckoutClient() {
                                     form={form}
                                     clientSecret={clientSecret}
                                     total={total}
+                                    tax={tax}
+                                    shipping={shipping}
                                     items={translatedItems}
                                     onBack={handlePreviousStep}
                                 />

@@ -575,6 +575,7 @@
         "loadingAddressAutocomplete": "Chargement de l'auto-complétion de l'adresse...",
         "streetAddress": "Adresse",
         "province": "Province",
+        "selectProvince": "Sélectionner une province",
         "deliveryAvailable": "Livraison disponible",
         "canadaOnly": "Canada seulement",
         "billingAddressSearch": "Rechercher votre adresse de facturation"
