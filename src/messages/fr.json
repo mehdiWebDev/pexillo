@@ -644,7 +644,16 @@
         "page": "Page",
         "of": "de",
         "previous": "Précédent",
-        "next": "Suivant"
+        "next": "Suivant",
+        "statuses": {
+            "pending": "Commande reçue",
+            "confirmed": "Paiement confirmé",
+            "processing": "En production",
+            "printing": "Impression",
+            "shipped": "Expédiée",
+            "delivered": "Livrée",
+            "cancelled": "Annulée"
+        }
     },
     "orderDetail": {
         "backToOrders": "Retour aux commandes",
