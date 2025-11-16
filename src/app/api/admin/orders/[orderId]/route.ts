@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
+import { sendTrackingEmail } from '@/src/lib/email/sendTrackingEmail';
 
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
@@ -339,18 +340,8 @@ export async function PATCH(
     ) {
       console.log('📧 Auto-sending tracking email for order:', order.order_number);
       try {
-        // Call the send tracking email endpoint internally
-        const emailResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/orders/send-tracking-email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ orderId: order.id })
-        });
-
-        if (emailResponse.ok) {
-          console.log('✅ Tracking email sent automatically');
-        } else {
-          console.error('⚠️ Failed to send tracking email:', await emailResponse.text());
-        }
+        await sendTrackingEmail(order.id);
+        console.log('✅ Tracking email sent automatically');
       } catch (emailError) {
         console.error('⚠️ Failed to send tracking email:', emailError);
         // Don't fail the order update if email fails
