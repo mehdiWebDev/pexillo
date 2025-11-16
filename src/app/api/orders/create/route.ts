@@ -70,6 +70,24 @@ export async function POST(req: NextRequest) {
       itemsCount: items.length,
     });
 
+    // ✅ VALIDATE: Ensure all items have variant_id
+    const itemsWithoutVariant = items.filter((item: any) => !item.variant_id || !item.product_id);
+    if (itemsWithoutVariant.length > 0) {
+      console.error('❌ Invalid cart data - items missing variant_id or product_id:', itemsWithoutVariant);
+      return NextResponse.json(
+        {
+          error: 'Invalid cart data',
+          message: 'Some items in your cart are missing required information. Please clear your cart and try again.',
+          details: itemsWithoutVariant.map((item: any) => ({
+            product_id: item.product_id || 'missing',
+            variant_id: item.variant_id || 'missing',
+            product_name: item.product_name || 'unknown',
+          }))
+        },
+        { status: 400 }
+      );
+    }
+
     // ✅ CRITICAL: Check inventory availability BEFORE creating order
     console.log('🔍 Checking inventory availability...');
     const inventoryChecks = await Promise.all(
