@@ -105,8 +105,8 @@ export default function OrdersPage() {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
     search: '',
-    status: '',
-    payment_status: '',
+    status: 'all',
+    payment_status: 'all',
     date_from: '',
     date_to: ''
   });
@@ -115,11 +115,19 @@ export default function OrdersPage() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
+
+      // Build params, filtering out 'all' values
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: '20',
-        ...filters
+        limit: '20'
       });
+
+      // Only add non-empty and non-'all' filters
+      if (filters.search) params.append('search', filters.search);
+      if (filters.status && filters.status !== 'all') params.append('status', filters.status);
+      if (filters.payment_status && filters.payment_status !== 'all') params.append('payment_status', filters.payment_status);
+      if (filters.date_from) params.append('date_from', filters.date_from);
+      if (filters.date_to) params.append('date_to', filters.date_to);
 
       const response = await fetch(`/api/admin/orders?${params}`);
       if (!response.ok) throw new Error('Failed to fetch orders');
@@ -155,8 +163,8 @@ export default function OrdersPage() {
   const handleClearFilters = () => {
     setFilters({
       search: '',
-      status: '',
-      payment_status: '',
+      status: 'all',
+      payment_status: 'all',
       date_from: '',
       date_to: ''
     });
@@ -164,7 +172,14 @@ export default function OrdersPage() {
   };
 
   const handleExportCSV = () => {
-    const params = new URLSearchParams(filters);
+    // Build export params, filtering out 'all' values
+    const params = new URLSearchParams();
+    if (filters.search) params.append('search', filters.search);
+    if (filters.status && filters.status !== 'all') params.append('status', filters.status);
+    if (filters.payment_status && filters.payment_status !== 'all') params.append('payment_status', filters.payment_status);
+    if (filters.date_from) params.append('date_from', filters.date_from);
+    if (filters.date_to) params.append('date_to', filters.date_to);
+
     window.open(`/api/admin/orders/export?${params}`, '_blank');
   };
 
@@ -272,7 +287,7 @@ export default function OrdersPage() {
                 <SelectValue placeholder={t('filterByStatus')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{tAdmin('statuses.all')}</SelectItem>
+                <SelectItem value="all">{tAdmin('statuses.all')}</SelectItem>
                 <SelectItem value="pending">{tAdmin('statuses.pending')}</SelectItem>
                 <SelectItem value="confirmed">{tAdmin('statuses.confirmed')}</SelectItem>
                 <SelectItem value="processing">{tAdmin('statuses.processing')}</SelectItem>
@@ -289,7 +304,7 @@ export default function OrdersPage() {
                 <SelectValue placeholder={t('filterByPayment')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{tAdmin('paymentStatuses.all')}</SelectItem>
+                <SelectItem value="all">{tAdmin('paymentStatuses.all')}</SelectItem>
                 <SelectItem value="pending">{tAdmin('paymentStatuses.pending')}</SelectItem>
                 <SelectItem value="processing">{tAdmin('paymentStatuses.processing')}</SelectItem>
                 <SelectItem value="completed">{tAdmin('paymentStatuses.completed')}</SelectItem>
