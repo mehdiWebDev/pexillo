@@ -25,6 +25,7 @@ interface PaymentFormProps {
   shipping: number;
   items: any[];
   onBack: () => void;
+  createdUserId: string | null;
 }
 
 export default function PaymentForm({
@@ -34,7 +35,8 @@ export default function PaymentForm({
   tax,
   shipping,
   items,
-  onBack
+  onBack,
+  createdUserId
 }: PaymentFormProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -106,7 +108,11 @@ export default function PaymentForm({
       const formData = form.getValues();
       const subtotal = items.reduce((sum, item) => sum + item.total_price, 0);
 
+      // Determine userId: use authenticated user's ID, or createdUserId from checkout
+      const userId = user?.id || createdUserId || null;
+
       const orderData = {
+        user_id: userId, // Use the userId directly
         email: formData.email,
         phone: formData.phone,
         shipping_address: formData.shipping,
@@ -125,8 +131,6 @@ export default function PaymentForm({
         tax_amount: tax,
         shipping_amount: shipping,
         total_amount: total,
-        create_account: formData.createAccount,
-        password: formData.password,
         currency: 'CAD',
         // Include payment details since payment already succeeded
         stripe_payment_intent_id: paymentIntent.id,
@@ -146,46 +150,8 @@ export default function PaymentForm({
       if (!orderResponse.ok) {
         const errorData = await orderResponse.json();
 
-        // Handle specific error types
-
-        // Email already in use (account creation)
-        if (errorData.error === 'Email already in use' || orderResponse.status === 409) {
-          toast({
-            title: t('accountCreationFailed') || 'Account Creation Failed',
-            description: errorData.message || 'An account with this email already exists. Please sign in or use a different email.',
-            variant: 'destructive',
-            duration: 8000,
-          });
-          console.error('⚠️ Payment succeeded but account creation failed - email already exists');
-          setIsProcessing(false);
-          return;
-        }
-
-        // Invalid password
-        if (errorData.error === 'Invalid password') {
-          toast({
-            title: t('invalidPassword') || 'Invalid Password',
-            description: errorData.message || 'Password must be at least 8 characters long.',
-            variant: 'destructive',
-            duration: 6000,
-          });
-          console.error('⚠️ Payment succeeded but account creation failed - invalid password');
-          setIsProcessing(false);
-          return;
-        }
-
-        // Account or profile creation failed
-        if (errorData.error === 'Account creation failed' || errorData.error === 'Profile creation failed') {
-          toast({
-            title: t('accountCreationFailed') || 'Account Creation Failed',
-            description: errorData.message || 'Failed to create your account. Your payment was successful, but please contact support.',
-            variant: 'destructive',
-            duration: 10000,
-          });
-          console.error('⚠️ Payment succeeded but account/profile creation failed');
-          setIsProcessing(false);
-          return;
-        }
+        // Note: Account creation errors are now handled earlier in the checkout flow
+        // This section only handles order creation errors
 
         // Invalid cart data
         if (errorData.error === 'Invalid cart data') {

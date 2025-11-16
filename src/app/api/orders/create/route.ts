@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
     const cookieStore = await cookies();
 
     const {
+      user_id, // User ID if account was created during checkout
       email,
       phone,
       shipping_address,
@@ -50,8 +51,6 @@ export async function POST(req: NextRequest) {
       tax_amount,
       shipping_amount,
       total_amount,
-      create_account,
-      password,
       currency,
       // Payment details (if payment confirmed before order creation)
       stripe_payment_intent_id,
@@ -145,94 +144,25 @@ export async function POST(req: NextRequest) {
 
     console.log('✅ Inventory check passed for all items');
 
-    // Check if user is logged in using server-side client
-    let userId = null;
-    const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    userId = user?.id || null;
+    // Determine userId: use provided user_id (from checkout account creation),
+    // or fall back to authenticated user
+    let userId = user_id || null;
+
+    // If no user_id provided, check if user is authenticated
+    if (!userId) {
+      const supabase = await createServerClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      userId = user?.id || null;
+    }
 
     console.log('🔍 User authentication check:', {
       isAuthenticated: !!userId,
-      userId: userId || 'guest'
+      userId: userId || 'guest',
+      source: user_id ? 'checkout_created' : 'authenticated'
     });
 
-    // ✅ Create account if requested (guest checkout)
-    if (create_account && !userId && password) {
-      console.log('🔐 Creating new account for:', email);
-
-      // Check if email already exists
-      const { data: existingUser, error: checkError } = await supabaseAdmin.auth.admin.listUsers();
-
-      const emailExists = existingUser?.users?.some(user => user.email?.toLowerCase() === email.toLowerCase());
-
-      if (emailExists) {
-        console.error('❌ Email already exists:', email);
-        return NextResponse.json(
-          {
-            error: 'Email already in use',
-            message: 'An account with this email already exists. Please sign in or use a different email address.',
-          },
-          { status: 409 } // 409 Conflict
-        );
-      }
-
-      // Validate password
-      if (!password || password.length < 8) {
-        return NextResponse.json(
-          {
-            error: 'Invalid password',
-            message: 'Password must be at least 8 characters long.',
-          },
-          { status: 400 }
-        );
-      }
-
-      // Create user account
-      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true, // Auto-confirm email
-      });
-
-      if (authError) {
-        console.error('❌ Failed to create user account:', authError);
-        return NextResponse.json(
-          {
-            error: 'Account creation failed',
-            message: authError.message || 'Failed to create account. Please try again.',
-          },
-          { status: 500 }
-        );
-      }
-
-      if (authData?.user) {
-        userId = authData.user.id;
-        console.log('✅ User account created:', userId);
-
-        // Create profile using admin client
-        const { error: profileError } = await supabaseAdmin.from('profiles').insert({
-          id: userId,
-          email,
-          full_name: `${shipping_address.firstName} ${shipping_address.lastName}`.trim(),
-          phone,
-        });
-
-        if (profileError) {
-          console.error('❌ Failed to create profile:', profileError);
-          // Delete the auth user if profile creation fails
-          await supabaseAdmin.auth.admin.deleteUser(userId);
-          return NextResponse.json(
-            {
-              error: 'Profile creation failed',
-              message: 'Failed to create user profile. Please try again.',
-            },
-            { status: 500 }
-          );
-        }
-
-        console.log('✅ User profile created successfully');
-      }
-    }
+    // Note: Account creation now happens earlier in checkout flow (before payment)
+    // The user_id is passed from the checkout flow if an account was created
 
     // Generate order details
     const orderNumber = generateOrderNumber();
