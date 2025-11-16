@@ -164,6 +164,7 @@ export default function PaymentForm({
               status: 'confirmed',  // ✅ This triggers inventory reduction!
               paymentStatus: 'completed',
               stripePaymentIntentId: paymentIntent.id,
+              paymentMethod: paymentIntent.payment_method, // ✅ Add payment method
             }),
           });
 

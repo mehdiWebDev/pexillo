@@ -1,6 +1,7 @@
 // app/api/orders/update-status/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import Stripe from 'stripe';
 
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
@@ -15,6 +16,10 @@ const supabaseAdmin = createClient(
   }
 );
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2024-11-20.acacia',
+});
+
 export async function POST(req: NextRequest) {
   try {
     const {
@@ -22,6 +27,7 @@ export async function POST(req: NextRequest) {
       status,
       paymentStatus,
       stripePaymentIntentId,
+      paymentMethod,
       shipping_carrier,
       tracking_number,
       estimated_delivery_date
@@ -32,6 +38,7 @@ export async function POST(req: NextRequest) {
       status,
       paymentStatus,
       stripePaymentIntentId,
+      paymentMethod,
       shipping_carrier,
       tracking_number,
       estimated_delivery_date
@@ -78,6 +85,19 @@ export async function POST(req: NextRequest) {
 
     if (estimated_delivery_date !== undefined) {
       updateData.estimated_delivery_date = estimated_delivery_date;
+    }
+
+    // Fetch payment method type from Stripe if payment method ID is provided
+    if (paymentMethod) {
+      try {
+        const paymentMethodDetails = await stripe.paymentMethods.retrieve(paymentMethod);
+        updateData.payment_method = paymentMethodDetails.type; // e.g., "card", "apple_pay", "google_pay"
+        console.log('💳 Payment method type:', paymentMethodDetails.type);
+      } catch (error) {
+        console.error('Failed to fetch payment method details:', error);
+        // Fallback to storing the ID if fetch fails
+        updateData.payment_method = paymentMethod;
+      }
     }
 
     console.log('📝 Update data:', updateData);
@@ -175,11 +195,17 @@ async function sendTrackingEmail(orderId: string) {
     throw new Error('Tracking information not available');
   }
 
-  // Get customer email
+  // Parse shipping address from JSONB
+  const shippingAddress = typeof order.shipping_address === 'string'
+    ? JSON.parse(order.shipping_address)
+    : order.shipping_address;
+
+  // Get customer email - Handle guest vs registered users
   let customerEmail = '';
   let customerName = '';
 
   if (order.user_id) {
+    // Registered user
     const { data: userProfile } = await supabaseAdmin
       .from('profiles')
       .select('email, first_name')
@@ -191,8 +217,9 @@ async function sendTrackingEmail(orderId: string) {
       customerName = userProfile.first_name || 'Valued Customer';
     }
   } else {
-    customerEmail = order.guest_email || order.shipping_address?.email || '';
-    customerName = order.shipping_address?.firstName || 'Valued Customer';
+    // Guest order
+    customerEmail = order.guest_email || '';
+    customerName = shippingAddress?.firstName || 'Valued Customer';
   }
 
   if (!customerEmail) {
@@ -217,7 +244,8 @@ async function sendTrackingEmail(orderId: string) {
     total: item.total_price.toFixed(2)
   }));
 
-  const language = order.shipping_address?.state === 'QC' ? 'fr' : 'en';
+  // Language detection from parsed address
+  const language = shippingAddress?.state === 'QC' ? 'fr' : 'en';
   const carrier = CARRIERS[order.shipping_carrier as keyof typeof CARRIERS];
   const trackingUrl = carrier.trackingUrl(order.tracking_number);
 
@@ -249,14 +277,14 @@ async function sendTrackingEmail(orderId: string) {
         totalAmount: order.total_amount.toFixed(2),
         items,
         shippingAddress: {
-          firstName: order.shipping_address?.firstName || '',
-          lastName: order.shipping_address?.lastName || '',
-          address: order.shipping_address?.address || '',
-          apartment: order.shipping_address?.apartment || '',
-          city: order.shipping_address?.city || '',
-          state: order.shipping_address?.state || '',
-          postalCode: order.shipping_address?.postalCode || '',
-          country: order.shipping_address?.country === 'CA' ? 'Canada' : 'United States'
+          firstName: shippingAddress?.firstName || '',
+          lastName: shippingAddress?.lastName || '',
+          address: shippingAddress?.address || '',
+          apartment: shippingAddress?.apartment || '',
+          city: shippingAddress?.city || '',
+          state: shippingAddress?.state || '',
+          postalCode: shippingAddress?.postalCode || '',
+          country: shippingAddress?.country === 'CA' ? 'Canada' : 'United States'
         }
       }
     }],
