@@ -653,6 +653,13 @@
             "shipped": "Shipped",
             "delivered": "Delivered",
             "cancelled": "Cancelled"
+        },
+        "paymentStatuses": {
+            "pending": "Pending",
+            "processing": "Processing",
+            "completed": "Completed",
+            "failed": "Failed",
+            "refunded": "Refunded"
         }
     },
     "orderDetail": {

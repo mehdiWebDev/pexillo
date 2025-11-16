@@ -653,6 +653,13 @@
             "shipped": "Expédiée",
             "delivered": "Livrée",
             "cancelled": "Annulée"
+        },
+        "paymentStatuses": {
+            "pending": "En attente",
+            "processing": "En traitement",
+            "completed": "Complété",
+            "failed": "Échoué",
+            "refunded": "Remboursé"
         }
     },
     "orderDetail": {
