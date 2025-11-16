@@ -172,9 +172,7 @@ export async function GET(
         created_at,
         created_by,
         profiles (
-          email,
-          first_name,
-          last_name
+          email
         )
       `)
       .eq('order_id', orderId)
@@ -190,7 +188,7 @@ export async function GET(
       note: note.note,
       created_at: note.created_at,
       created_by: note.profiles
-        ? `${note.profiles.first_name || ''} ${note.profiles.last_name || ''}`.trim() || note.profiles.email
+        ? note.profiles.email
         : 'System'
     }));
 

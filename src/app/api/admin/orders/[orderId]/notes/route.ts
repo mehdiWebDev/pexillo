@@ -85,9 +85,7 @@ export async function POST(
         created_at,
         created_by,
         profiles (
-          email,
-          first_name,
-          last_name
+          email
         )
       `)
       .single();
@@ -106,7 +104,7 @@ export async function POST(
       note: newNote.note,
       created_at: newNote.created_at,
       created_by: newNote.profiles
-        ? `${newNote.profiles.first_name || ''} ${newNote.profiles.last_name || ''}`.trim() || newNote.profiles.email
+        ? newNote.profiles.email
         : 'System'
     };
 
