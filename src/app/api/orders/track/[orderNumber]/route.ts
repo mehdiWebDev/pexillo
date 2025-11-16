@@ -94,6 +94,9 @@ export async function GET(
       .select(`
         id,
         quantity,
+        unit_price,
+        total_price,
+        image_url,
         products (
           name
         ),
