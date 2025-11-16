@@ -1,6 +1,7 @@
 // app/api/orders/update-status/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import Stripe from 'stripe';
 
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
@@ -14,6 +15,10 @@ const supabaseAdmin = createClient(
     }
   }
 );
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2024-11-20.acacia',
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -51,8 +56,17 @@ export async function POST(req: NextRequest) {
       updateData.stripe_payment_intent_id = stripePaymentIntentId;
     }
 
+    // Fetch payment method type from Stripe if payment method ID is provided
     if (paymentMethod) {
-      updateData.payment_method = paymentMethod;
+      try {
+        const paymentMethodDetails = await stripe.paymentMethods.retrieve(paymentMethod);
+        updateData.payment_method = paymentMethodDetails.type; // e.g., "card", "apple_pay", "google_pay"
+        console.log('💳 Payment method type:', paymentMethodDetails.type);
+      } catch (error) {
+        console.error('Failed to fetch payment method details:', error);
+        // Fallback to storing the ID if fetch fails
+        updateData.payment_method = paymentMethod;
+      }
     }
 
     console.log('📝 Update data:', updateData);
