@@ -220,8 +220,18 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
       // Convert prediction to place
       const place = placePrediction.toPlace();
 
-      // Fetch address components
-      await place.fetchFields({ fields: ['addressComponents'] });
+      // Fetch all available fields to see what data we have
+      await place.fetchFields({
+        fields: ['addressComponents', 'formattedAddress', 'displayName', 'location']
+      });
+
+      // Log everything to debug postal code issue
+      console.log('=== Google Places API Response ===');
+      console.log('Place ID:', place.id);
+      console.log('Formatted Address:', place.formattedAddress);
+      console.log('Display Name:', place.displayName);
+      console.log('Location:', place.location?.lat(), place.location?.lng());
+      console.log('Address Components:', place.addressComponents);
 
       if (!place.addressComponents) {
         console.log('No address components found');
@@ -291,6 +301,72 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
         // Add space in the middle if it's a 6-character code
         if (fullPostalCode.length === 6) {
           fullPostalCode = `${fullPostalCode.slice(0, 3)} ${fullPostalCode.slice(3)}`;
+        }
+      }
+
+      // Try to get more accurate postal code using Geocoding API
+      // Google Places sometimes returns incorrect postal codes, so we verify with reverse geocoding
+      if (place.location && country === 'CA') {
+        try {
+          const lat = place.location.lat();
+          const lng = place.location.lng();
+
+          console.log('Attempting reverse geocoding for more accurate postal code...');
+          const geocoder = new window.google.maps.Geocoder();
+          const geocodeResult = await new Promise((resolve, reject) => {
+            geocoder.geocode(
+              {
+                location: { lat, lng },
+                region: 'CA'
+              },
+              (results: any, status: any) => {
+                if (status === 'OK' && results && results[0]) {
+                  resolve(results[0]);
+                } else {
+                  reject(new Error(`Geocoding failed: ${status}`));
+                }
+              }
+            );
+          }) as any;
+
+          // Extract postal code from geocoding result
+          let geocodedPostalCode = '';
+          let geocodedPostalCodeSuffix = '';
+
+          for (const component of geocodeResult.address_components) {
+            const types = component.types;
+            if (types.includes('postal_code')) {
+              geocodedPostalCode = component.long_name || '';
+            }
+            if (types.includes('postal_code_suffix')) {
+              geocodedPostalCodeSuffix = component.long_name || '';
+            }
+          }
+
+          // Combine and format geocoded postal code
+          if (geocodedPostalCode) {
+            let verifiedPostalCode = geocodedPostalCode;
+            if (geocodedPostalCodeSuffix) {
+              verifiedPostalCode = `${geocodedPostalCode.replace(/\s+/g, '')} ${geocodedPostalCodeSuffix}`.trim();
+            }
+
+            // Format properly
+            verifiedPostalCode = verifiedPostalCode.replace(/\s+/g, '').toUpperCase();
+            if (verifiedPostalCode.length === 6) {
+              verifiedPostalCode = `${verifiedPostalCode.slice(0, 3)} ${verifiedPostalCode.slice(3)}`;
+            }
+
+            console.log('Postal code comparison:', {
+              fromPlaces: fullPostalCode,
+              fromGeocoding: verifiedPostalCode,
+              usingGeocoded: verifiedPostalCode !== fullPostalCode
+            });
+
+            // Use the geocoded postal code as it's typically more accurate
+            fullPostalCode = verifiedPostalCode;
+          }
+        } catch (geocodeError) {
+          console.warn('Reverse geocoding failed, using Places postal code:', geocodeError);
         }
       }
 
@@ -584,6 +660,9 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="H1A 1A1"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                {t('verifyPostalCode')}
+              </p>
               {errors.shipping?.postalCode && (
                 <p className="text-sm text-destructive mt-1">
                   {errors.shipping.postalCode.message as string}
@@ -769,6 +848,9 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="H1A 1A1"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t('verifyPostalCode')}
+                </p>
                 {errors.billing?.postalCode && (
                   <p className="text-sm text-destructive mt-1">
                     {errors.billing.postalCode.message as string}

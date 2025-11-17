@@ -695,7 +695,8 @@
         "selectProvince": "Sélectionner une province",
         "deliveryAvailable": "Livraison disponible",
         "canadaOnly": "Canada seulement",
-        "billingAddressSearch": "Rechercher votre adresse de facturation"
+        "billingAddressSearch": "Rechercher votre adresse de facturation",
+        "verifyPostalCode": "Veuillez vérifier que le code postal est correct"
     },
     "checkoutSuccess": {
         "loadingOrder": "Chargement des détails de la commande...",

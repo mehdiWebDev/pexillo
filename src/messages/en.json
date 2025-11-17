@@ -695,7 +695,8 @@
         "selectProvince": "Select a province",
         "deliveryAvailable": "Delivery available",
         "canadaOnly": "Canada only",
-        "billingAddressSearch": "Search for billing address"
+        "billingAddressSearch": "Search for billing address",
+        "verifyPostalCode": "Please verify the postal code is correct"
     },
     "checkoutSuccess": {
         "loadingOrder": "Loading order details...",
