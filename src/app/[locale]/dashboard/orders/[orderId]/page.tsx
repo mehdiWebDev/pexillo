@@ -525,43 +525,57 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
           </CardHeader>
           <CardContent>
             {order.shipping_address && (
-              <div className="space-y-1">
-                <div className="font-medium">
-                  {order.shipping_address.firstName} {order.shipping_address.lastName}
-                </div>
-                <div>{order.shipping_address.address}</div>
-                {order.shipping_address.apartment && <div>{order.shipping_address.apartment}</div>}
-                <div>
-                  {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postalCode}
-                </div>
-                <div>{order.shipping_address.country}</div>
-                {order.shipping_address.email && (
-                  <div className="mt-2 pt-2 border-t">
-                    <div className="text-sm text-muted-foreground">{t('email')}</div>
-                    <a href={`mailto:${order.shipping_address.email}`} className="text-blue-600 hover:underline text-sm">
-                      {order.shipping_address.email}
-                    </a>
+              <div className="space-y-4">
+                {/* Contact Information Section */}
+                {(order.shipping_address.email || order.shipping_address.phone) && (
+                  <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+                    <div className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <Mail size={14} />
+                      {t('contactInformation')}
+                    </div>
+                    {order.shipping_address.email && (
+                      <div>
+                        <div className="text-xs text-muted-foreground">{t('email')}</div>
+                        <a href={`mailto:${order.shipping_address.email}`} className="text-blue-600 hover:underline font-medium">
+                          {order.shipping_address.email}
+                        </a>
+                      </div>
+                    )}
+                    {order.shipping_address.phone && (
+                      <div>
+                        <div className="text-xs text-muted-foreground">{t('phone')}</div>
+                        <a href={`tel:${order.shipping_address.phone}`} className="text-blue-600 hover:underline font-medium">
+                          {order.shipping_address.phone}
+                        </a>
+                      </div>
+                    )}
                   </div>
                 )}
-                {order.shipping_address.phone && (
-                  <div className="mt-1">
-                    <div className="text-sm text-muted-foreground">{t('phone')}</div>
-                    <a href={`tel:${order.shipping_address.phone}`} className="text-blue-600 hover:underline text-sm">
-                      {order.shipping_address.phone}
-                    </a>
+
+                {/* Delivery Address Section */}
+                <div className="space-y-1">
+                  <div className="text-sm font-medium text-muted-foreground mb-2">{t('deliveryAddress')}</div>
+                  <div className="font-medium">
+                    {order.shipping_address.firstName} {order.shipping_address.lastName}
                   </div>
-                )}
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                    `${order.shipping_address.address}, ${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.postalCode}`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline text-sm flex items-center gap-1 mt-2"
-                >
-                  {t('viewOnMaps')}
-                  <ExternalLink size={14} />
-                </a>
+                  <div>{order.shipping_address.address}</div>
+                  {order.shipping_address.apartment && <div>{order.shipping_address.apartment}</div>}
+                  <div>
+                    {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postalCode}
+                  </div>
+                  <div>{order.shipping_address.country}</div>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      `${order.shipping_address.address}, ${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.postalCode}`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline text-sm flex items-center gap-1 mt-2"
+                  >
+                    {t('viewOnMaps')}
+                    <ExternalLink size={14} />
+                  </a>
+                </div>
               </div>
             )}
           </CardContent>

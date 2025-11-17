@@ -817,6 +817,8 @@
         "billingAddress": "Adresse de facturation",
         "sameAsShipping": "Identique à l'adresse de livraison",
         "viewOnMaps": "Voir sur Google Maps",
+        "contactInformation": "Informations de contact",
+        "deliveryAddress": "Adresse de livraison",
         "paymentInformation": "Informations de paiement",
         "paymentMethod": "Méthode de paiement",
         "paymentIntentId": "ID d'intention de paiement",
