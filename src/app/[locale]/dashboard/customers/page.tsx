@@ -76,8 +76,7 @@ export default function CustomersPage() {
       // Build params
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: '20',
-        is_admin: 'false' // Only show regular customers, not admins
+        limit: '20'
       });
 
       // Only add non-empty filters
