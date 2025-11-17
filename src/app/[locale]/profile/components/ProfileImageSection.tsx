@@ -3,6 +3,7 @@
 
 import { useState, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { Profile } from '../page';
 import { Camera, Loader2, ShoppingBag, DollarSign, Calendar } from 'lucide-react';
 import { toast } from '@/src/hooks/use-toast';
@@ -15,6 +16,7 @@ interface ProfileImageSectionProps {
 
 export default function ProfileImageSection({ profile, onUpdate }: ProfileImageSectionProps) {
   const t = useTranslations('profile');
+  const queryClient = useQueryClient();
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -92,6 +94,9 @@ export default function ProfileImageSection({ profile, onUpdate }: ProfileImageS
         .eq('id', profile.id);
 
       if (updateError) throw updateError;
+
+      // Invalidate the profiles query to update avatar in navigation
+      queryClient.invalidateQueries({ queryKey: ['profiles', profile.id] });
 
       toast({
         title: t('success'),

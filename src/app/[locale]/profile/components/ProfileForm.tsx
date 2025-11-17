@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useQueryClient } from '@tanstack/react-query';
 import { Profile } from '../page';
 import { Save, Loader2, Mail, Phone, Calendar, Globe, BellRing, User } from 'lucide-react';
 import { toast } from '@/src/hooks/use-toast';
@@ -15,6 +16,7 @@ interface ProfileFormProps {
 
 export default function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
   const t = useTranslations('profile');
+  const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
 
   // Form state
@@ -42,6 +44,9 @@ export default function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
         .eq('id', profile.id);
 
       if (error) throw error;
+
+      // Invalidate the profiles query to update name in navigation
+      queryClient.invalidateQueries({ queryKey: ['profiles', profile.id] });
 
       toast({
         title: t('success'),
