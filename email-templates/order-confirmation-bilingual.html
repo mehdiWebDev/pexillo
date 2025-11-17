@@ -1,0 +1,436 @@
+<!-- SendGrid Dynamic Template for Order Confirmation (Bilingual EN/FR) -->
+<!-- Copy this into SendGrid's Code Editor -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    {{#equals language "fr"}}
+      Confirmation de commande - Pixello
+    {{else}}
+      Order Confirmation - Pixello
+    {{/equals}}
+  </title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .header {
+      background: #FF0000;
+      padding: 30px;
+      text-align: center;
+    }
+    .logo {
+      color: #ffffff;
+      font-size: 32px;
+      font-weight: bold;
+      margin: 0;
+    }
+    .content {
+      padding: 40px 30px;
+    }
+    .order-number {
+      background: #f8f9fa;
+      border: 2px solid #FF0000;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 30px 0;
+      text-align: center;
+    }
+    .order-number h2 {
+      margin: 0 0 10px 0;
+      color: #FF0000;
+      font-size: 18px;
+      text-transform: uppercase;
+    }
+    .order-number .number {
+      font-size: 28px;
+      font-weight: bold;
+      color: #333;
+      letter-spacing: 2px;
+    }
+    .guest-code {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 20px 0;
+    }
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 30px 0;
+    }
+    .items-table th {
+      background: #f8f9fa;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #dee2e6;
+    }
+    .items-table td {
+      padding: 12px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .total-row {
+      background: #f8f9fa;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .footer {
+      background: #333;
+      color: #fff;
+      padding: 30px;
+      text-align: center;
+    }
+    .button {
+      display: inline-block;
+      padding: 12px 30px;
+      background: #FF0000;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+    .social-links {
+      margin: 20px 0;
+    }
+    .social-links a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+    .info-box {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 30px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1 class="logo">PIXELLO</h1>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <h1 style="margin: 0 0 20px 0;">
+        {{#equals language "fr"}}
+          Merci pour votre commande! 🎉
+        {{else}}
+          Thank You for Your Order! 🎉
+        {{/equals}}
+      </h1>
+
+      <p>
+        {{#equals language "fr"}}
+          Bonjour {{customerName}},
+        {{else}}
+          Hi {{customerName}},
+        {{/equals}}
+      </p>
+
+      <p>
+        {{#equals language "fr"}}
+          Nous sommes ravis de confirmer que nous avons reçu votre commande et notre équipe y travaille déjà!
+        {{else}}
+          We're excited to confirm that we've received your order and our team is already working on it!
+        {{/equals}}
+      </p>
+
+      <!-- Order Number -->
+      <div class="order-number">
+        <h2>
+          {{#equals language "fr"}}
+            Numéro de commande
+          {{else}}
+            Order Number
+          {{/equals}}
+        </h2>
+        <div class="number">{{orderNumber}}</div>
+      </div>
+
+      <!-- Guest Lookup Code (conditional) -->
+      {{#if lookupCode}}
+      <div class="guest-code">
+        <strong>
+          {{#equals language "fr"}}
+            ⚠️ Important - Conservez ce code!
+          {{else}}
+            ⚠️ Important - Save This Code!
+          {{/equals}}
+        </strong><br>
+        {{#equals language "fr"}}
+          Votre code de suivi invité est: <strong style="font-size: 20px;">{{lookupCode}}</strong><br>
+          <small>Vous aurez besoin de ce code et de votre courriel pour suivre votre commande.</small>
+        {{else}}
+          Your guest lookup code is: <strong style="font-size: 20px;">{{lookupCode}}</strong><br>
+          <small>You'll need this code and your email to track your order.</small>
+        {{/equals}}
+      </div>
+      {{/if}}
+
+      <!-- Order Items -->
+      <h2 style="margin-top: 40px;">
+        {{#equals language "fr"}}
+          📝 Détails de la commande
+        {{else}}
+          📝 Order Details
+        {{/equals}}
+      </h2>
+
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>
+              {{#equals language "fr"}}
+                Article
+              {{else}}
+                Item
+              {{/equals}}
+            </th>
+            <th style="text-align: center;">
+              {{#equals language "fr"}}
+                Quantité
+              {{else}}
+                Quantity
+              {{/equals}}
+            </th>
+            <th style="text-align: right;">
+              {{#equals language "fr"}}
+                Prix
+              {{else}}
+                Price
+              {{/equals}}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each items}}
+          <tr>
+            <td>
+              <strong>{{this.name}}</strong><br>
+              {{#if this.variant}}
+              <small style="color: #666;">{{this.variant}}</small>
+              {{/if}}
+            </td>
+            <td style="text-align: center;">{{this.quantity}}</td>
+            <td style="text-align: right;">${{this.total}}</td>
+          </tr>
+          {{/each}}
+
+          <!-- Subtotal -->
+          <tr>
+            <td colspan="2" style="text-align: right; padding-top: 15px;">
+              {{#equals language "fr"}}
+                Sous-total:
+              {{else}}
+                Subtotal:
+              {{/equals}}
+            </td>
+            <td style="text-align: right; padding-top: 15px;">${{subtotal}}</td>
+          </tr>
+
+          <!-- Shipping -->
+          <tr>
+            <td colspan="2" style="text-align: right;">
+              {{#equals language "fr"}}
+                Livraison:
+              {{else}}
+                Shipping:
+              {{/equals}}
+            </td>
+            <td style="text-align: right;">
+              {{#if freeShipping}}
+                <span style="color: #28a745;">
+                  {{#equals language "fr"}}
+                    GRATUIT
+                  {{else}}
+                    FREE
+                  {{/equals}}
+                </span>
+              {{else}}
+                ${{shippingAmount}}
+              {{/if}}
+            </td>
+          </tr>
+
+          <!-- Tax -->
+          <tr>
+            <td colspan="2" style="text-align: right;">
+              {{#equals language "fr"}}
+                Taxes:
+              {{else}}
+                Tax:
+              {{/equals}}
+            </td>
+            <td style="text-align: right;">${{taxAmount}}</td>
+          </tr>
+
+          <!-- Total -->
+          <tr class="total-row">
+            <td colspan="2" style="text-align: right; padding: 15px;">Total:</td>
+            <td style="text-align: right; padding: 15px;">${{totalAmount}} CAD</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Shipping Address -->
+      <div style="margin: 30px 0;">
+        <h3>
+          {{#equals language "fr"}}
+            📍 Adresse de livraison
+          {{else}}
+            📍 Shipping Address
+          {{/equals}}
+        </h3>
+        <p style="line-height: 1.6;">
+          {{shippingAddress.firstName}} {{shippingAddress.lastName}}<br>
+          {{shippingAddress.address}}<br>
+          {{#if shippingAddress.apartment}}{{shippingAddress.apartment}}<br>{{/if}}
+          {{shippingAddress.city}}, {{shippingAddress.state}} {{shippingAddress.postalCode}}<br>
+          {{shippingAddress.country}}
+        </p>
+      </div>
+
+      <!-- What's Next -->
+      <div class="info-box">
+        <h3 style="margin-top: 0;">
+          {{#equals language "fr"}}
+            Et maintenant?
+          {{else}}
+            What Happens Next?
+          {{/equals}}
+        </h3>
+        <ol style="line-height: 1.8;">
+          <li>
+            {{#equals language "fr"}}
+              <strong>Traitement:</strong> Nous préparons vos impressions DTF personnalisées (1-2 jours ouvrables)
+            {{else}}
+              <strong>Processing:</strong> We're preparing your custom DTF prints (1-2 business days)
+            {{/equals}}
+          </li>
+          <li>
+            {{#equals language "fr"}}
+              <strong>Contrôle qualité:</strong> Chaque article est inspecté avant l'expédition
+            {{else}}
+              <strong>Quality Check:</strong> Each item is inspected before shipping
+            {{/equals}}
+          </li>
+          <li>
+            {{#equals language "fr"}}
+              <strong>Expédition:</strong> Vous recevrez les informations de suivi lorsque votre commande sera expédiée
+            {{else}}
+              <strong>Shipping:</strong> You'll receive tracking info when your order ships
+            {{/equals}}
+          </li>
+          <li>
+            {{#equals language "fr"}}
+              <strong>Livraison:</strong> Livraison estimée dans 7-10 jours ouvrables
+            {{else}}
+              <strong>Delivery:</strong> Estimated delivery in 7-10 business days
+            {{/equals}}
+          </li>
+        </ol>
+      </div>
+
+      <!-- CTA Button -->
+      <div style="text-align: center; margin: 40px 0;">
+        {{#if lookupCode}}
+        <a href="{{trackOrderUrl}}?order={{orderNumber}}&code={{lookupCode}}" class="button">
+          {{#equals language "fr"}}
+            📦 Suivre ma commande
+          {{else}}
+            📦 Track Your Order
+          {{/equals}}
+        </a>
+        {{else}}
+        <a href="{{trackOrderUrl}}" class="button">
+          {{#equals language "fr"}}
+            📦 Voir le statut de la commande
+          {{else}}
+            📦 View Order Status
+          {{/equals}}
+        </a>
+        {{/if}}
+      </div>
+
+      <!-- Support -->
+      <div style="border-top: 1px solid #dee2e6; padding-top: 20px; margin-top: 40px;">
+        <p><strong>
+          {{#equals language "fr"}}
+            Besoin d'aide?
+          {{else}}
+            Need Help?
+          {{/equals}}
+        </strong></p>
+        <p>
+          {{#equals language "fr"}}
+            Notre équipe de support est là pour vous:<br>
+          {{else}}
+            Our support team is here for you:<br>
+          {{/equals}}
+          📧 support@pixello.ca<br>
+          📞 1-800-PIXELLO
+        </p>
+      </div>
+
+      <!-- Thank You -->
+      <p style="text-align: center; margin: 30px 0 0 0; color: #666;">
+        {{#equals language "fr"}}
+          Merci d'avoir choisi Pixello!
+        {{else}}
+          Thanks for choosing Pixello!
+        {{/equals}}
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p style="margin: 0 0 10px 0;">
+        {{#equals language "fr"}}
+          Suivez-nous pour les mises à jour et promotions!
+        {{else}}
+          Follow us for updates and promotions!
+        {{/equals}}
+      </p>
+      <div class="social-links">
+        <a href="#">Facebook</a> |
+        <a href="#">Instagram</a> |
+        <a href="#">Twitter</a>
+      </div>
+      <p style="font-size: 12px; margin: 20px 0 0 0; opacity: 0.8;">
+        © 2024 Pixello.
+        {{#equals language "fr"}}
+          Tous droits réservés.
+        {{else}}
+          All rights reserved.
+        {{/equals}}
+        <br>
+        {{#equals language "fr"}}
+          Services d'impression DTF personnalisés | Montréal, Québec
+        {{else}}
+          Custom DTF Printing Services | Montreal, Quebec
+        {{/equals}}
+      </p>
+    </div>
+  </div>
+</body>
+</html>

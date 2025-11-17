@@ -117,25 +117,28 @@ export async function sendConfirmationEmailByOrderId(orderId: string): Promise<v
     ? JSON.parse(order.shipping_address)
     : order.shipping_address;
 
-  // Get customer email and name - Handle guest vs registered users
-  let customerEmail = '';
+  // Get customer email and name
+  // IMPORTANT: Always use the email from the checkout form (stored in shipping_address.email)
+  // This ensures we send confirmation to the email entered during checkout,
+  // not the profile email which might be different
+  let customerEmail = shippingAddress?.email || order.guest_email || '';
   let customerName = '';
 
   if (order.user_id) {
-    // Registered user
+    // Registered user - get name from profile
     const { data: userProfile } = await supabaseAdmin
       .from('profiles')
-      .select('email, full_name')
+      .select('full_name')
       .eq('id', order.user_id)
       .single();
 
     if (userProfile) {
-      customerEmail = userProfile.email || '';
       customerName = userProfile.full_name || shippingAddress?.firstName || 'Valued Customer';
+    } else {
+      customerName = shippingAddress?.firstName || 'Valued Customer';
     }
   } else {
     // Guest order
-    customerEmail = order.guest_email || '';
     customerName = shippingAddress?.firstName || 'Valued Customer';
   }
 

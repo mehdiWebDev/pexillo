@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { sendConfirmationEmailByOrderId } from '@/src/lib/email/sendOrderConfirmationEmail';
+import { sendAdminOrderNotification } from '@/src/lib/email/sendAdminOrderNotification';
 
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
@@ -138,6 +139,16 @@ export async function POST(req: NextRequest) {
         console.error('⚠️ Failed to send confirmation email:', emailError);
         // Don't fail the order update if email fails
       }
+
+      // ✅ Send admin notification email
+      console.log('📧 Sending admin notification for new order...');
+      try {
+        await sendAdminOrderNotification(orderId);
+        console.log('✅ Admin notification email sent successfully');
+      } catch (emailError) {
+        console.error('⚠️ Failed to send admin notification:', emailError);
+        // Don't fail the order update if admin email fails
+      }
     }
 
     // Auto-send tracking email if status changed to 'shipped' and tracking exists
@@ -213,25 +224,28 @@ async function sendTrackingEmail(orderId: string) {
     ? JSON.parse(order.shipping_address)
     : order.shipping_address;
 
-  // Get customer email - Handle guest vs registered users
-  let customerEmail = '';
+  // Get customer email
+  // IMPORTANT: Always use the email from the checkout form (stored in shipping_address.email)
+  // This ensures we send tracking info to the email entered during checkout,
+  // not the profile email which might be different
+  let customerEmail = shippingAddress?.email || order.guest_email || '';
   let customerName = '';
 
   if (order.user_id) {
-    // Registered user
+    // Registered user - get name from profile
     const { data: userProfile } = await supabaseAdmin
       .from('profiles')
-      .select('email, full_name')
+      .select('full_name')
       .eq('id', order.user_id)
       .single();
 
     if (userProfile) {
-      customerEmail = userProfile.email || '';
       customerName = userProfile.full_name || 'Valued Customer';
+    } else {
+      customerName = shippingAddress?.firstName || 'Valued Customer';
     }
   } else {
     // Guest order
-    customerEmail = order.guest_email || '';
     customerName = shippingAddress?.firstName || 'Valued Customer';
   }
 
@@ -264,7 +278,12 @@ async function sendTrackingEmail(orderId: string) {
 
   let estimatedDelivery = '';
   if (order.estimated_delivery_date) {
-    const date = new Date(order.estimated_delivery_date);
+    // Parse date as local date to avoid timezone shift
+    const dateStr = order.estimated_delivery_date;
+    const [year, month, day] = dateStr.includes('T')
+      ? dateStr.split('T')[0].split('-')
+      : dateStr.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
     estimatedDelivery = date.toLocaleDateString(
       language === 'fr' ? 'fr-CA' : 'en-CA',
       { year: 'numeric', month: 'long', day: 'numeric' }

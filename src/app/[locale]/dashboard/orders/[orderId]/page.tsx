@@ -102,11 +102,20 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
       setOrderData(data);
 
       // Initialize tracking form
+      // Convert estimated_delivery_date to YYYY-MM-DD format for date input
+      let formattedDate = '';
+      if (data.order.estimated_delivery_date) {
+        // Parse date string directly to avoid timezone conversion
+        const dateStr = data.order.estimated_delivery_date;
+        // Extract date part (handles both "2025-11-18" and "2025-11-18T00:00:00Z" formats)
+        formattedDate = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+      }
+
       setTrackingForm({
         status: data.order.status || '',
         shipping_carrier: data.order.shipping_carrier || '',
         tracking_number: data.order.tracking_number || '',
-        estimated_delivery_date: data.order.estimated_delivery_date || ''
+        estimated_delivery_date: formattedDate
       });
     } catch (error) {
       console.error('Error fetching order:', error);
@@ -500,11 +509,19 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
                 <div>
                   <div className="text-sm text-muted-foreground">{t('estimatedDelivery')}</div>
                   <div className="font-medium">
-                    {new Date(order.estimated_delivery_date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
+                    {(() => {
+                      // Parse date as local date to avoid timezone shift
+                      const dateStr = order.estimated_delivery_date;
+                      const [year, month, day] = dateStr.includes('T')
+                        ? dateStr.split('T')[0].split('-')
+                        : dateStr.split('-');
+                      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                      return date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      });
+                    })()}
                   </div>
                 </div>
               )}
@@ -513,6 +530,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
         </CardContent>
       </Card>
 
+      {/* Shipping and Billing Addresses */}
       <div className="grid gap-6 md:grid-cols-2">
         {/* Shipping Address Card */}
         <Card>
@@ -524,19 +542,85 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
           </CardHeader>
           <CardContent>
             {order.shipping_address && (
+              <div className="space-y-4">
+                {/* Contact Information Section */}
+                {(order.shipping_address.email || order.shipping_address.phone) && (
+                  <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+                    <div className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <Mail size={14} />
+                      {t('contactInformation')}
+                    </div>
+                    {order.shipping_address.email && (
+                      <div>
+                        <div className="text-xs text-muted-foreground">{t('email')}</div>
+                        <a href={`mailto:${order.shipping_address.email}`} className="text-blue-600 hover:underline font-medium">
+                          {order.shipping_address.email}
+                        </a>
+                      </div>
+                    )}
+                    {order.shipping_address.phone && (
+                      <div>
+                        <div className="text-xs text-muted-foreground">{t('phone')}</div>
+                        <a href={`tel:${order.shipping_address.phone}`} className="text-blue-600 hover:underline font-medium">
+                          {order.shipping_address.phone}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Delivery Address Section */}
+                <div className="space-y-1">
+                  <div className="text-sm font-medium text-muted-foreground mb-2">{t('deliveryAddress')}</div>
+                  <div className="font-medium">
+                    {order.shipping_address.firstName} {order.shipping_address.lastName}
+                  </div>
+                  <div>{order.shipping_address.address}</div>
+                  {order.shipping_address.apartment && <div>{order.shipping_address.apartment}</div>}
+                  <div>
+                    {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postalCode}
+                  </div>
+                  <div>{order.shipping_address.country}</div>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      `${order.shipping_address.address}, ${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.postalCode}`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline text-sm flex items-center gap-1 mt-2"
+                  >
+                    {t('viewOnMaps')}
+                    <ExternalLink size={14} />
+                  </a>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Billing Address Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard size={20} />
+              {t('billingAddress')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {order.billing_address ? (
               <div className="space-y-1">
                 <div className="font-medium">
-                  {order.shipping_address.firstName} {order.shipping_address.lastName}
+                  {order.billing_address.firstName} {order.billing_address.lastName}
                 </div>
-                <div>{order.shipping_address.address}</div>
-                {order.shipping_address.apartment && <div>{order.shipping_address.apartment}</div>}
+                <div>{order.billing_address.address}</div>
+                {order.billing_address.apartment && <div>{order.billing_address.apartment}</div>}
                 <div>
-                  {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postalCode}
+                  {order.billing_address.city}, {order.billing_address.state} {order.billing_address.postalCode}
                 </div>
-                <div>{order.shipping_address.country}</div>
+                <div>{order.billing_address.country}</div>
                 <a
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                    `${order.shipping_address.address}, ${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.postalCode}`
+                    `${order.billing_address.address}, ${order.billing_address.city}, ${order.billing_address.state} ${order.billing_address.postalCode}`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -546,42 +630,46 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
                   <ExternalLink size={14} />
                 </a>
               </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Payment Information Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard size={20} />
-              {t('paymentInformation')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <div className="text-sm text-muted-foreground">{t('paymentMethod')}</div>
-              <div className="font-medium capitalize">{order.payment_method || 'Stripe (Card)'}</div>
-            </div>
-            {order.stripe_payment_intent_id && (
-              <div>
-                <div className="text-sm text-muted-foreground">{t('paymentIntentId')}</div>
-                <code className="text-xs">{order.stripe_payment_intent_id}</code>
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                {t('sameAsShipping')}
               </div>
             )}
-            <div>
-              <div className="text-sm text-muted-foreground">{t('amountCharged')}</div>
-              <div className="font-medium">{formatCurrency(order.total_amount)} {order.currency || 'CAD'}</div>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">{t('paymentStatus')}</div>
-              <Badge className={paymentStatusColors[order.payment_status]}>
-                {order.payment_status}
-              </Badge>
-            </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Payment Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign size={20} />
+            {t('paymentInformation')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div>
+            <div className="text-sm text-muted-foreground">{t('paymentMethod')}</div>
+            <div className="font-medium capitalize">{order.payment_method || 'Stripe (Card)'}</div>
+          </div>
+          {order.stripe_payment_intent_id && (
+            <div>
+              <div className="text-sm text-muted-foreground">{t('paymentIntentId')}</div>
+              <code className="text-xs">{order.stripe_payment_intent_id}</code>
+            </div>
+          )}
+          <div>
+            <div className="text-sm text-muted-foreground">{t('amountCharged')}</div>
+            <div className="font-medium">{formatCurrency(order.total_amount)} {order.currency || 'CAD'}</div>
+          </div>
+          <div>
+            <div className="text-sm text-muted-foreground">{t('paymentStatus')}</div>
+            <Badge className={paymentStatusColors[order.payment_status]}>
+              {order.payment_status}
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Order Timeline Card */}
       <Card>

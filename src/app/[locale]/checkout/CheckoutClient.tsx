@@ -107,6 +107,7 @@ export default function CheckoutClient() {
     const [taxRate, setTaxRate] = useState(0);
     const [shippingCost, setShippingCost] = useState(0);
     const [isInitialized, setIsInitialized] = useState(false);
+    const [createdUserId, setCreatedUserId] = useState<string | null>(null);
 
     const form = useForm<CheckoutFormData>({
         resolver: zodResolver(checkoutSchema),
@@ -182,7 +183,8 @@ export default function CheckoutClient() {
 
     // Create payment intent when moving to step 2
     const handleNextStep = async () => {
-        const isValid = await form.trigger([
+        // Validate all step 1 fields including password if creating account
+        const fieldsToValidate: any[] = [
             'email',
             'phone',
             'shipping.firstName',
@@ -192,7 +194,15 @@ export default function CheckoutClient() {
             'shipping.state',
             'shipping.postalCode',
             'shipping.country',
-        ]);
+        ];
+
+        // Add password validation if creating account
+        const createAccount = form.getValues('createAccount');
+        if (createAccount) {
+            fieldsToValidate.push('password');
+        }
+
+        const isValid = await form.trigger(fieldsToValidate);
 
         if (!isValid) {
             toast({
@@ -206,6 +216,63 @@ export default function CheckoutClient() {
         setIsProcessing(true);
 
         try {
+            // Create account if requested (before payment)
+            if (createAccount && !isAuth) {
+                const formValues = form.getValues();
+                const accountResponse = await fetch('/api/auth/create-checkout-account', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: formValues.email,
+                        password: formValues.password,
+                        firstName: formValues.shipping.firstName,
+                        lastName: formValues.shipping.lastName,
+                        phone: formValues.phone,
+                    }),
+                });
+
+                const accountData = await accountResponse.json();
+
+                if (!accountResponse.ok) {
+                    // Handle specific error cases
+                    if (accountResponse.status === 409) {
+                        // Email already exists
+                        form.setError('email', {
+                            type: 'manual',
+                            message: accountData.message || 'Email already in use',
+                        });
+                    } else if (accountResponse.status === 400) {
+                        // Invalid password or email
+                        if (accountData.error === 'Invalid password') {
+                            form.setError('password', {
+                                type: 'manual',
+                                message: accountData.message || 'Invalid password',
+                            });
+                        } else {
+                            form.setError('email', {
+                                type: 'manual',
+                                message: accountData.message || 'Invalid email',
+                            });
+                        }
+                    }
+
+                    toast({
+                        title: t('error'),
+                        description: accountData.message || 'Failed to create account',
+                        variant: 'destructive',
+                    });
+                    setIsProcessing(false);
+                    return;
+                }
+
+                // Store the created user ID
+                setCreatedUserId(accountData.userId);
+                toast({
+                    title: t('success') || 'Success',
+                    description: 'Account created successfully!',
+                });
+            }
+
             // Create payment intent
             const response = await fetch('/api/stripe/create-payment-intent', {
                 method: 'POST',
@@ -325,6 +392,7 @@ export default function CheckoutClient() {
                                     shipping={shipping}
                                     items={translatedItems}
                                     onBack={handlePreviousStep}
+                                    createdUserId={createdUserId}
                                 />
                             </Elements>
                         )}
