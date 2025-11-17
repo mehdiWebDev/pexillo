@@ -35,14 +35,33 @@ export default function ProfilePage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
+  // Check authentication on mount (handles page refresh)
   useEffect(() => {
-    if (!isAuth) {
-      router.push('/login');
-      return;
+    const checkAuth = async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        router.push('/auth/login');
+        return;
+      }
+
+      setIsCheckingAuth(false);
+    };
+
+    checkAuth();
+  }, [router]);
+
+  // Fetch profile once auth is confirmed
+  useEffect(() => {
+    if (!isCheckingAuth && user) {
+      fetchProfile();
+    } else if (!isCheckingAuth && !isAuth) {
+      router.push('/auth/login');
     }
-    fetchProfile();
-  }, [isAuth]);
+  }, [isCheckingAuth, isAuth, user, router]);
 
   const fetchProfile = async () => {
     setIsLoading(true);
@@ -63,7 +82,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (isLoading) {
+  if (isCheckingAuth || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
