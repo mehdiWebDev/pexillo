@@ -45,21 +45,21 @@ interface OrderDetail {
 }
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  confirmed: 'bg-blue-100 text-blue-800',
-  processing: 'bg-purple-100 text-purple-800',
-  printing: 'bg-indigo-100 text-indigo-800',
-  shipped: 'bg-green-100 text-green-800',
-  delivered: 'bg-gray-100 text-gray-800',
-  cancelled: 'bg-red-100 text-red-800'
+  pending: 'badge-warning',
+  confirmed: 'badge-info',
+  processing: 'badge-purple',
+  printing: 'badge-purple',
+  shipped: 'badge-success',
+  delivered: 'badge-success',
+  cancelled: 'badge-error'
 };
 
 const paymentStatusColors: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  processing: 'bg-blue-100 text-blue-800',
-  completed: 'bg-green-100 text-green-800',
-  failed: 'bg-red-100 text-red-800',
-  refunded: 'bg-gray-100 text-gray-800'
+  pending: 'badge-warning',
+  processing: 'badge-info',
+  completed: 'badge-success',
+  failed: 'badge-error',
+  refunded: 'badge-neutral'
 };
 
 const CARRIERS = {

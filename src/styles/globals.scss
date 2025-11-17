@@ -70,6 +70,49 @@
     /* Gray 900 */
     --gray-900: 0 0% 100%;
 
+    /* Badge/Tag Colors */
+    --badge-success: 134 61% 41%;
+    /* Green #22C55E */
+    --badge-success-bg: 138 76% 97%;
+    /* Light Green #DCFCE7 */
+    --badge-success-text: 140 77% 25%;
+    /* Dark Green #15803D */
+
+    --badge-warning: 45 93% 47%;
+    /* Yellow #EAB308 */
+    --badge-warning-bg: 48 96% 89%;
+    /* Light Yellow #FEF3C7 */
+    --badge-warning-text: 45 92% 25%;
+    /* Dark Yellow #854D0E */
+
+    --badge-info: 217 91% 60%;
+    /* Blue #3B82F6 */
+    --badge-info-bg: 214 95% 93%;
+    /* Light Blue #DBEAFE */
+    --badge-info-text: 217 91% 25%;
+    /* Dark Blue #1E40AF */
+
+    --badge-purple: 262 83% 58%;
+    /* Purple #A855F7 */
+    --badge-purple-bg: 270 100% 98%;
+    /* Light Purple #FAF5FF */
+    --badge-purple-text: 262 83% 25%;
+    /* Dark Purple #6B21A8 */
+
+    --badge-error: 0 84% 60%;
+    /* Red #EF4444 */
+    --badge-error-bg: 0 86% 97%;
+    /* Light Red #FEE2E2 */
+    --badge-error-text: 0 84% 25%;
+    /* Dark Red #991B1B */
+
+    --badge-neutral: 220 9% 46%;
+    /* Gray #6B7280 */
+    --badge-neutral-bg: 220 14% 96%;
+    /* Light Gray #F3F4F6 */
+    --badge-neutral-text: 220 13% 25%;
+    /* Dark Gray #374151 */
+
   }
 
   .dark {
@@ -115,6 +158,49 @@
 
     /* State colors - Dark Mode */
     --color-state-hover-overlay: rgba(239, 68, 68, 0.1);
+
+    /* Badge/Tag Colors - Dark Mode */
+    --badge-success: 134 61% 51%;
+    /* Brighter Green for dark mode */
+    --badge-success-bg: 138 76% 15%;
+    /* Dark Green background */
+    --badge-success-text: 138 76% 85%;
+    /* Light Green text */
+
+    --badge-warning: 45 93% 57%;
+    /* Brighter Yellow */
+    --badge-warning-bg: 48 96% 18%;
+    /* Dark Yellow background */
+    --badge-warning-text: 48 96% 88%;
+    /* Light Yellow text */
+
+    --badge-info: 217 91% 70%;
+    /* Brighter Blue */
+    --badge-info-bg: 214 95% 18%;
+    /* Dark Blue background */
+    --badge-info-text: 214 95% 88%;
+    /* Light Blue text */
+
+    --badge-purple: 262 83% 68%;
+    /* Brighter Purple */
+    --badge-purple-bg: 270 100% 18%;
+    /* Dark Purple background */
+    --badge-purple-text: 270 100% 90%;
+    /* Light Purple text */
+
+    --badge-error: 0 84% 70%;
+    /* Brighter Red */
+    --badge-error-bg: 0 86% 18%;
+    /* Dark Red background */
+    --badge-error-text: 0 86% 90%;
+    /* Light Red text */
+
+    --badge-neutral: 220 9% 56%;
+    /* Brighter Gray */
+    --badge-neutral-bg: 220 14% 18%;
+    /* Dark Gray background */
+    --badge-neutral-text: 220 14% 85%;
+    /* Light Gray text */
   }
 }
 
@@ -125,5 +211,38 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* Badge utility classes using CSS variables */
+  .badge-success {
+    background-color: hsl(var(--badge-success-bg));
+    color: hsl(var(--badge-success-text));
+  }
+
+  .badge-warning {
+    background-color: hsl(var(--badge-warning-bg));
+    color: hsl(var(--badge-warning-text));
+  }
+
+  .badge-info {
+    background-color: hsl(var(--badge-info-bg));
+    color: hsl(var(--badge-info-text));
+  }
+
+  .badge-purple {
+    background-color: hsl(var(--badge-purple-bg));
+    color: hsl(var(--badge-purple-text));
+  }
+
+  .badge-error {
+    background-color: hsl(var(--badge-error-bg));
+    color: hsl(var(--badge-error-text));
+  }
+
+  .badge-neutral {
+    background-color: hsl(var(--badge-neutral-bg));
+    color: hsl(var(--badge-neutral-text));
   }
 }
