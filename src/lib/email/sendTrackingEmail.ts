@@ -138,7 +138,12 @@ export async function sendTrackingEmail(orderId: string): Promise<void> {
   // Format estimated delivery date
   let estimatedDelivery = '';
   if (order.estimated_delivery_date) {
-    const date = new Date(order.estimated_delivery_date);
+    // Parse date as local date to avoid timezone shift
+    const dateStr = order.estimated_delivery_date;
+    const [year, month, day] = dateStr.includes('T')
+      ? dateStr.split('T')[0].split('-')
+      : dateStr.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
     estimatedDelivery = date.toLocaleDateString(
       language === 'fr' ? 'fr-CA' : 'en-CA',
       { year: 'numeric', month: 'long', day: 'numeric' }

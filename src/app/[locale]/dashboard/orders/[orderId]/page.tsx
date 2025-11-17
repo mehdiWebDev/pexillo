@@ -102,11 +102,22 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
       setOrderData(data);
 
       // Initialize tracking form
+      // Convert estimated_delivery_date to YYYY-MM-DD format for date input
+      let formattedDate = '';
+      if (data.order.estimated_delivery_date) {
+        const date = new Date(data.order.estimated_delivery_date);
+        // Extract date in local timezone (avoid UTC conversion issues)
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        formattedDate = `${year}-${month}-${day}`;
+      }
+
       setTrackingForm({
         status: data.order.status || '',
         shipping_carrier: data.order.shipping_carrier || '',
         tracking_number: data.order.tracking_number || '',
-        estimated_delivery_date: data.order.estimated_delivery_date || ''
+        estimated_delivery_date: formattedDate
       });
     } catch (error) {
       console.error('Error fetching order:', error);
@@ -500,11 +511,19 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
                 <div>
                   <div className="text-sm text-muted-foreground">{t('estimatedDelivery')}</div>
                   <div className="font-medium">
-                    {new Date(order.estimated_delivery_date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
+                    {(() => {
+                      // Parse date as local date to avoid timezone shift
+                      const dateStr = order.estimated_delivery_date;
+                      const [year, month, day] = dateStr.includes('T')
+                        ? dateStr.split('T')[0].split('-')
+                        : dateStr.split('-');
+                      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+                      return date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      });
+                    })()}
                   </div>
                 </div>
               )}
