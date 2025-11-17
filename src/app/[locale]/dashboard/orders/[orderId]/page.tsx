@@ -513,6 +513,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
         </CardContent>
       </Card>
 
+      {/* Shipping and Billing Addresses */}
       <div className="grid gap-6 md:grid-cols-2">
         {/* Shipping Address Card */}
         <Card>
@@ -534,6 +535,22 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
                   {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postalCode}
                 </div>
                 <div>{order.shipping_address.country}</div>
+                {order.shipping_address.email && (
+                  <div className="mt-2 pt-2 border-t">
+                    <div className="text-sm text-muted-foreground">{t('email')}</div>
+                    <a href={`mailto:${order.shipping_address.email}`} className="text-blue-600 hover:underline text-sm">
+                      {order.shipping_address.email}
+                    </a>
+                  </div>
+                )}
+                {order.shipping_address.phone && (
+                  <div className="mt-1">
+                    <div className="text-sm text-muted-foreground">{t('phone')}</div>
+                    <a href={`tel:${order.shipping_address.phone}`} className="text-blue-600 hover:underline text-sm">
+                      {order.shipping_address.phone}
+                    </a>
+                  </div>
+                )}
                 <a
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
                     `${order.shipping_address.address}, ${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.postalCode}`
@@ -550,38 +567,78 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
           </CardContent>
         </Card>
 
-        {/* Payment Information Card */}
+        {/* Billing Address Card */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CreditCard size={20} />
-              {t('paymentInformation')}
+              {t('billingAddress')}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <div className="text-sm text-muted-foreground">{t('paymentMethod')}</div>
-              <div className="font-medium capitalize">{order.payment_method || 'Stripe (Card)'}</div>
-            </div>
-            {order.stripe_payment_intent_id && (
-              <div>
-                <div className="text-sm text-muted-foreground">{t('paymentIntentId')}</div>
-                <code className="text-xs">{order.stripe_payment_intent_id}</code>
+          <CardContent>
+            {order.billing_address ? (
+              <div className="space-y-1">
+                <div className="font-medium">
+                  {order.billing_address.firstName} {order.billing_address.lastName}
+                </div>
+                <div>{order.billing_address.address}</div>
+                {order.billing_address.apartment && <div>{order.billing_address.apartment}</div>}
+                <div>
+                  {order.billing_address.city}, {order.billing_address.state} {order.billing_address.postalCode}
+                </div>
+                <div>{order.billing_address.country}</div>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    `${order.billing_address.address}, ${order.billing_address.city}, ${order.billing_address.state} ${order.billing_address.postalCode}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline text-sm flex items-center gap-1 mt-2"
+                >
+                  {t('viewOnMaps')}
+                  <ExternalLink size={14} />
+                </a>
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                {t('sameAsShipping')}
               </div>
             )}
-            <div>
-              <div className="text-sm text-muted-foreground">{t('amountCharged')}</div>
-              <div className="font-medium">{formatCurrency(order.total_amount)} {order.currency || 'CAD'}</div>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">{t('paymentStatus')}</div>
-              <Badge className={paymentStatusColors[order.payment_status]}>
-                {order.payment_status}
-              </Badge>
-            </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Payment Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign size={20} />
+            {t('paymentInformation')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div>
+            <div className="text-sm text-muted-foreground">{t('paymentMethod')}</div>
+            <div className="font-medium capitalize">{order.payment_method || 'Stripe (Card)'}</div>
+          </div>
+          {order.stripe_payment_intent_id && (
+            <div>
+              <div className="text-sm text-muted-foreground">{t('paymentIntentId')}</div>
+              <code className="text-xs">{order.stripe_payment_intent_id}</code>
+            </div>
+          )}
+          <div>
+            <div className="text-sm text-muted-foreground">{t('amountCharged')}</div>
+            <div className="font-medium">{formatCurrency(order.total_amount)} {order.currency || 'CAD'}</div>
+          </div>
+          <div>
+            <div className="text-sm text-muted-foreground">{t('paymentStatus')}</div>
+            <Badge className={paymentStatusColors[order.payment_status]}>
+              {order.payment_status}
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Order Timeline Card */}
       <Card>

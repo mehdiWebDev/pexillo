@@ -64,6 +64,12 @@ export async function GET(
     }
 
     // Get customer information
+    // IMPORTANT: Use data from checkout form (stored in shipping_address) instead of profile
+    // This ensures we display the contact info used during checkout
+    const shippingAddress = typeof order.shipping_address === 'string'
+      ? JSON.parse(order.shipping_address)
+      : order.shipping_address;
+
     let customer = {
       name: '',
       email: '',
@@ -73,35 +79,25 @@ export async function GET(
     };
 
     if (order.user_id) {
+      // Registered user - get name from profile, but email/phone from checkout form
       const { data: userProfile } = await supabaseAdmin
         .from('profiles')
-        .select('email, full_name, phone')
+        .select('full_name')
         .eq('id', order.user_id)
         .single();
 
-      if (userProfile) {
-        // Parse JSONB for registered users too (for phone)
-        const shippingAddress = typeof order.shipping_address === 'string'
-          ? JSON.parse(order.shipping_address)
-          : order.shipping_address;
-
-        customer = {
-          name: userProfile.full_name || '',
-          email: userProfile.email || '',
-          phone: userProfile.phone || shippingAddress?.phone || '',
-          accountType: 'registered',
-          lookupCode: null
-        };
-      }
+      customer = {
+        name: userProfile?.full_name || `${shippingAddress?.firstName || ''} ${shippingAddress?.lastName || ''}`.trim(),
+        email: shippingAddress?.email || order.guest_email || '',
+        phone: shippingAddress?.phone || '',
+        accountType: 'registered',
+        lookupCode: null
+      };
     } else {
-      // Guest order - Parse JSONB address
-      const shippingAddress = typeof order.shipping_address === 'string'
-        ? JSON.parse(order.shipping_address)
-        : order.shipping_address;
-
+      // Guest order
       customer = {
         name: `${shippingAddress?.firstName || ''} ${shippingAddress?.lastName || ''}`.trim() || order.guest_email?.split('@')[0] || 'Guest',
-        email: order.guest_email || '',
+        email: shippingAddress?.email || order.guest_email || '',
         phone: shippingAddress?.phone || '',
         accountType: 'guest',
         lookupCode: order.guest_lookup_code
