@@ -548,7 +548,26 @@
         "profileUpdated": "Your profile has been updated successfully",
         "errorLoadingProfile": "Failed to load profile",
         "errorSavingProfile": "Failed to save profile",
-        "profileNotFound": "Profile not found"
+        "profileNotFound": "Profile not found",
+        "noName": "No Name",
+        "avatarUpdated": "Avatar updated successfully",
+        "avatarUploadFailed": "Failed to upload avatar. Please try again.",
+        "invalidFileType": "Please upload an image file (JPG, PNG, GIF, etc.)",
+        "fileTooLarge": "File size must be less than 5MB",
+        "recentOrders": "Recent Orders",
+        "noOrdersDescription": "Start shopping to see your orders here",
+        "orderNumber": "Order #",
+        "orderDate": "Date",
+        "items": "Items",
+        "total": "Total",
+        "trackOrder": "Track Order",
+        "orderStatus": {
+            "pending": "Pending",
+            "processing": "Processing",
+            "shipped": "Shipped",
+            "delivered": "Delivered",
+            "cancelled": "Cancelled"
+        }
     },
     "cart": {
         "cart": "Cart",

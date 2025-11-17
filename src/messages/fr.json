@@ -548,7 +548,26 @@
         "profileUpdated": "Votre profil a été mis à jour avec succès",
         "errorLoadingProfile": "Échec du chargement du profil",
         "errorSavingProfile": "Échec de l'enregistrement du profil",
-        "profileNotFound": "Profil introuvable"
+        "profileNotFound": "Profil introuvable",
+        "noName": "Sans nom",
+        "avatarUpdated": "Avatar mis à jour avec succès",
+        "avatarUploadFailed": "Échec du téléchargement de l'avatar. Veuillez réessayer.",
+        "invalidFileType": "Veuillez télécharger un fichier image (JPG, PNG, GIF, etc.)",
+        "fileTooLarge": "La taille du fichier doit être inférieure à 5 Mo",
+        "recentOrders": "Commandes récentes",
+        "noOrdersDescription": "Commencez vos achats pour voir vos commandes ici",
+        "orderNumber": "Commande #",
+        "orderDate": "Date",
+        "items": "Articles",
+        "total": "Total",
+        "trackOrder": "Suivre la commande",
+        "orderStatus": {
+            "pending": "En attente",
+            "processing": "En traitement",
+            "shipped": "Expédiée",
+            "delivered": "Livrée",
+            "cancelled": "Annulée"
+        }
     },
     "cart": {
         "cart": "Panier",
