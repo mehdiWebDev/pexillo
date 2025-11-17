@@ -19,7 +19,7 @@ const supabaseAdmin = createClient(
 // GET a single customer
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check if user is authenticated and is admin
@@ -47,7 +47,7 @@ export async function GET(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Get customer profile
     const { data: customer, error: customerError } = await supabaseAdmin
@@ -87,7 +87,7 @@ export async function GET(
 // PUT (update) a customer
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check if user is authenticated and is admin
@@ -115,7 +115,7 @@ export async function PUT(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
 
     // Only allow updating specific fields
@@ -168,7 +168,7 @@ export async function PUT(
 // DELETE a customer
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check if user is authenticated and is admin
@@ -196,7 +196,7 @@ export async function DELETE(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Prevent deleting yourself
     if (id === user.id) {
