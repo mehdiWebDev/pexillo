@@ -57,13 +57,15 @@ export default function ProfileImageSection({ profile, onUpdate }: ProfileImageS
     try {
       const supabase = createClient();
       const fileExt = file.name.split('.').pop();
-      const fileName = `${profile.id}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${profile.id}/${fileName}`;
 
       // Delete old avatar if exists
       if (profile.avatar_url) {
-        const oldPath = profile.avatar_url.split('/').pop();
-        if (oldPath) {
+        // Extract the full path from the URL
+        const urlParts = profile.avatar_url.split('/avatars/');
+        if (urlParts[1]) {
+          const oldPath = decodeURIComponent(urlParts[1]);
           await supabase.storage.from('avatars').remove([oldPath]);
         }
       }
