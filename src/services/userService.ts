@@ -5,13 +5,20 @@ import { handleSupabase } from "@/lib/supabase/fetcher";
 // Define the shape of a row from the `profiles` table that we consume in the app
 export type Profile = {
   id: string;
+  email: string;
   full_name: string | null;
-  email: string | null;
   avatar_url: string | null;
-  updated_at: string | null;
-  created_at: string | null;
-  // add other fields you use as needed, e.g., avatar_url, updated_at, etc.
-  [key: string]: any;
+  phone: string | null;
+  date_of_birth: string | null;
+  gender: 'male' | 'female' | 'other' | 'prefer_not_to_say' | null;
+  marketing_consent: boolean;
+  preferred_language: string;
+  total_spent: number;
+  total_orders: number;
+  last_order_date: string | null;
+  is_admin: boolean;
+  created_at: string;
+  updated_at: string;
 };
 
 export async function getUserProfile(userId: string): Promise<Profile> {
