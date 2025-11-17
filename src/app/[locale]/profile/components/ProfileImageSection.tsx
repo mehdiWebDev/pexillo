@@ -126,7 +126,7 @@ export default function ProfileImageSection({ profile, onUpdate }: ProfileImageS
                 className="w-40 h-40 rounded-full ring-4 ring-muted shadow-lg object-cover"
               />
             ) : (
-              <div className="w-40 h-40 bg-gradient-to-br from-primary to-secondary rounded-full ring-4 ring-muted shadow-lg flex items-center justify-center">
+              <div className="w-40 h-40 bg-primary rounded-full ring-4 ring-muted shadow-lg flex items-center justify-center">
                 <span className="text-5xl font-bold text-white">
                   {getInitials()}
                 </span>

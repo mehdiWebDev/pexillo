@@ -28,42 +28,42 @@ const statusConfig: Record<string, {
   pending: {
     label: 'Pending',
     icon: Package,
-    className: 'bg-accent/20 text-accent-foreground border border-accent/30',
+    className: 'bg-accent text-foreground border border-accent',
   },
   confirmed: {
     label: 'Confirmed',
     icon: CheckCircle,
-    className: 'bg-secondary/20 text-secondary-foreground border border-secondary/30',
+    className: 'bg-secondary text-white border border-secondary',
   },
   processing: {
     label: 'Processing',
     icon: Package,
-    className: 'bg-secondary/20 text-secondary-foreground border border-secondary/30',
+    className: 'bg-secondary text-white border border-secondary',
   },
   shipped: {
     label: 'Shipped',
     icon: Truck,
-    className: 'bg-primary/20 text-primary-foreground border border-primary/30',
+    className: 'bg-primary text-white border border-primary',
   },
   delivered: {
     label: 'Delivered',
     icon: CheckCircle,
-    className: 'bg-primary/20 text-primary-foreground border border-primary/30',
+    className: 'bg-muted text-foreground border border-border',
   },
   cancelled: {
     label: 'Cancelled',
     icon: XCircle,
-    className: 'bg-destructive/20 text-destructive-foreground border border-destructive/30',
+    className: 'bg-destructive text-white border border-destructive',
   },
   refunded: {
     label: 'Refunded',
     icon: XCircle,
-    className: 'bg-muted text-muted-foreground border border-border',
+    className: 'bg-muted text-foreground border border-border',
   },
   failed: {
     label: 'Failed',
     icon: XCircle,
-    className: 'bg-destructive/20 text-destructive-foreground border border-destructive/30',
+    className: 'bg-destructive text-white border border-destructive',
   },
 };
 
