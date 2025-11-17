@@ -106,11 +106,11 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-background py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="bg-primary rounded-lg shadow-md p-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
+        <div className="rounded-lg shadow-md p-6">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground">
             {t('title')}
           </h1>
-          <p className="mt-2 text-lg text-white/90">
+          <p className="mt-2 text-lg text-foreground/90">
             {t('description')}
           </p>
         </div>
