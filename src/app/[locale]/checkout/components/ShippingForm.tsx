@@ -234,6 +234,7 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
       let province = '';
       let country = '';
       let postcode = '';
+      let postcodeSuffix = '';
 
       // Parse address components
       for (const component of place.addressComponents) {
@@ -263,9 +264,33 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
           country = component.shortText || '';
         }
 
-        // Postal code
+        // Postal code - Canadian format: A1A 1A1
+        // Google sometimes splits this into postal_code (A1A) and postal_code_suffix (1A1)
         if (types.includes('postal_code')) {
           postcode = component.longText || '';
+        }
+
+        // Postal code suffix (second part of Canadian postal code)
+        if (types.includes('postal_code_suffix')) {
+          postcodeSuffix = component.longText || '';
+        }
+      }
+
+      // Combine postal code parts for Canadian addresses
+      // Canadian postal code format: A1A 1A1 (letter-digit-letter space digit-letter-digit)
+      let fullPostalCode = postcode;
+      if (postcodeSuffix) {
+        // Remove any existing space and rebuild with proper spacing
+        fullPostalCode = `${postcode.replace(/\s+/g, '')} ${postcodeSuffix}`.trim();
+      }
+
+      // Ensure proper formatting for Canadian postal codes (uppercase and proper spacing)
+      if (country === 'CA' && fullPostalCode) {
+        // Remove all spaces
+        fullPostalCode = fullPostalCode.replace(/\s+/g, '').toUpperCase();
+        // Add space in the middle if it's a 6-character code
+        if (fullPostalCode.length === 6) {
+          fullPostalCode = `${fullPostalCode.slice(0, 3)} ${fullPostalCode.slice(3)}`;
         }
       }
 
@@ -274,7 +299,9 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
         city,
         province,
         country,
-        postcode
+        postcode,
+        postcodeSuffix,
+        fullPostalCode
       });
 
       // Update form fields based on type
@@ -282,7 +309,7 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
       setValue(`${type}.city`, city);
       setValue(`${type}.state`, province);
       setValue(`${type}.country`, country || 'CA');
-      setValue(`${type}.postalCode`, postcode);
+      setValue(`${type}.postalCode`, fullPostalCode);
 
       // Clear the autocomplete input
       const autocompleteId = type === 'shipping' ? '#shipping-place-autocomplete' : '#billing-place-autocomplete';
