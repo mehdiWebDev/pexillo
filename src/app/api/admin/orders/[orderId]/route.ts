@@ -64,8 +64,7 @@ export async function GET(
     }
 
     // Get customer information
-    // IMPORTANT: Use data from checkout form (stored in shipping_address) instead of profile
-    // This ensures we display the contact info used during checkout
+    // Parse shipping address for delivery contact info
     const shippingAddress = typeof order.shipping_address === 'string'
       ? JSON.parse(order.shipping_address)
       : order.shipping_address;
@@ -79,25 +78,25 @@ export async function GET(
     };
 
     if (order.user_id) {
-      // Registered user - get name from profile, but email/phone from checkout form
+      // Registered user - use profile email for Customer Info, phone from checkout
       const { data: userProfile } = await supabaseAdmin
         .from('profiles')
-        .select('full_name')
+        .select('email, full_name')
         .eq('id', order.user_id)
         .single();
 
       customer = {
         name: userProfile?.full_name || `${shippingAddress?.firstName || ''} ${shippingAddress?.lastName || ''}`.trim(),
-        email: shippingAddress?.email || order.guest_email || '',
-        phone: shippingAddress?.phone || '',
+        email: userProfile?.email || '',  // Use profile email for registered users
+        phone: shippingAddress?.phone || '',  // Use checkout phone
         accountType: 'registered',
         lookupCode: null
       };
     } else {
-      // Guest order
+      // Guest order - use checkout form email
       customer = {
         name: `${shippingAddress?.firstName || ''} ${shippingAddress?.lastName || ''}`.trim() || order.guest_email?.split('@')[0] || 'Guest',
-        email: shippingAddress?.email || order.guest_email || '',
+        email: order.guest_email || shippingAddress?.email || '',
         phone: shippingAddress?.phone || '',
         accountType: 'guest',
         lookupCode: order.guest_lookup_code
