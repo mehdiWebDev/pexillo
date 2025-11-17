@@ -65,17 +65,17 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-slate-950">
-        <Loader2 className="h-12 w-12 animate-spin text-blue-600 dark:text-blue-400" />
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm p-8">
-          <p className="text-lg font-medium text-gray-900 dark:text-gray-100">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="bg-card border border-border rounded-lg shadow-sm p-8">
+          <p className="text-lg font-medium text-foreground">
             {t('profileNotFound')}
           </p>
         </div>
@@ -84,14 +84,14 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-500 dark:to-indigo-500 rounded-lg shadow-md p-6">
+        <div className="bg-gradient-to-r from-primary to-secondary rounded-lg shadow-md p-6">
           <h1 className="text-3xl md:text-4xl font-bold text-white">
             {t('title')}
           </h1>
-          <p className="mt-2 text-lg text-blue-100 dark:text-blue-50">
+          <p className="mt-2 text-lg text-white/90">
             {t('description')}
           </p>
         </div>

@@ -62,15 +62,15 @@ export default function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm p-6">
-      <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
+    <div className="bg-card border border-border rounded-lg shadow-sm p-6">
+      <h2 className="text-2xl font-semibold text-foreground mb-6">
         {t('personalInformation')}
       </h2>
 
       <div className="space-y-5">
         {/* Email (Read-only) */}
         <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
             <Mail className="h-4 w-4" />
             {t('email')}
           </label>
@@ -78,16 +78,16 @@ export default function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
             type="email"
             value={profile.email}
             disabled
-            className="w-full px-4 py-2.5 bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-md text-gray-600 dark:text-gray-400 cursor-not-allowed"
+            className="w-full px-4 py-2.5 bg-muted border border-border rounded-md text-muted-foreground cursor-not-allowed"
           />
-          <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-1.5 text-xs text-muted-foreground">
             {t('emailCannotBeChanged')}
           </p>
         </div>
 
         {/* Full Name */}
         <div>
-          <label htmlFor="fullName" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="fullName" className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
             <User className="h-4 w-4" />
             {t('fullName')}
           </label>
@@ -97,13 +97,13 @@ export default function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder={t('fullNamePlaceholder')}
-            className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-md text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-200"
+            className="w-full px-4 py-2.5 bg-background border border-input rounded-md text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-input transition-all duration-200"
           />
         </div>
 
         {/* Phone */}
         <div>
-          <label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
             <Phone className="h-4 w-4" />
             {t('phone')}
           </label>
@@ -113,13 +113,13 @@ export default function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder={t('phonePlaceholder')}
-            className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-md text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-200"
+            className="w-full px-4 py-2.5 bg-background border border-input rounded-md text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-input transition-all duration-200"
           />
         </div>
 
         {/* Date of Birth */}
         <div>
-          <label htmlFor="dateOfBirth" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="dateOfBirth" className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
             <Calendar className="h-4 w-4" />
             {t('dateOfBirth')}
           </label>
@@ -128,20 +128,20 @@ export default function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
             type="date"
             value={dateOfBirth}
             onChange={(e) => setDateOfBirth(e.target.value)}
-            className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-md text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-200"
+            className="w-full px-4 py-2.5 bg-background border border-input rounded-md text-foreground focus:ring-2 focus:ring-ring focus:border-input transition-all duration-200"
           />
         </div>
 
         {/* Gender */}
         <div>
-          <label htmlFor="gender" className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+          <label htmlFor="gender" className="text-sm font-medium text-foreground mb-2 block">
             {t('gender')}
           </label>
           <select
             id="gender"
             value={gender}
             onChange={(e) => setGender(e.target.value)}
-            className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-md text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-200"
+            className="w-full px-4 py-2.5 bg-background border border-input rounded-md text-foreground focus:ring-2 focus:ring-ring focus:border-input transition-all duration-200"
           >
             <option value="">{t('selectGender')}</option>
             <option value="male">{t('male')}</option>
@@ -153,7 +153,7 @@ export default function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
 
         {/* Preferred Language */}
         <div>
-          <label htmlFor="language" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="language" className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
             <Globe className="h-4 w-4" />
             {t('preferredLanguage')}
           </label>
@@ -161,7 +161,7 @@ export default function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
             id="language"
             value={preferredLanguage}
             onChange={(e) => setPreferredLanguage(e.target.value)}
-            className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-md text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400 transition-all duration-200"
+            className="w-full px-4 py-2.5 bg-background border border-input rounded-md text-foreground focus:ring-2 focus:ring-ring focus:border-input transition-all duration-200"
           >
             <option value="en">{t('english')}</option>
             <option value="fr">{t('french')}</option>
@@ -169,21 +169,21 @@ export default function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
         </div>
 
         {/* Marketing Consent */}
-        <div className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg p-4">
+        <div className="bg-muted border border-border rounded-lg p-4">
           <div className="flex items-start space-x-3">
             <input
               type="checkbox"
               id="marketingConsent"
               checked={marketingConsent}
               onChange={(e) => setMarketingConsent(e.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-gray-300 dark:border-slate-600 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+              className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring"
             />
             <div className="flex-1">
-              <label htmlFor="marketingConsent" className="flex items-center gap-2 cursor-pointer font-medium text-gray-900 dark:text-gray-100">
+              <label htmlFor="marketingConsent" className="flex items-center gap-2 cursor-pointer font-medium text-foreground">
                 <BellRing className="h-4 w-4" />
                 {t('marketingConsent')}
               </label>
-              <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+              <p className="mt-1 text-xs text-muted-foreground">
                 {t('marketingConsentDescription')}
               </p>
             </div>
@@ -194,7 +194,7 @@ export default function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg py-3 px-6 font-medium shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
+          className="w-full bg-secondary hover:opacity-90 text-white rounded-lg py-3 px-6 font-medium shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
         >
           {isSaving ? (
             <>

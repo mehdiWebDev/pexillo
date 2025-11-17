@@ -115,7 +115,7 @@ export default function ProfileImageSection({ profile, onUpdate }: ProfileImageS
   return (
     <div className="space-y-6">
       {/* Avatar Card */}
-      <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm p-6">
+      <div className="bg-card border border-border rounded-lg shadow-sm p-6">
         <div className="flex flex-col items-center space-y-4">
           {/* Avatar */}
           <div className="relative">
@@ -123,10 +123,10 @@ export default function ProfileImageSection({ profile, onUpdate }: ProfileImageS
               <img
                 src={profile.avatar_url}
                 alt={profile.full_name || 'Avatar'}
-                className="w-40 h-40 rounded-full ring-4 ring-gray-100 dark:ring-slate-700 shadow-lg object-cover"
+                className="w-40 h-40 rounded-full ring-4 ring-muted shadow-lg object-cover"
               />
             ) : (
-              <div className="w-40 h-40 bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-indigo-700 rounded-full ring-4 ring-gray-100 dark:ring-slate-700 shadow-lg flex items-center justify-center">
+              <div className="w-40 h-40 bg-gradient-to-br from-primary to-secondary rounded-full ring-4 ring-muted shadow-lg flex items-center justify-center">
                 <span className="text-5xl font-bold text-white">
                   {getInitials()}
                 </span>
@@ -137,7 +137,7 @@ export default function ProfileImageSection({ profile, onUpdate }: ProfileImageS
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
+              className="absolute bottom-2 right-2 bg-secondary hover:opacity-90 text-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
             >
               {isUploading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -157,10 +157,10 @@ export default function ProfileImageSection({ profile, onUpdate }: ProfileImageS
 
           {/* Name & Email */}
           <div className="text-center">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="text-2xl font-semibold text-foreground">
               {profile.full_name || t('noName')}
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {profile.email}
             </p>
           </div>
@@ -170,52 +170,52 @@ export default function ProfileImageSection({ profile, onUpdate }: ProfileImageS
       {/* Statistics Cards */}
       <div className="space-y-4">
         {/* Total Orders */}
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-slate-800 dark:to-slate-900 border border-green-100 dark:border-slate-700 rounded-lg shadow-sm p-4">
+        <div className="bg-card border border-border rounded-lg shadow-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <p className="text-sm font-medium text-muted-foreground">
                 {t('totalOrders')}
               </p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+              <p className="text-2xl font-bold text-foreground mt-1">
                 {profile.total_orders}
               </p>
             </div>
-            <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg">
-              <ShoppingBag className="h-6 w-6 text-green-600 dark:text-green-400" />
+            <div className="bg-primary/10 p-3 rounded-lg">
+              <ShoppingBag className="h-6 w-6 text-primary" />
             </div>
           </div>
         </div>
 
         {/* Total Spent */}
-        <div className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-slate-800 dark:to-slate-900 border border-purple-100 dark:border-slate-700 rounded-lg shadow-sm p-4">
+        <div className="bg-card border border-border rounded-lg shadow-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <p className="text-sm font-medium text-muted-foreground">
                 {t('totalSpent')}
               </p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+              <p className="text-2xl font-bold text-foreground mt-1">
                 ${profile.total_spent.toFixed(2)}
               </p>
             </div>
-            <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-lg">
-              <DollarSign className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+            <div className="bg-secondary/10 p-3 rounded-lg">
+              <DollarSign className="h-6 w-6 text-secondary" />
             </div>
           </div>
         </div>
 
         {/* Member Since */}
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 border border-blue-100 dark:border-slate-700 rounded-lg shadow-sm p-4">
+        <div className="bg-card border border-border rounded-lg shadow-sm p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <p className="text-sm font-medium text-muted-foreground">
                 {t('memberSince')}
               </p>
-              <p className="text-lg font-bold text-gray-900 dark:text-gray-100 mt-1">
+              <p className="text-lg font-bold text-foreground mt-1">
                 {new Date(profile.created_at).toLocaleDateString()}
               </p>
             </div>
-            <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
-              <Calendar className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            <div className="bg-accent/10 p-3 rounded-lg">
+              <Calendar className="h-6 w-6 text-accent-foreground" />
             </div>
           </div>
         </div>

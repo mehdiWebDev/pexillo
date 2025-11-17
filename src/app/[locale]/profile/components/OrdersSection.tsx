@@ -28,42 +28,42 @@ const statusConfig: Record<string, {
   pending: {
     label: 'Pending',
     icon: Package,
-    className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800',
+    className: 'bg-accent/20 text-accent-foreground border border-accent/30',
   },
   confirmed: {
     label: 'Confirmed',
     icon: CheckCircle,
-    className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800',
+    className: 'bg-secondary/20 text-secondary-foreground border border-secondary/30',
   },
   processing: {
     label: 'Processing',
     icon: Package,
-    className: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800',
+    className: 'bg-secondary/20 text-secondary-foreground border border-secondary/30',
   },
   shipped: {
     label: 'Shipped',
     icon: Truck,
-    className: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border border-purple-200 dark:border-purple-800',
+    className: 'bg-primary/20 text-primary-foreground border border-primary/30',
   },
   delivered: {
     label: 'Delivered',
     icon: CheckCircle,
-    className: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800',
+    className: 'bg-primary/20 text-primary-foreground border border-primary/30',
   },
   cancelled: {
     label: 'Cancelled',
     icon: XCircle,
-    className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800',
+    className: 'bg-destructive/20 text-destructive-foreground border border-destructive/30',
   },
   refunded: {
     label: 'Refunded',
     icon: XCircle,
-    className: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800',
+    className: 'bg-muted text-muted-foreground border border-border',
   },
   failed: {
     label: 'Failed',
     icon: XCircle,
-    className: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400 border border-gray-200 dark:border-gray-800',
+    className: 'bg-destructive/20 text-destructive-foreground border border-destructive/30',
   },
 };
 
@@ -123,34 +123,34 @@ export default function OrdersSection({ userId }: OrdersSectionProps) {
 
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm p-8">
+      <div className="bg-card border border-border rounded-lg shadow-sm p-8">
         <div className="flex items-center justify-center h-40">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 dark:text-blue-400" />
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm p-6">
+    <div className="bg-card border border-border rounded-lg shadow-sm p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+        <h2 className="text-2xl font-semibold text-foreground">
           {t('recentOrders')}
         </h2>
         {orders.length > 0 && (
-          <ShoppingBag className="h-6 w-6 text-gray-500 dark:text-gray-400" />
+          <ShoppingBag className="h-6 w-6 text-muted-foreground" />
         )}
       </div>
 
       {orders.length === 0 ? (
         <div className="text-center py-12">
-          <div className="bg-gray-100 dark:bg-slate-900 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-            <ShoppingBag className="h-10 w-10 text-gray-400 dark:text-gray-600" />
+          <div className="bg-muted rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+            <ShoppingBag className="h-10 w-10 text-muted-foreground" />
           </div>
-          <p className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <p className="text-lg font-medium text-foreground">
             {t('noOrders')}
           </p>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             {t('noOrdersDescription')}
           </p>
         </div>
@@ -163,15 +163,15 @@ export default function OrdersSection({ userId }: OrdersSectionProps) {
             return (
               <div
                 key={order.id}
-                className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg p-5 hover:shadow-md transition-all duration-200"
+                className="bg-muted/50 border border-border rounded-lg p-5 hover:shadow-md transition-all duration-200"
               >
                 {/* Order Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                    <p className="text-xs font-medium text-muted-foreground">
                       {t('orderNumber')}
                     </p>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    <p className="text-lg font-semibold text-foreground">
                       #{order.order_number}
                     </p>
                   </div>
@@ -186,26 +186,26 @@ export default function OrdersSection({ userId }: OrdersSectionProps) {
                 {/* Order Details */}
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">
+                    <span className="text-muted-foreground">
                       {t('orderDate')}
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                    <span className="font-medium text-foreground">
                       {new Date(order.created_at).toLocaleDateString()}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">
+                    <span className="text-muted-foreground">
                       {t('items')}
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                    <span className="font-medium text-foreground">
                       {order.items_count}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="text-sm text-muted-foreground">
                       {t('total')}
                     </span>
-                    <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    <span className="text-lg font-bold text-foreground">
                       ${order.total_amount.toFixed(2)}
                     </span>
                   </div>
@@ -214,7 +214,7 @@ export default function OrdersSection({ userId }: OrdersSectionProps) {
                 {/* Track Button */}
                 <button
                   onClick={() => handleTrackOrder(order.order_number)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-md py-2 px-4 text-sm font-medium transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+                  className="w-full bg-secondary hover:opacity-90 text-white rounded-md py-2 px-4 text-sm font-medium transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
                 >
                   <ExternalLink className="h-4 w-4" />
                   {t('trackOrder')}
