@@ -105,12 +105,10 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
       // Convert estimated_delivery_date to YYYY-MM-DD format for date input
       let formattedDate = '';
       if (data.order.estimated_delivery_date) {
-        const date = new Date(data.order.estimated_delivery_date);
-        // Extract date in local timezone (avoid UTC conversion issues)
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        formattedDate = `${year}-${month}-${day}`;
+        // Parse date string directly to avoid timezone conversion
+        const dateStr = data.order.estimated_delivery_date;
+        // Extract date part (handles both "2025-11-18" and "2025-11-18T00:00:00Z" formats)
+        formattedDate = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
       }
 
       setTrackingForm({
