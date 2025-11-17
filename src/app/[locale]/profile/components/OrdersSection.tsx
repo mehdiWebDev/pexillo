@@ -30,10 +30,15 @@ const statusConfig: Record<string, {
     icon: Package,
     className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800',
   },
+  confirmed: {
+    label: 'Confirmed',
+    icon: CheckCircle,
+    className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800',
+  },
   processing: {
     label: 'Processing',
     icon: Package,
-    className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800',
+    className: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800',
   },
   shipped: {
     label: 'Shipped',
@@ -49,6 +54,16 @@ const statusConfig: Record<string, {
     label: 'Cancelled',
     icon: XCircle,
     className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800',
+  },
+  refunded: {
+    label: 'Refunded',
+    icon: XCircle,
+    className: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800',
+  },
+  failed: {
+    label: 'Failed',
+    icon: XCircle,
+    className: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400 border border-gray-200 dark:border-gray-800',
   },
 };
 

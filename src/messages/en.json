@@ -563,10 +563,13 @@
         "trackOrder": "Track Order",
         "orderStatus": {
             "pending": "Pending",
+            "confirmed": "Confirmed",
             "processing": "Processing",
             "shipped": "Shipped",
             "delivered": "Delivered",
-            "cancelled": "Cancelled"
+            "cancelled": "Cancelled",
+            "refunded": "Refunded",
+            "failed": "Failed"
         }
     },
     "cart": {

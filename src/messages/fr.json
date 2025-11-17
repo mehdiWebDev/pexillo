@@ -563,10 +563,13 @@
         "trackOrder": "Suivre la commande",
         "orderStatus": {
             "pending": "En attente",
+            "confirmed": "Confirmée",
             "processing": "En traitement",
             "shipped": "Expédiée",
             "delivered": "Livrée",
-            "cancelled": "Annulée"
+            "cancelled": "Annulée",
+            "refunded": "Remboursée",
+            "failed": "Échouée"
         }
     },
     "cart": {
