@@ -110,7 +110,7 @@ export default function ProfilePage() {
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">
             {t('title')}
           </h1>
-          <p className="mt-2 text-lg text-muted-foreground">
+          <p className="mt-2 text-lg text-foreground/90">
             {t('description')}
           </p>
         </div>

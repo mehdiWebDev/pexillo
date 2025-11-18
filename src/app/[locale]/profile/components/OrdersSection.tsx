@@ -28,42 +28,42 @@ const statusConfig: Record<string, {
   pending: {
     label: 'Pending',
     icon: Package,
-    className: 'bg-accent text-foreground border border-accent',
+    className: 'bg-red-500 text-white border border-red-500',
   },
   confirmed: {
     label: 'Confirmed',
     icon: CheckCircle,
-    className: 'bg-secondary text-white border border-secondary',
+    className: 'bg-green-500 text-white border border-green-500',
   },
   processing: {
     label: 'Processing',
     icon: Package,
-    className: 'bg-secondary text-white border border-secondary',
+    className: 'bg-yellow-500 text-white border border-yellow-500',
   },
   shipped: {
     label: 'Shipped',
     icon: Truck,
-    className: 'bg-primary text-white border border-primary',
+    className: 'bg-blue-500 text-white border border-blue-500',
   },
   delivered: {
     label: 'Delivered',
     icon: CheckCircle,
-    className: 'bg-muted text-foreground border border-border',
+    className: 'bg-green-500 text-white border border-green-500',
   },
   cancelled: {
     label: 'Cancelled',
     icon: XCircle,
-    className: 'bg-destructive text-white border border-destructive',
+    className: 'bg-red-500 text-white border border-red-500',
   },
   refunded: {
     label: 'Refunded',
     icon: XCircle,
-    className: 'bg-muted text-foreground border border-border',
+    className: 'bg-green-500 text-white border border-green-500',
   },
   failed: {
     label: 'Failed',
     icon: XCircle,
-    className: 'bg-destructive text-white border border-destructive',
+    className: 'bg-red-500 text-white border border-red-500',
   },
 };
 
