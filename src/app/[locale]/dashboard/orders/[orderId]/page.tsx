@@ -290,7 +290,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
               <SelectItem value="cancelled">{tAdmin('statuses.cancelled')}</SelectItem>
             </SelectContent>
           </Select>
-          <Badge className={paymentStatusColors[order.payment_status]}>
+          <Badge variant="custom" className={paymentStatusColors[order.payment_status]}>
             {order.payment_status}
           </Badge>
           <Button variant="outline" size="sm">
