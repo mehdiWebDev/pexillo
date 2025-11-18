@@ -66,7 +66,7 @@ export function SignUpForm({
         ? `${window.location.origin}/fr`
         : `${window.location.origin}`;
 
-      const { data: authData, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -85,23 +85,8 @@ export function SignUpForm({
 
       if (error) throw error;
 
-      // Update profile with additional information
-      if (authData.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            full_name: fullName,
-            phone: phone,
-            date_of_birth: dateOfBirth || null,
-            gender: gender || null,
-            marketing_consent: marketingConsent,
-          })
-          .eq('id', authData.user.id);
-
-        if (profileError) {
-          console.error('Error updating profile:', profileError);
-        }
-      }
+      // Profile is automatically created by database trigger (handle_new_user)
+      // with all user metadata including full_name, phone, date_of_birth, gender, marketing_consent
       
       // Redirect to success page
       const successPath = isFrench 
