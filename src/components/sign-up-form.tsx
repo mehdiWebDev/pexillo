@@ -12,6 +12,14 @@ import {
 } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select";
+import { Checkbox } from "@/src/components/ui/checkbox";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
@@ -24,6 +32,11 @@ export function SignUpForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -49,23 +62,46 @@ export function SignUpForm({
 
     try {
       // Redirect to home page - root for English, /fr for French
-      const redirectUrl = isFrench 
+      const redirectUrl = isFrench
         ? `${window.location.origin}/fr`
         : `${window.location.origin}`;
 
-      const { error } = await supabase.auth.signUp({
+      const { data: authData, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: redirectUrl,
           data: {
+            full_name: fullName,
+            phone: phone,
+            date_of_birth: dateOfBirth,
+            gender: gender || null,
+            marketing_consent: marketingConsent,
             preferred_language: isFrench ? 'fr' : 'en',
             signup_source: 'pexillo_website'
           }
         },
       });
-      
+
       if (error) throw error;
+
+      // Update profile with additional information
+      if (authData.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            full_name: fullName,
+            phone: phone,
+            date_of_birth: dateOfBirth || null,
+            gender: gender || null,
+            marketing_consent: marketingConsent,
+          })
+          .eq('id', authData.user.id);
+
+        if (profileError) {
+          console.error('Error updating profile:', profileError);
+        }
+      }
       
       // Redirect to success page
       const successPath = isFrench 
@@ -96,6 +132,17 @@ export function SignUpForm({
           <form onSubmit={handleSignUp}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
+                <Label htmlFor="full-name">{t('fullNameLabel')}</Label>
+                <Input
+                  id="full-name"
+                  type="text"
+                  placeholder={t('fullNamePlaceholder')}
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
                 <Label htmlFor="email">{t('emailLabel')}</Label>
                 <Input
                   id="email"
@@ -107,6 +154,17 @@ export function SignUpForm({
                 />
               </div>
               <div className="grid gap-2">
+                <Label htmlFor="phone">{t('phoneLabel')}</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder={t('phonePlaceholder')}
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">{t('passwordLabel')}</Label>
                 </div>
@@ -114,6 +172,7 @@ export function SignUpForm({
                   id="password"
                   type="password"
                   required
+                  minLength={8}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t('passwordPlaceholder')}
@@ -127,10 +186,47 @@ export function SignUpForm({
                   id="repeat-password"
                   type="password"
                   required
+                  minLength={8}
                   value={repeatPassword}
                   onChange={(e) => setRepeatPassword(e.target.value)}
                   placeholder={t('repeatPasswordPlaceholder')}
                 />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="date-of-birth">{t('dateOfBirthLabel')}</Label>
+                <Input
+                  id="date-of-birth"
+                  type="date"
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="gender">{t('genderLabel')}</Label>
+                <Select value={gender} onValueChange={setGender}>
+                  <SelectTrigger id="gender">
+                    <SelectValue placeholder={t('selectGender')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">{t('male')}</SelectItem>
+                    <SelectItem value="female">{t('female')}</SelectItem>
+                    <SelectItem value="other">{t('other')}</SelectItem>
+                    <SelectItem value="prefer_not_to_say">{t('preferNotToSay')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="marketing-consent"
+                  checked={marketingConsent}
+                  onCheckedChange={(checked) => setMarketingConsent(checked as boolean)}
+                />
+                <label
+                  htmlFor="marketing-consent"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {t('marketingConsentLabel')}
+                </label>
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
               <Button type="submit" className="w-full" disabled={isLoading}>
