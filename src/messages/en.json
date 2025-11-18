@@ -232,6 +232,7 @@
         "preferNotToSay": "Prefer not to say",
         "marketingConsentLabel": "I want to receive marketing emails and special offers",
         "passwordMismatch": "Passwords do not match",
+        "emailAlreadyExists": "This email is already registered. Please login or use a different email.",
         "genericError": "An error occurred",
         "signingUp": "Creating your account...",
         "signUpButton": "Sign up",

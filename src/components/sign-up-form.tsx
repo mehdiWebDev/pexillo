@@ -61,12 +61,25 @@ export function SignUpForm({
     }
 
     try {
+      // Check if email already exists in profiles table
+      const { data: existingProfile, error: checkError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email.toLowerCase())
+        .single();
+
+      if (existingProfile) {
+        setError(t('emailAlreadyExists'));
+        setIsLoading(false);
+        return;
+      }
+
       // Redirect to home page - root for English, /fr for French
       const redirectUrl = isFrench
         ? `${window.location.origin}/fr`
         : `${window.location.origin}`;
 
-      const { error } = await supabase.auth.signUp({
+      const { data: signUpData, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -84,6 +97,11 @@ export function SignUpForm({
       });
 
       if (error) throw error;
+
+      // Check if user needs to confirm email
+      if (signUpData?.user && !signUpData.user.confirmed_at) {
+        console.log('Email confirmation required');
+      }
 
       // Profile is automatically created by database trigger (handle_new_user)
       // with all user metadata including full_name, phone, date_of_birth, gender, marketing_consent
