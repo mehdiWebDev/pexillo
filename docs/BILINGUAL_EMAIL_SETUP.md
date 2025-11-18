@@ -106,16 +106,18 @@ The email template has access to these Supabase variables:
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `{{ .ConfirmationURL }}` | Magic link for email confirmation | `https://pexillo.com/auth/confirm?token_hash=...` |
-| `{{ .UserMetaData.preferred_language }}` | User's language preference | `en` or `fr` |
-| `{{ .UserMetaData.full_name }}` | User's full name | `Jean Dupont` |
+| `{{ .Data.preferred_language }}` | User's language preference from metadata | `en` or `fr` |
+| `{{ .Data.full_name }}` | User's full name from metadata | `Jean Dupont` |
 | `{{ .Email }}` | User's email address | `user@example.com` |
+
+**Important:** User metadata is accessed via `.Data` in Supabase email templates, not `.UserMetaData`.
 
 ## Template Structure
 
 The bilingual template uses Go template syntax:
 
 ```go
-{{ if eq .UserMetaData.preferred_language "fr" }}
+{{ if eq .Data.preferred_language "fr" }}
   <!-- French content -->
   <h2>Bienvenue chez PEXILLO!</h2>
 {{ else }}
@@ -138,7 +140,7 @@ The bilingual template uses Go template syntax:
 
 **Check:**
 1. The signup form is correctly setting `preferred_language` in metadata
-2. The Supabase email template is using the correct variable: `{{ .UserMetaData.preferred_language }}`
+2. The Supabase email template is using the correct variable: `{{ .Data.preferred_language }}` (NOT `.UserMetaData`)
 3. Test with a fresh signup (metadata is set during signup, not retroactively)
 
 **Debug:**
