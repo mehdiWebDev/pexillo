@@ -217,32 +217,38 @@
 @layer components {
   /* Badge utility classes using CSS variables */
   .badge-success {
-    background-color: hsl(var(--badge-success-bg));
-    color: hsl(var(--badge-success-text));
+    background-color: hsl(var(--badge-success-bg)) !important;
+    color: hsl(var(--badge-success-text)) !important;
+    border-color: transparent !important;
   }
 
   .badge-warning {
-    background-color: hsl(var(--badge-warning-bg));
-    color: hsl(var(--badge-warning-text));
+    background-color: hsl(var(--badge-warning-bg)) !important;
+    color: hsl(var(--badge-warning-text)) !important;
+    border-color: transparent !important;
   }
 
   .badge-info {
-    background-color: hsl(var(--badge-info-bg));
-    color: hsl(var(--badge-info-text));
+    background-color: hsl(var(--badge-info-bg)) !important;
+    color: hsl(var(--badge-info-text)) !important;
+    border-color: transparent !important;
   }
 
   .badge-purple {
-    background-color: hsl(var(--badge-purple-bg));
-    color: hsl(var(--badge-purple-text));
+    background-color: hsl(var(--badge-purple-bg)) !important;
+    color: hsl(var(--badge-purple-text)) !important;
+    border-color: transparent !important;
   }
 
   .badge-error {
-    background-color: hsl(var(--badge-error-bg));
-    color: hsl(var(--badge-error-text));
+    background-color: hsl(var(--badge-error-bg)) !important;
+    color: hsl(var(--badge-error-text)) !important;
+    border-color: transparent !important;
   }
 
   .badge-neutral {
-    background-color: hsl(var(--badge-neutral-bg));
-    color: hsl(var(--badge-neutral-text));
+    background-color: hsl(var(--badge-neutral-bg)) !important;
+    color: hsl(var(--badge-neutral-text)) !important;
+    border-color: transparent !important;
   }
 }
