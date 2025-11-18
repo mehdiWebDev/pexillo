@@ -269,6 +269,10 @@
         "successDescription": "Instructions de réinitialisation envoyées",
         "successMessage": "Si vous vous êtes inscrit avec votre courriel et mot de passe, vous recevrez un courriel de réinitialisation."
     },
+    "authButton": {
+        "signIn": "Se connecter",
+        "signUp": "S'inscrire"
+    },
     "productsPage": {
         "filters": "Filtres",
         "showing": "Affichage de",
