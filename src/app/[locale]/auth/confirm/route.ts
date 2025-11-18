@@ -12,11 +12,18 @@ export async function GET(request: NextRequest) {
   if (token_hash && type) {
     const supabase = await createClient();
 
-    const { error } = await supabase.auth.verifyOtp({
+    const { error, data } = await supabase.auth.verifyOtp({
       type,
       token_hash,
     });
+
     if (!error) {
+      // Check if we should redirect to a locale-specific URL
+      // If next is just "/" and user has a preferred language, redirect to locale version
+      if (next === "/" && data?.user?.user_metadata?.preferred_language === "fr") {
+        redirect("/fr");
+      }
+
       // redirect user to specified redirect URL or root of app
       redirect(next);
     } else {
