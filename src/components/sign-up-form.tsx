@@ -61,14 +61,16 @@ export function SignUpForm({
     }
 
     try {
-      // Check if email already exists in profiles table
-      const { data: existingProfile, error: checkError } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('email', email.toLowerCase())
-        .single();
+      // Check if email already exists using RPC function (bypasses RLS)
+      const { data: emailExists, error: checkError } = await supabase
+        .rpc('check_email_exists', { email_to_check: email });
 
-      if (existingProfile) {
+      if (checkError) {
+        console.error('Error checking email:', checkError);
+        // Continue anyway - better to attempt signup than block user
+      }
+
+      if (emailExists === true) {
         setError(t('emailAlreadyExists'));
         setIsLoading(false);
         return;
