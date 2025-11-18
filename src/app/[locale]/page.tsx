@@ -4,7 +4,6 @@ import ProductCategories from "@/src/components/product-categories";
 import ValuePropsBar from "@/src/components/value-props-bar";
 import NewsLetter from "@/src/components/news-letter";
 import About from "@/src/components/about";
-import Footer from "@/src/components/footer";
 
 
 
@@ -21,7 +20,6 @@ export default function Home() {
           <NewsLetter />
           <About />
         </main>
-        <Footer />
       </div>
     </main>
   );
