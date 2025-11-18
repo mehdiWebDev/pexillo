@@ -256,6 +256,19 @@
         "noAccount": "Vous n'avez pas de compte?",
         "signUpLink": "S'inscrire"
     },
+    "forgotPassword": {
+        "title": "Réinitialiser votre mot de passe",
+        "description": "Entrez votre courriel et nous vous enverrons un lien pour réinitialiser votre mot de passe",
+        "emailLabel": "Courriel",
+        "emailPlaceholder": "m@exemple.com",
+        "sending": "Envoi en cours...",
+        "sendButton": "Envoyer le courriel de réinitialisation",
+        "alreadyHaveAccount": "Vous avez déjà un compte?",
+        "loginLink": "Se connecter",
+        "successTitle": "Vérifiez votre courriel",
+        "successDescription": "Instructions de réinitialisation envoyées",
+        "successMessage": "Si vous vous êtes inscrit avec votre courriel et mot de passe, vous recevrez un courriel de réinitialisation."
+    },
     "productsPage": {
         "filters": "Filtres",
         "showing": "Affichage de",

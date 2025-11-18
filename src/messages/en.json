@@ -256,6 +256,19 @@
         "noAccount": "Don't have an account?",
         "signUpLink": "Sign up"
     },
+    "forgotPassword": {
+        "title": "Reset Your Password",
+        "description": "Type in your email and we'll send you a link to reset your password",
+        "emailLabel": "Email",
+        "emailPlaceholder": "m@example.com",
+        "sending": "Sending...",
+        "sendButton": "Send reset email",
+        "alreadyHaveAccount": "Already have an account?",
+        "loginLink": "Login",
+        "successTitle": "Check Your Email",
+        "successDescription": "Password reset instructions sent",
+        "successMessage": "If you registered using your email and password, you will receive a password reset email."
+    },
     "productsPage": {
         "filters": "Filters",
         "showing": "Showing",
