@@ -7,8 +7,14 @@ import {
 } from "@/src/components/ui/card";
 import { getTranslations } from "next-intl/server";
 
-export default async function Page() {
-  const t = await getTranslations('signUpSuccess');
+export default async function Page({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  // Await params to get the locale (Next.js 15 requirement)
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'signUpSuccess' });
 
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
