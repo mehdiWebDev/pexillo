@@ -239,6 +239,11 @@
         "alreadyHaveAccount": "Already have an account?",
         "loginLink": "Login"
     },
+    "signUpSuccess": {
+        "title": "Thank you for signing up!",
+        "description": "Check your email to confirm",
+        "message": "You've successfully signed up. Please check your email to confirm your account before signing in."
+    },
     "productsPage": {
         "filters": "Filters",
         "showing": "Showing",

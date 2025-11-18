@@ -239,6 +239,11 @@
         "alreadyHaveAccount": "Vous avez déjà un compte?",
         "loginLink": "Se connecter"
     },
+    "signUpSuccess": {
+        "title": "Merci pour votre inscription!",
+        "description": "Vérifiez votre courriel pour confirmer",
+        "message": "Vous vous êtes inscrit avec succès. Veuillez vérifier votre courriel pour confirmer votre compte avant de vous connecter."
+    },
     "productsPage": {
         "filters": "Filtres",
         "showing": "Affichage de",
