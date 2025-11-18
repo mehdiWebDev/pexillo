@@ -244,6 +244,18 @@
         "description": "Vérifiez votre courriel pour confirmer",
         "message": "Vous vous êtes inscrit avec succès. Veuillez vérifier votre courriel pour confirmer votre compte avant de vous connecter."
     },
+    "login": {
+        "title": "Connexion",
+        "description": "Entrez votre courriel ci-dessous pour vous connecter à votre compte",
+        "emailLabel": "Courriel",
+        "emailPlaceholder": "m@exemple.com",
+        "passwordLabel": "Mot de passe",
+        "forgotPassword": "Mot de passe oublié?",
+        "loggingIn": "Connexion en cours...",
+        "loginButton": "Se connecter",
+        "noAccount": "Vous n'avez pas de compte?",
+        "signUpLink": "S'inscrire"
+    },
     "productsPage": {
         "filters": "Filtres",
         "showing": "Affichage de",

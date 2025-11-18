@@ -244,6 +244,18 @@
         "description": "Check your email to confirm",
         "message": "You've successfully signed up. Please check your email to confirm your account before signing in."
     },
+    "login": {
+        "title": "Login",
+        "description": "Enter your email below to login to your account",
+        "emailLabel": "Email",
+        "emailPlaceholder": "m@example.com",
+        "passwordLabel": "Password",
+        "forgotPassword": "Forgot your password?",
+        "loggingIn": "Logging in...",
+        "loginButton": "Login",
+        "noAccount": "Don't have an account?",
+        "signUpLink": "Sign up"
+    },
     "productsPage": {
         "filters": "Filters",
         "showing": "Showing",
