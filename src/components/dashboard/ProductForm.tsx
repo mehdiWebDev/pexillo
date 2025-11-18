@@ -779,7 +779,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {field.value?.map((tag, index) => (
-                                <Badge key={index} variant="secondary" className="px-2 py-1">
+                                <Badge key={index} className="badge-neutral px-2 py-1">
                                   {tag}
                                   <button
                                     type="button"
@@ -964,12 +964,12 @@ export default function ProductForm({ productId }: ProductFormProps) {
                           )}
                           
                           {image.is_primary && (
-                            <Badge className="absolute top-2 left-2" variant="default">
+                            <Badge className="absolute top-2 left-2 badge-info">
                               Primary
                             </Badge>
                           )}
-                          
-                          <Badge className="absolute top-2 right-2" variant="outline">
+
+                          <Badge className="absolute top-2 right-2 badge-neutral">
                             {image.view_type}
                           </Badge>
                         </div>

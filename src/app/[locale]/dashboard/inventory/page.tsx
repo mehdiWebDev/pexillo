@@ -47,11 +47,11 @@ export default function InventoryPage() {
 
   const TRANSACTION_TYPES = [
     { value: 'all', label: t('allTypes') },
-    { value: 'sale', label: t('sale'), icon: TrendingDown, color: 'text-red-600' },
-    { value: 'restock', label: t('restock'), icon: TrendingUp, color: 'text-green-600' },
-    { value: 'adjustment', label: t('adjustment'), icon: RefreshCw, color: 'text-blue-600' },
-    { value: 'return', label: t('return'), icon: RotateCcw, color: 'text-yellow-600' },
-    { value: 'cancellation', label: t('cancellation'), icon: XCircle, color: 'text-gray-600' },
+    { value: 'sale', label: t('sale'), icon: TrendingDown, color: 'badge-error' },
+    { value: 'restock', label: t('restock'), icon: TrendingUp, color: 'badge-success' },
+    { value: 'adjustment', label: t('adjustment'), icon: RefreshCw, color: 'badge-info' },
+    { value: 'return', label: t('return'), icon: RotateCcw, color: 'badge-warning' },
+    { value: 'cancellation', label: t('cancellation'), icon: XCircle, color: 'badge-neutral' },
   ];
   const [transactions, setTransactions] = useState<InventoryTransaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -236,7 +236,6 @@ export default function InventoryPage() {
                         </td>
                         <td className="py-3 px-4">
                           <Badge
-                            variant="outline"
                             className={`gap-1 ${typeInfo.color}`}
                           >
                             <Icon className="h-3 w-3" />

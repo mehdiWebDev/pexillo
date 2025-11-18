@@ -104,13 +104,13 @@ export default function ProductsPage() {
   };
 
   // Get badge color
-  const getBadgeVariant = (badge: string) => {
+  const getBadgeClass = (badge: string) => {
     switch(badge) {
-      case 'NEW': return 'default';
-      case 'HOT': return 'destructive';
-      case 'SALE': return 'secondary';
-      case 'LIMITED': return 'outline';
-      default: return 'default';
+      case 'NEW': return 'badge-info';
+      case 'HOT': return 'badge-error';
+      case 'SALE': return 'badge-warning';
+      case 'LIMITED': return 'badge-purple';
+      default: return 'badge-neutral';
     }
   };
 
@@ -251,13 +251,13 @@ export default function ProductsPage() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={product.is_active ? 'default' : 'secondary'}>
+                        <Badge className={product.is_active ? 'badge-success' : 'badge-neutral'}>
                           {product.is_active ? t('active') : t('inactive')}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         {product.badge && (
-                          <Badge variant={getBadgeVariant(product.badge)}>
+                          <Badge className={getBadgeClass(product.badge)}>
                             {product.badge}
                           </Badge>
                         )}
