@@ -48,6 +48,14 @@ export function SignUpForm({
   // Check if we're on French version
   const isFrench = locale === 'fr' || pathname.startsWith('/fr');
 
+  // Debug: Log locale detection
+  console.log('🔍 Signup Form Debug:', {
+    locale,
+    pathname,
+    isFrench,
+    detectedLanguage: isFrench ? 'fr' : 'en'
+  });
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     const supabase = createClient();
@@ -81,20 +89,24 @@ export function SignUpForm({
         ? `${window.location.origin}/fr`
         : `${window.location.origin}`;
 
+      const userMetadata = {
+        full_name: fullName,
+        phone: phone,
+        date_of_birth: dateOfBirth,
+        gender: gender || null,
+        marketing_consent: marketingConsent,
+        preferred_language: isFrench ? 'fr' : 'en',
+        signup_source: 'pexillo_website'
+      };
+
+      console.log('📧 Sending signup with metadata:', userMetadata);
+
       const { data: signUpData, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: redirectUrl,
-          data: {
-            full_name: fullName,
-            phone: phone,
-            date_of_birth: dateOfBirth,
-            gender: gender || null,
-            marketing_consent: marketingConsent,
-            preferred_language: isFrench ? 'fr' : 'en',
-            signup_source: 'pexillo_website'
-          }
+          data: userMetadata
         },
       });
 
