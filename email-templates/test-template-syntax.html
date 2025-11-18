@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Template Syntax Test</title>
+</head>
+<body style="font-family: monospace; padding: 20px;">
+  <h1>🔍 Supabase Template Variable Test</h1>
+
+  <h2>Testing Different Syntax Options:</h2>
+
+  <div style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
+    <strong>Option 1:</strong> .UserMetaData.preferred_language =
+    <code>{{ .UserMetaData.preferred_language }}</code>
+  </div>
+
+  <div style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
+    <strong>Option 2:</strong> .User.UserMetadata.preferred_language =
+    <code>{{ .User.UserMetadata.preferred_language }}</code>
+  </div>
+
+  <div style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
+    <strong>Option 3:</strong> .RawUserMetaData.preferred_language =
+    <code>{{ .RawUserMetaData.preferred_language }}</code>
+  </div>
+
+  <div style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
+    <strong>Option 4:</strong> .Data.preferred_language =
+    <code>{{ .Data.preferred_language }}</code>
+  </div>
+
+  <h2>Full Debug Info:</h2>
+  <div style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
+    <strong>Email:</strong> {{ .Email }}<br>
+    <strong>ConfirmationURL:</strong> {{ .ConfirmationURL }}<br>
+  </div>
+
+  <hr>
+
+  <p><a href="{{ .ConfirmationURL }}">Click to confirm</a></p>
+</body>
+</html>

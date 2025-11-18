@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>{{ if eq .Data.preferred_language "fr" }}Confirmez votre email - PEXILLO{{ else }}Confirm Your Email - PEXILLO{{ end }}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f5f5f5; -webkit-font-smoothing: antialiased;">
+
+  <!-- Wrapper Table -->
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f5f5f5;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+
+        <!-- Container Table -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 3px solid #000000;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color: #000000; padding: 30px 40px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 900; letter-spacing: -1px; text-transform: uppercase; transform: rotate(-2deg); display: inline-block;">
+                PEXILLO
+              </h1>
+            </td>
+          </tr>
+
+          <!-- Color Bar -->
+          <tr>
+            <td style="padding: 0;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td width="25%" height="6" style="background-color: #ff6b6b;"></td>
+                  <td width="25%" height="6" style="background-color: #4ecdc4;"></td>
+                  <td width="25%" height="6" style="background-color: #ffe66d;"></td>
+                  <td width="25%" height="6" style="background-color: #6a4c93;"></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Main Content -->
+          <tr>
+            <td style="padding: 40px;">
+
+              <!-- Welcome Message -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td style="padding-bottom: 30px;">
+                    {{ if eq .Data.preferred_language "fr" }}
+                    <h2 style="margin: 0; font-size: 28px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: -0.5px; line-height: 1.2;">
+                      Bienvenue chez<br>
+                      <span style="background-color: #ffe66d; padding: 2px 8px; display: inline-block; margin-top: 5px;">PEXILLO!</span>
+                    </h2>
+                    {{ else }}
+                    <h2 style="margin: 0; font-size: 28px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: -0.5px; line-height: 1.2;">
+                      Welcome to<br>
+                      <span style="background-color: #ffe66d; padding: 2px 8px; display: inline-block; margin-top: 5px;">PEXILLO!</span>
+                    </h2>
+                    {{ end }}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding-bottom: 30px;">
+                    {{ if eq .Data.preferred_language "fr" }}
+                    <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #333333; font-weight: 500;">
+                      Vous n'êtes qu'à un clic de rejoindre notre communauté d'individus authentiques qui valorisent la qualité et le design unique.
+                    </p>
+                    {{ else }}
+                    <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #333333; font-weight: 500;">
+                      You're just one click away from joining our community of authentic individuals who value quality and unique design.
+                    </p>
+                    {{ end }}
+                  </td>
+                </tr>
+
+                <!-- CTA Button -->
+                <tr>
+                  <td style="padding-bottom: 30px;" align="center">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="background-color: #000000; border: 3px solid #000000; box-shadow: 4px 4px 0px #ff6b6b;">
+                          {{ if eq .Data.preferred_language "fr" }}
+                          <a href="{{ .ConfirmationURL }}"
+                             target="_blank"
+                             style="display: inline-block; padding: 16px 32px; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: #ffffff; text-decoration: none;">
+                            Confirmer mon email →
+                          </a>
+                          {{ else }}
+                          <a href="{{ .ConfirmationURL }}"
+                             target="_blank"
+                             style="display: inline-block; padding: 16px 32px; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: #ffffff; text-decoration: none;">
+                            Confirm My Email →
+                          </a>
+                          {{ end }}
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Alternative Link -->
+                <tr>
+                  <td style="padding-bottom: 20px;">
+                    {{ if eq .Data.preferred_language "fr" }}
+                    <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #666666; text-align: center;">
+                      Ou copiez et collez ce lien dans votre navigateur :
+                    </p>
+                    {{ else }}
+                    <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #666666; text-align: center;">
+                      Or copy and paste this link in your browser:
+                    </p>
+                    {{ end }}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding-bottom: 30px;">
+                    <div style="background-color: #f5f5f5; border: 2px solid #000000; padding: 12px; word-break: break-all;">
+                      <a href="{{ .ConfirmationURL }}"
+                         style="color: #000000; font-size: 12px; text-decoration: underline; font-family: monospace;">
+                        {{ .ConfirmationURL }}
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- What's Next Section -->
+          <tr>
+            <td style="background-color: #f5f5f5; padding: 30px 40px; border-top: 3px solid #000000;">
+              {{ if eq .Data.preferred_language "fr" }}
+              <h3 style="margin: 0 0 20px 0; font-size: 18px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.5px;">
+                Quelle est la suite ?
+              </h3>
+
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td valign="top" width="40" style="padding-bottom: 15px;">
+                    <div style="width: 32px; height: 32px; background-color: #000000; color: #ffffff; text-align: center; line-height: 32px; font-weight: 900;">
+                      1
+                    </div>
+                  </td>
+                  <td valign="top" style="padding-bottom: 15px; padding-left: 15px;">
+                    <p style="margin: 0; font-size: 14px; color: #333333; font-weight: 600;">
+                      Cliquez sur le lien de confirmation ci-dessus
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td valign="top" width="40" style="padding-bottom: 15px;">
+                    <div style="width: 32px; height: 32px; background-color: #000000; color: #ffffff; text-align: center; line-height: 32px; font-weight: 900;">
+                      2
+                    </div>
+                  </td>
+                  <td valign="top" style="padding-bottom: 15px; padding-left: 15px;">
+                    <p style="margin: 0; font-size: 14px; color: #333333; font-weight: 600;">
+                      Obtenez des réductions exclusives pour les membres
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td valign="top" width="40">
+                    <div style="width: 32px; height: 32px; background-color: #000000; color: #ffffff; text-align: center; line-height: 32px; font-weight: 900;">
+                      3
+                    </div>
+                  </td>
+                  <td valign="top" style="padding-left: 15px;">
+                    <p style="margin: 0; font-size: 14px; color: #333333; font-weight: 600;">
+                      Commencez à acheter des designs uniques
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              {{ else }}
+              <h3 style="margin: 0 0 20px 0; font-size: 18px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.5px;">
+                What Happens Next?
+              </h3>
+
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td valign="top" width="40" style="padding-bottom: 15px;">
+                    <div style="width: 32px; height: 32px; background-color: #000000; color: #ffffff; text-align: center; line-height: 32px; font-weight: 900;">
+                      1
+                    </div>
+                  </td>
+                  <td valign="top" style="padding-bottom: 15px; padding-left: 15px;">
+                    <p style="margin: 0; font-size: 14px; color: #333333; font-weight: 600;">
+                      Click the confirmation link above
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td valign="top" width="40" style="padding-bottom: 15px;">
+                    <div style="width: 32px; height: 32px; background-color: #000000; color: #ffffff; text-align: center; line-height: 32px; font-weight: 900;">
+                      2
+                    </div>
+                  </td>
+                  <td valign="top" style="padding-bottom: 15px; padding-left: 15px;">
+                    <p style="margin: 0; font-size: 14px; color: #333333; font-weight: 600;">
+                      Get exclusive member discounts
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td valign="top" width="40">
+                    <div style="width: 32px; height: 32px; background-color: #000000; color: #ffffff; text-align: center; line-height: 32px; font-weight: 900;">
+                      3
+                    </div>
+                  </td>
+                  <td valign="top" style="padding-left: 15px;">
+                    <p style="margin: 0; font-size: 14px; color: #333333; font-weight: 600;">
+                      Start shopping unique designs
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              {{ end }}
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #000000; padding: 25px 40px; text-align: center; border-top: 3px solid #000000;">
+              {{ if eq .Data.preferred_language "fr" }}
+              <p style="margin: 0 0 10px 0; font-size: 12px; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">
+                Qualité • Design • Expression
+              </p>
+              <p style="margin: 0; font-size: 11px; color: #999999;">
+                © 2024 PEXILLO. Tous droits réservés.<br>
+                Vous recevez cet email car vous vous êtes inscrit sur pexillo.com
+              </p>
+              {{ else }}
+              <p style="margin: 0 0 10px 0; font-size: 12px; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">
+                Quality • Design • Expression
+              </p>
+              <p style="margin: 0; font-size: 11px; color: #999999;">
+                © 2024 PEXILLO. All rights reserved.<br>
+                You're receiving this because you signed up at pexillo.com
+              </p>
+              {{ end }}
+            </td>
+          </tr>
+
+        </table>
+        <!-- End Container Table -->
+
+      </td>
+    </tr>
+  </table>
+  <!-- End Wrapper Table -->
+
+</body>
+</html>

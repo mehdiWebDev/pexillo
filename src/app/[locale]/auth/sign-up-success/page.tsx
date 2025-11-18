@@ -5,8 +5,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/src/components/ui/card";
+import { getTranslations } from "next-intl/server";
 
-export default function Page() {
+export default async function Page({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  // Await params to get the locale (Next.js 15 requirement)
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'signUpSuccess' });
+
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
@@ -14,14 +23,13 @@ export default function Page() {
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">
-                Thank you for signing up!
+                {t('title')}
               </CardTitle>
-              <CardDescription>Check your email to confirm</CardDescription>
+              <CardDescription>{t('description')}</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                You&apos;ve successfully signed up. Please check your email to
-                confirm your account before signing in.
+                {t('message')}
               </p>
             </CardContent>
           </Card>
