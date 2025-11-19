@@ -715,6 +715,10 @@
         "subtotal": "Subtotal",
         "shipping": "Shipping",
         "tax": "Tax",
+        "gst": "GST",
+        "pst": "PST",
+        "qst": "QST",
+        "hst": "HST",
         "total": "Total",
         "free": "FREE",
         "calculated": "Calculated at next step",
@@ -742,8 +746,7 @@
         "selectProvince": "Select a province",
         "deliveryAvailable": "Delivery available",
         "canadaOnly": "Canada only",
-        "billingAddressSearch": "Search for billing address",
-        "verifyPostalCode": "Please verify the postal code is correct"
+        "billingAddressSearch": "Search for billing address"
     },
     "checkoutSuccess": {
         "loadingOrder": "Loading order details...",

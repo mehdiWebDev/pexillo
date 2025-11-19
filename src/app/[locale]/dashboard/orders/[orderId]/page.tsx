@@ -178,6 +178,32 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
     }
   };
 
+  const handleResendConfirmation = async () => {
+    try {
+      const response = await fetch('/api/orders/resend-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: resolvedParams.orderId })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send email');
+      }
+
+      toast({
+        title: 'Success',
+        description: t('confirmationEmailSent') || 'Order confirmation email sent successfully'
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || t('errorSendingEmail'),
+        variant: 'destructive'
+      });
+    }
+  };
+
   const handleAddNote = async () => {
     if (!newNote.trim()) return;
 
@@ -210,6 +236,212 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
     navigator.clipboard.writeText(code);
     setCopiedLookupCode(true);
     setTimeout(() => setCopiedLookupCode(false), 2000);
+  };
+
+  const handlePrintReceipt = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const receiptHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Receipt - ${order.order_number}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20mm;
+            font-size: 12pt;
+            line-height: 1.5;
+          }
+          .receipt-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+          }
+          .receipt-header h1 {
+            font-size: 24pt;
+            margin-bottom: 10px;
+          }
+          .receipt-header .order-number {
+            font-size: 14pt;
+            color: #666;
+          }
+          .section {
+            margin-bottom: 25px;
+          }
+          .section-title {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+          }
+          .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+          }
+          .label {
+            font-weight: bold;
+            color: #666;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+          }
+          th {
+            background-color: #f5f5f5;
+            padding: 10px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid #000;
+          }
+          td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+          }
+          .text-right {
+            text-align: right;
+          }
+          .totals {
+            margin-top: 20px;
+            float: right;
+            width: 50%;
+          }
+          .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+          }
+          .total-row.final {
+            border-top: 2px solid #000;
+            padding-top: 10px;
+            margin-top: 10px;
+            font-size: 14pt;
+            font-weight: bold;
+          }
+          .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 10pt;
+            color: #666;
+            clear: both;
+          }
+          @media print {
+            body { padding: 0; }
+            .no-print { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="receipt-header">
+          <h1>RECEIPT</h1>
+          <div class="order-number">Order #${order.order_number}</div>
+          <div style="margin-top: 10px; color: #666;">
+            ${formatDate(order.created_at)}
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Customer Information</div>
+          <div class="info-row">
+            <span class="label">Name:</span>
+            <span>${customer.name}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Email:</span>
+            <span>${customer.email}</span>
+          </div>
+          ${customer.phone ? `
+            <div class="info-row">
+              <span class="label">Phone:</span>
+              <span>${customer.phone}</span>
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="section">
+          <div class="section-title">Shipping Address</div>
+          <div>
+            ${order.shipping_address.firstName} ${order.shipping_address.lastName}<br>
+            ${order.shipping_address.address}<br>
+            ${order.shipping_address.apartment ? order.shipping_address.apartment + '<br>' : ''}
+            ${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.postalCode}<br>
+            ${order.shipping_address.country}
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Order Items</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Variant</th>
+                <th class="text-right">Qty</th>
+                <th class="text-right">Price</th>
+                <th class="text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(item => `
+                <tr>
+                  <td>${item.product_name}</td>
+                  <td>${item.variant_size} - ${item.variant_color}</td>
+                  <td class="text-right">${item.quantity}</td>
+                  <td class="text-right">${formatCurrency(item.unit_price)}</td>
+                  <td class="text-right">${formatCurrency(item.total_price)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="totals">
+          <div class="total-row">
+            <span>Subtotal:</span>
+            <span>${formatCurrency(order.subtotal)}</span>
+          </div>
+          <div class="total-row">
+            <span>Shipping:</span>
+            <span>${order.shipping_amount === 0 ? 'FREE' : formatCurrency(order.shipping_amount)}</span>
+          </div>
+          <div class="total-row">
+            <span>Tax:</span>
+            <span>${formatCurrency(order.tax_amount)}</span>
+          </div>
+          <div class="total-row final">
+            <span>TOTAL:</span>
+            <span>${formatCurrency(order.total_amount)}</span>
+          </div>
+        </div>
+
+        <div class="footer">
+          <p>Thank you for your order!</p>
+          <p style="margin-top: 10px;">
+            Payment Status: <strong>${order.payment_status.toUpperCase()}</strong>
+            ${order.tracking_number ? ` | Tracking: ${order.tracking_number}` : ''}
+          </p>
+        </div>
+
+        <script>
+          window.onload = function() {
+            window.print();
+            window.onafterprint = function() {
+              window.close();
+            };
+          };
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(receiptHTML);
+    printWindow.document.close();
   };
 
   const formatDate = (dateString: string) => {
@@ -293,7 +525,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
           <Badge className={paymentStatusColors[order.payment_status]}>
             {order.payment_status}
           </Badge>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handlePrintReceipt}>
             <Printer size={16} className="mr-2" />
             {t('printReceipt')}
           </Button>
@@ -741,7 +973,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
           <Send size={16} className="mr-2" />
           {t('sendTrackingEmail')}
         </Button>
-        <Button variant="outline">
+        <Button variant="outline" onClick={handleResendConfirmation}>
           <Mail size={16} className="mr-2" />
           {t('resendConfirmation')}
         </Button>

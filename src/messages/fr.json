@@ -715,6 +715,10 @@
         "subtotal": "Sous-total",
         "shipping": "Livraison",
         "tax": "Taxes",
+        "gst": "TPS",
+        "pst": "TVP",
+        "qst": "TVQ",
+        "hst": "TVH",
         "total": "Total",
         "free": "GRATUIT",
         "calculated": "Calculé à l'étape suivante",
@@ -742,8 +746,7 @@
         "selectProvince": "Sélectionner une province",
         "deliveryAvailable": "Livraison disponible",
         "canadaOnly": "Canada seulement",
-        "billingAddressSearch": "Rechercher votre adresse de facturation",
-        "verifyPostalCode": "Veuillez vérifier que le code postal est correct"
+        "billingAddressSearch": "Rechercher votre adresse de facturation"
     },
     "checkoutSuccess": {
         "loadingOrder": "Chargement des détails de la commande...",

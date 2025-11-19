@@ -31,6 +31,7 @@ export interface CartState {
   subtotal: number;
   itemCount: number;
   lastAddedItem: CartItem | null;
+  hasFetched: boolean;
 }
 
 const initialState: CartState = {
@@ -41,6 +42,7 @@ const initialState: CartState = {
   subtotal: 0,
   itemCount: 0,
   lastAddedItem: null,
+  hasFetched: false,
 };
 
 // Fetch cart from database WITH translations
@@ -305,9 +307,12 @@ const cartSlice = createSlice({
         if (savedCart) {
           try {
             state.items = JSON.parse(savedCart);
+            state.hasFetched = true;
           } catch (error) {
             console.error('Error loading cart from storage:', error);
           }
+        } else {
+          state.hasFetched = true;
         }
       }
     },
@@ -327,6 +332,16 @@ const cartSlice = createSlice({
     clearLastAddedItem: (state) => {
       state.lastAddedItem = null;
     },
+
+    resetCart: (state) => {
+      state.items = [];
+      state.lastAddedItem = null;
+      state.hasFetched = false;
+      state.error = null;
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('cart');
+      }
+    },
   },
   
   extraReducers: (builder) => {
@@ -339,10 +354,12 @@ const cartSlice = createSlice({
         state.items = action.payload;
         state.isLoading = false;
         state.error = null;
+        state.hasFetched = true;
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Failed to fetch cart';
+        state.hasFetched = true;
       });
     
     // Add to cart
@@ -425,6 +442,7 @@ export const {
   openCart,
   closeCart,
   clearLastAddedItem,
+  resetCart,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

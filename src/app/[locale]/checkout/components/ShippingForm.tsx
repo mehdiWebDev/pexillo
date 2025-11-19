@@ -660,9 +660,6 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="H1A 1A1"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                {t('verifyPostalCode')}
-              </p>
               {errors.shipping?.postalCode && (
                 <p className="text-sm text-destructive mt-1">
                   {errors.shipping.postalCode.message as string}
@@ -848,9 +845,6 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="H1A 1A1"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {t('verifyPostalCode')}
-                </p>
                 {errors.billing?.postalCode && (
                   <p className="text-sm text-destructive mt-1">
                     {errors.billing.postalCode.message as string}

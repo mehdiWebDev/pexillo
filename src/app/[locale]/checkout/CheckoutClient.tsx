@@ -105,6 +105,12 @@ export default function CheckoutClient() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [clientSecret, setClientSecret] = useState('');
     const [taxRate, setTaxRate] = useState(0);
+    const [taxBreakdown, setTaxBreakdown] = useState<{
+        gst: number;
+        pst: number;
+        qst: number;
+        hst: number;
+    } | null>(null);
     const [shippingCost, setShippingCost] = useState(0);
     const [isInitialized, setIsInitialized] = useState(false);
     const [createdUserId, setCreatedUserId] = useState<string | null>(null);
@@ -158,6 +164,17 @@ export default function CheckoutClient() {
         setShippingCost(shipping);
     }, [items, router, shipping]);
 
+    // Calculate tax on initial load if province is already selected
+    useEffect(() => {
+        const shippingState = form.watch('shipping.state');
+        if (shippingState && isInitialized) {
+            handleAddressChange({
+                state: shippingState,
+                country: 'CA'
+            });
+        }
+    }, [isInitialized]);
+
     // Calculate tax when address changes
     const handleAddressChange = async (address: any) => {
         if (address.state && address.country) {
@@ -172,8 +189,9 @@ export default function CheckoutClient() {
                 });
 
                 if (response.ok) {
-                    const { rate } = await response.json();
-                    setTaxRate(rate);
+                    const data = await response.json();
+                    setTaxRate(data.rate);
+                    setTaxBreakdown(data.breakdown);
                 }
             } catch (error) {
                 console.error('Tax calculation error:', error);
@@ -405,6 +423,7 @@ export default function CheckoutClient() {
                             subtotal={subtotal}
                             shipping={shipping}
                             tax={tax}
+                            taxBreakdown={taxBreakdown}
                             total={total}
                         />
 

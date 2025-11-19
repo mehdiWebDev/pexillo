@@ -18,19 +18,22 @@ export function useCart() {
     const { isAuth, user } = useSelector((state: RootState) => state.auth);
     const cart = useSelector((state: RootState) => state.cart);
 
-    // Load cart on mount
+    // Load cart on mount - ONLY if not already fetched
     useEffect(() => {
+        if (cart.hasFetched) return; // Prevent duplicate fetches
+
         if (isAuth && user?.id) {
             dispatch(fetchCart(user.id));
         } else {
             dispatch(loadCartFromStorage());
         }
-    }, [isAuth, user?.id, dispatch]);
+    }, [isAuth, user?.id, dispatch, cart.hasFetched]);
 
-    // Merge cart on login
+    // Merge cart on login - ONLY ONCE
     useEffect(() => {
-        if (isAuth && user?.id && cart.items.length > 0) {
-            const hasLocalItems = cart.items.some(item => 
+        // Only run if user just logged in and has local cart items
+        if (isAuth && user?.id && cart.items.length > 0 && !cart.hasFetched) {
+            const hasLocalItems = cart.items.some(item =>
                 typeof item.id === 'string' && item.id.includes('-')
             );
 
@@ -48,7 +51,7 @@ export function useCart() {
                 });
             }
         }
-    }, [isAuth, user?.id]);
+    }, [isAuth, user?.id, cart.items, cart.hasFetched, dispatch]);
 
     // FIXED: Check existing cart quantity before adding
     const addToCart = useCallback(async (

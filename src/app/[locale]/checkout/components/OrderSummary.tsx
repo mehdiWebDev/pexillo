@@ -1,15 +1,23 @@
 // app/[locale]/checkout/components/OrderSummary.tsx
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { ChevronDown, ChevronUp, Tag, Truck } from 'lucide-react';
 import { useState } from 'react';
+
+interface TaxBreakdown {
+  gst: number;
+  pst: number;
+  qst: number;
+  hst: number;
+}
 
 interface OrderSummaryProps {
   items: any[];
   subtotal: number;
   shipping: number;
   tax: number;
+  taxBreakdown?: TaxBreakdown | null;
   total: number;
 }
 
@@ -18,9 +26,11 @@ export default function OrderSummary({
   subtotal,
   shipping,
   tax,
+  taxBreakdown,
   total
 }: OrderSummaryProps) {
   const t = useTranslations('checkout');
+  const locale = useLocale();
   const [showItems, setShowItems] = useState(true);
 
   return (
@@ -107,12 +117,42 @@ export default function OrderSummary({
           </div>
         )}
 
-        <div className="flex justify-between text-sm">
-          <span>{t('tax')}</span>
-          <span className="font-medium">
-            {tax > 0 ? `$${tax.toFixed(2)}` : t('calculated')}
-          </span>
-        </div>
+        {/* Tax Breakdown */}
+        {tax > 0 && taxBreakdown ? (
+          <div className="space-y-2">
+            {taxBreakdown.hst > 0 && (
+              <div className="flex justify-between text-sm">
+                <span>{t('hst')} ({(taxBreakdown.hst * 100).toFixed(2)}%)</span>
+                <span className="font-medium">${(subtotal * taxBreakdown.hst).toFixed(2)}</span>
+              </div>
+            )}
+            {taxBreakdown.gst > 0 && (
+              <div className="flex justify-between text-sm">
+                <span>{t('gst')} ({(taxBreakdown.gst * 100).toFixed(2)}%)</span>
+                <span className="font-medium">${(subtotal * taxBreakdown.gst).toFixed(2)}</span>
+              </div>
+            )}
+            {taxBreakdown.pst > 0 && (
+              <div className="flex justify-between text-sm">
+                <span>{t('pst')} ({(taxBreakdown.pst * 100).toFixed(2)}%)</span>
+                <span className="font-medium">${(subtotal * taxBreakdown.pst).toFixed(2)}</span>
+              </div>
+            )}
+            {taxBreakdown.qst > 0 && (
+              <div className="flex justify-between text-sm">
+                <span>{t('qst')} ({(taxBreakdown.qst * 100).toFixed(2)}%)</span>
+                <span className="font-medium">${(subtotal * taxBreakdown.qst).toFixed(2)}</span>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex justify-between text-sm">
+            <span>{t('tax')}</span>
+            <span className="font-medium">
+              {tax > 0 ? `$${tax.toFixed(2)}` : t('calculated')}
+            </span>
+          </div>
+        )}
 
         {/* Discount Code Input */}
         <div className="pt-3 border-t">

@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
         if (stateCode) {
             const { data: stateTaxRate, error: stateError } = await supabase
                 .from('tax_rates')
-                .select('rate')
+                .select('rate, tax_type, gst_rate, pst_rate, qst_rate, hst_rate, state_name')
                 .eq('country_code', countryCode)
                 .eq('state_code', stateCode)
                 .single();
@@ -35,6 +35,14 @@ export async function POST(req: NextRequest) {
                     rate: stateTaxRate.rate,
                     country: countryCode,
                     state: stateCode,
+                    stateName: stateTaxRate.state_name,
+                    taxType: stateTaxRate.tax_type,
+                    breakdown: {
+                        gst: stateTaxRate.gst_rate || 0,
+                        pst: stateTaxRate.pst_rate || 0,
+                        qst: stateTaxRate.qst_rate || 0,
+                        hst: stateTaxRate.hst_rate || 0,
+                    },
                     level: 'state'
                 });
             }
@@ -43,7 +51,7 @@ export async function POST(req: NextRequest) {
         // Fallback to country-level tax rate
         const { data: countryTaxRate, error: countryError } = await supabase
             .from('tax_rates')
-            .select('rate')
+            .select('rate, tax_type, gst_rate, pst_rate, qst_rate, hst_rate')
             .eq('country_code', countryCode)
             .is('state_code', null)
             .single();
@@ -53,6 +61,13 @@ export async function POST(req: NextRequest) {
                 rate: countryTaxRate.rate,
                 country: countryCode,
                 state: stateCode,
+                taxType: countryTaxRate.tax_type,
+                breakdown: {
+                    gst: countryTaxRate.gst_rate || 0,
+                    pst: countryTaxRate.pst_rate || 0,
+                    qst: countryTaxRate.qst_rate || 0,
+                    hst: countryTaxRate.hst_rate || 0,
+                },
                 level: 'country'
             });
         }
