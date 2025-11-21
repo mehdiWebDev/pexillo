@@ -19,8 +19,14 @@ export interface CartItem {
   in_stock: boolean;
   max_quantity: number;
   // Add translations just like in products
-  product_translations?: any;
-  variant_translations?: any;
+  product_translations?: Record<string, {
+    name?: string;
+    description?: string;
+  }>;
+  variant_translations?: Record<string, {
+    size?: string;
+    color?: string;
+  }>;
 }
 
 export interface CartState {
@@ -188,18 +194,18 @@ export const addToCartDB = createAsyncThunk(
 
 export const updateCartItemDB = createAsyncThunk(
   'cart/updateCartItemDB',
-  async ({ 
-    itemId, 
-    quantity 
+  async ({
+    itemId,
+    quantity
   }: {
     itemId: string;
     quantity: number;
   }) => {
     const supabase = createClient();
-    
-    const { data, error } = await supabase
+
+    const { error } = await supabase
       .from('cart_items')
-      .update({ 
+      .update({
         quantity,
         updated_at: new Date().toISOString()
       })

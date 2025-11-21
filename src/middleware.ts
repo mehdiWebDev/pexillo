@@ -19,9 +19,6 @@ export async function middleware(request: NextRequest) {
 
   // Extract locale from the URL
   const pathname = request.nextUrl.pathname
-  const pathnameIsMissingLocale = locales.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-  )
 
   // Determine the current locale
   let locale = defaultLocale

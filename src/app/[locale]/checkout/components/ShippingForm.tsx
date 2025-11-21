@@ -40,7 +40,7 @@ declare global {
   interface Window {
     google: {
       maps: {
-        importLibrary: (library: string) => Promise<void>;
+        importLibrary: (library: string) => Promise<unknown>;
         Geocoder: new () => {
           geocode: (
             request: { location: { lat: number; lng: number }; region: string },
@@ -279,13 +279,13 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
 
       // Clear the autocomplete input
       const autocompleteId = type === 'shipping' ? '#shipping-place-autocomplete' : '#billing-place-autocomplete';
-      const placeAutocomplete = document.querySelector(autocompleteId) as HTMLElement & { value: string };
+      const placeAutocomplete = document.querySelector(autocompleteId) as (HTMLElement & { value: string }) | null;
       if (placeAutocomplete) {
         placeAutocomplete.value = '';
       }
 
       // Focus on apartment field after autocomplete
-      const apartmentField = document.querySelector(`#${type}-apartment`) as HTMLInputElement;
+      const apartmentField = document.querySelector(`#${type}-apartment`) as HTMLInputElement | null;
       if (apartmentField) {
         apartmentField.focus();
       }
@@ -320,14 +320,14 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
           script.defer = true;
 
           // Create callback
-          window.initMap = () => {
+          window.initMap = (): void => {
             console.log('Google Maps loaded via callback');
             if (mounted) {
               setIsLoading(false);
             }
           };
 
-          script.onerror = () => {
+          script.onerror = (): void => {
             if (mounted) {
               setError('Failed to load Google Maps');
               setIsLoading(false);
@@ -343,7 +343,7 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
             }
           } else {
             // Wait for callback
-            window.initMap = () => {
+            window.initMap = (): void => {
               console.log('Google Maps loaded via existing script');
               if (mounted) {
                 setIsLoading(false);
@@ -379,7 +379,10 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
         // Query the shipping autocomplete element
         const placeAutocomplete = document.querySelector(
           '#shipping-place-autocomplete'
-        ) as HTMLElement & { includedRegionCodes?: string[]; addEventListener: (event: string, handler: (e: { placePrediction: GoogleMapsPlacePrediction }) => void) => void };
+        ) as HTMLElement & {
+          includedRegionCodes?: string[];
+          addEventListener: (event: string, handler: (e: { placePrediction: GoogleMapsPlacePrediction }) => Promise<void>) => void
+        };
 
         if (!placeAutocomplete) {
           console.error('Shipping place autocomplete element not found');
@@ -451,7 +454,10 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
         // Query the billing autocomplete element
         const placeAutocomplete = document.querySelector(
           '#billing-place-autocomplete'
-        ) as HTMLElement & { includedRegionCodes?: string[]; addEventListener: (event: string, handler: (e: { placePrediction: GoogleMapsPlacePrediction }) => void) => void };
+        ) as HTMLElement & {
+          includedRegionCodes?: string[];
+          addEventListener: (event: string, handler: (e: { placePrediction: GoogleMapsPlacePrediction }) => Promise<void>) => void
+        };
 
         if (!placeAutocomplete) {
           console.error('Billing place autocomplete element not found');

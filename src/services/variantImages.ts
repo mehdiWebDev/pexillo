@@ -96,8 +96,8 @@ export async function uploadVariantImages(
       // Upload to storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${productId}/${variantId}/${Date.now()}.${fileExt}`;
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
+
+      const { error: uploadError } = await supabase.storage
         .from('product-images')
         .upload(fileName, file);
 

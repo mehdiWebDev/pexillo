@@ -18,6 +18,15 @@ export interface CartMergeItem {
     customization_price?: number;
 }
 
+interface ValidationIssue {
+    itemId: string;
+    productName: string;
+    variant: string;
+    requestedQuantity: number;
+    availableQuantity: number;
+    issue: 'out_of_stock' | 'insufficient_stock';
+}
+
 class CartService {
     // Get full cart details with product and variant information
     async getCart(userId: string) {
@@ -319,7 +328,7 @@ class CartService {
     // Validate cart items (check inventory before checkout)
     async validateCart(userId: string) {
         const cart = await this.getCart(userId);
-        const validationIssues: any[] = [];
+        const validationIssues: ValidationIssue[] = [];
 
         for (const item of cart) {
             if (item.product_variants.inventory_count < item.quantity) {

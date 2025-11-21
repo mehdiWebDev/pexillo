@@ -42,6 +42,19 @@ interface OrderConfirmationData {
   }>;
 }
 
+interface OrderItem {
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  products: {
+    name: string;
+  };
+  product_variants: {
+    size: string;
+    color: string;
+  };
+}
+
 export async function sendOrderConfirmationEmail(email: string, orderData: OrderConfirmationData) {
   if (!process.env.SENDGRID_API_KEY || !process.env.SENDGRID_ORDER_TEMPLATE_ID) {
     console.log('⚠️ SendGrid not configured, skipping confirmation email');
@@ -121,7 +134,7 @@ export async function sendConfirmationEmailByOrderId(orderId: string): Promise<v
   // IMPORTANT: Always use the email from the checkout form (stored in shipping_address.email)
   // This ensures we send confirmation to the email entered during checkout,
   // not the profile email which might be different
-  let customerEmail = shippingAddress?.email || order.guest_email || '';
+  const customerEmail = shippingAddress?.email || order.guest_email || '';
   let customerName = '';
 
   if (order.user_id) {
@@ -159,9 +172,9 @@ export async function sendConfirmationEmailByOrderId(orderId: string): Promise<v
     `)
     .eq('order_id', orderId);
 
-  const items = (orderItems || []).map((item: any) => ({
-    name: item.products?.name || 'Product',
-    variant: `${item.product_variants?.size || ''} - ${item.product_variants?.color || ''}`.trim().replace(/^-\s*/, ''),
+  const items = (orderItems || []).map((item: OrderItem) => ({
+    name: item.products.name || 'Product',
+    variant: `${item.product_variants.size || ''} - ${item.product_variants.color || ''}`.trim().replace(/^-\s*/, ''),
     quantity: item.quantity,
     price: item.unit_price.toFixed(2),
     total: item.total_price.toFixed(2)

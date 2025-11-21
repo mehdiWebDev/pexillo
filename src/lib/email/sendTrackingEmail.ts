@@ -1,6 +1,18 @@
 // src/lib/email/sendTrackingEmail.ts
 import { createClient } from '@supabase/supabase-js';
 
+interface OrderItem {
+  quantity: number;
+  total_price: number;
+  products: {
+    name: string;
+  };
+  product_variants: {
+    size: string;
+    color: string;
+  };
+}
+
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
 const supabaseAdmin = createClient(
@@ -74,7 +86,7 @@ export async function sendTrackingEmail(orderId: string): Promise<void> {
   // Get customer email and name
   // IMPORTANT: Always use email from shipping_address (checkout form) instead of profile email
   // This ensures we send to the email entered during checkout
-  let customerEmail = shippingAddress?.email || order.guest_email || '';
+  const customerEmail = shippingAddress?.email || order.guest_email || '';
   let customerName = '';
 
   if (order.user_id) {
@@ -111,9 +123,9 @@ export async function sendTrackingEmail(orderId: string): Promise<void> {
     .eq('order_id', orderId);
 
   // Format items for email
-  const items = (orderItems || []).map((item: any) => ({
-    name: item.products?.name || 'Product',
-    variant: `${item.product_variants?.size || ''} - ${item.product_variants?.color || ''}`.trim(),
+  const items = (orderItems || []).map((item: OrderItem) => ({
+    name: item.products.name || 'Product',
+    variant: `${item.product_variants.size || ''} - ${item.product_variants.color || ''}`.trim(),
     quantity: item.quantity,
     total: item.total_price.toFixed(2)
   }));
