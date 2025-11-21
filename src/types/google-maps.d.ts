@@ -1,5 +1,5 @@
 declare namespace JSX {
     interface IntrinsicElements {
-        'gmp-place-autocomplete': any;
+        'gmp-place-autocomplete': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
     }
 }
