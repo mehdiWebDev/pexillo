@@ -46,9 +46,12 @@ interface ProductVariant {
   }>;
 }
 
-interface ProductImage {
+interface ApiProductImage {
+  id?: string;
   image_url: string;
-  alt_text: string;
+  alt_text?: string;
+  is_primary?: boolean;
+  view_type?: 'front' | 'back' | 'side' | 'detail';
 }
 
 interface Category {
@@ -79,7 +82,7 @@ interface Product {
     badge?: 'NEW' | 'HOT' | 'SALE' | 'LIMITED' | null;
   }>;
   variants: ProductVariant[];
-  images?: ProductImage[];
+  images?: ApiProductImage[];
   categories?: Category;
 }
 
