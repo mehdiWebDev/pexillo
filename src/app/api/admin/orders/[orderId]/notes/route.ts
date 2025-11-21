@@ -100,13 +100,13 @@ export async function POST(
     }
 
     // Format response
-    const profile = Array.isArray(newNote.profiles) ? newNote.profiles[0] : newNote.profiles;
+    const noteProfile = Array.isArray(newNote.profiles) ? newNote.profiles[0] : newNote.profiles;
     const formattedNote = {
       id: newNote.id,
       note: newNote.note,
       created_at: newNote.created_at,
-      created_by: profile
-        ? profile.full_name || profile.email
+      created_by: noteProfile
+        ? noteProfile.full_name || noteProfile.email
         : 'System'
     };
 
