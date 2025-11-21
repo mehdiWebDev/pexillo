@@ -27,6 +27,35 @@ interface ValidationIssue {
     issue: 'out_of_stock' | 'insufficient_stock';
 }
 
+interface SupabaseCartItem {
+    id: string;
+    product_id: string;
+    variant_id: string;
+    quantity: number;
+    unit_price: string | number;
+    customization_price?: string | number;
+    total_price: string | number;
+    products: {
+        id: string;
+        name: string;
+        slug: string;
+        primary_image_url: string;
+        badge?: string;
+        is_active: boolean;
+        translations?: Record<string, { name?: string; description?: string }>;
+    };
+    product_variants: {
+        id: string;
+        size: string;
+        color: string;
+        color_hex: string;
+        inventory_count: number;
+        is_active: boolean;
+        price_adjustment?: number;
+        translations?: Record<string, { size?: string; color?: string }>;
+    };
+}
+
 class CartService {
     // Get full cart details with product and variant information
     async getCart(userId: string) {
@@ -61,7 +90,7 @@ class CartService {
 
         if (error) throw error;
 
-        return data?.map(item => ({
+        return (data as unknown as SupabaseCartItem[])?.map((item) => ({
             id: item.id,
             product_id: item.product_id,
             variant_id: item.variant_id,
@@ -72,9 +101,9 @@ class CartService {
             variant_color: item.product_variants.color, // Store default color
             variant_color_hex: item.product_variants.color_hex,
             quantity: item.quantity,
-            unit_price: parseFloat(item.unit_price),
-            customization_price: parseFloat(item.customization_price || 0),
-            total_price: parseFloat(item.total_price),
+            unit_price: parseFloat(String(item.unit_price)),
+            customization_price: parseFloat(String(item.customization_price || 0)),
+            total_price: parseFloat(String(item.total_price)),
             in_stock: item.product_variants.inventory_count > 0,
             max_quantity: item.product_variants.inventory_count,
             // Store the translations objects
@@ -168,7 +197,7 @@ class CartService {
             throw new Error('Cart item not found');
         }
 
-        if (quantity > cartItem.product_variants.inventory_count) {
+        if (quantity > (cartItem.product_variants[0]?.inventory_count ?? 0)) {
             throw new Error('Quantity exceeds available inventory');
         }
 
@@ -240,7 +269,7 @@ class CartService {
         const cart = await this.getCart(userId);
 
         const subtotal = cart.reduce((sum, item) => {
-            const itemTotal = (parseFloat(item.unit_price) + parseFloat(item.customization_price || 0)) * item.quantity;
+            const itemTotal = (item.unit_price + (item.customization_price || 0)) * item.quantity;
             return sum + itemTotal;
         }, 0);
 
@@ -331,14 +360,14 @@ class CartService {
         const validationIssues: ValidationIssue[] = [];
 
         for (const item of cart) {
-            if (item.product_variants.inventory_count < item.quantity) {
+            if (item.max_quantity < item.quantity) {
                 validationIssues.push({
                     itemId: item.id,
-                    productName: item.products.name,
-                    variant: `${item.product_variants.size} / ${item.product_variants.color}`,
+                    productName: item.product_name,
+                    variant: `${item.variant_size} / ${item.variant_color}`,
                     requestedQuantity: item.quantity,
-                    availableQuantity: item.product_variants.inventory_count,
-                    issue: item.product_variants.inventory_count === 0 ? 'out_of_stock' : 'insufficient_stock'
+                    availableQuantity: item.max_quantity,
+                    issue: item.max_quantity === 0 ? 'out_of_stock' : 'insufficient_stock'
                 });
             }
         }

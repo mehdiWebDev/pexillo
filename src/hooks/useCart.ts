@@ -66,8 +66,8 @@ export function useCart() {
             variantColor: string;
             variantColorHex?: string;
             maxQuantity: number;
-            translations?: Record<string, unknown>;
-            variantTranslations?: Record<string, unknown>;
+            translations?: Record<string, { name?: string; description?: string }>;
+            variantTranslations?: Record<string, { size?: string; color?: string }>;
         },
         quantity: number = 1
     ) => {

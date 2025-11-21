@@ -55,10 +55,10 @@ export interface ProductCardData {
     name?: string;
     short_description?: string;
     description?: string;
-    material?: string;
-    care_instructions?: string;
-    badge?: string;
-    tags?: string[];
+    material?: string | null;
+    care_instructions?: string | null;
+    badge?: string | null;
+    tags?: string[] | null;
   }>;
 }
 

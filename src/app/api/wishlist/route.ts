@@ -40,7 +40,7 @@ interface WishlistItem {
   id: string;
   created_at: string;
   product_id: string;
-  products: Product;
+  products: Product[];
 }
 
 export async function GET() {
@@ -129,7 +129,7 @@ export async function GET() {
 
     // Transform the data to match the product listing format
     const products = wishlistItems?.map((item: WishlistItem) => {
-      const product = item.products;
+      const product = item.products[0];
 
       // Get unique colors
       const availableColors = product.product_variants

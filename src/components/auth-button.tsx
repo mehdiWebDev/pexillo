@@ -6,7 +6,7 @@ import { Profile } from "./profile";
 import { useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser, setLoading, clearUser } from "@/src/store/slices/authSlice";
+import { setUser, setLoading, clearUser, AuthUser } from "@/src/store/slices/authSlice";
 import { RootState } from "@/src/store";
 import { useTranslations, useLocale } from "next-intl";
 import { usePathname } from "next/navigation";
@@ -30,7 +30,7 @@ export function AuthButton() {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        dispatch(setUser({ user, isAuth: true }));
+        dispatch(setUser({ user: user as unknown as AuthUser, isAuth: true }));
       } else {
         dispatch(clearUser());
       }
@@ -43,7 +43,7 @@ export function AuthButton() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (session?.user) {
-          dispatch(setUser({ user: session.user, isAuth: true }));
+          dispatch(setUser({ user: session.user as unknown as AuthUser, isAuth: true }));
         } else {
           dispatch(clearUser());
         }

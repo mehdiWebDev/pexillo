@@ -128,7 +128,7 @@ export default function VariantSelector({
                     isOutOfStock
                       ? t('outOfStock') || 'Out of stock'
                       : isLowStock
-                      ? `${t('lowStock', { count: size.inventory_count })}` || `Only ${size.inventory_count} left`
+                      ? `${t('lowStock', { count: size.inventory_count ?? 0 })}` || `Only ${size.inventory_count ?? 0} left`
                       : undefined
                   }
                   aria-label={`Select size ${size.size_label}`}

@@ -115,6 +115,10 @@ interface ProductData {
   dtf_compatible?: boolean;
   is_active: boolean;
   is_featured: boolean;
+  view_count?: number;
+  purchase_count?: number;
+  average_rating?: number;
+  review_count?: number;
   product_variants?: Variant[];
   product_images?: Array<{
     id: string;
@@ -220,8 +224,8 @@ export default function ProductForm({ productId }: ProductFormProps) {
       
       setVariants(product.product_variants || []);
 
-      const loadedImages = product.product_images?.map((img) => {
-        const variantIndex = product.product_variants?.findIndex((v) => v.id === img.variant_id);
+      const loadedImages = product.product_images?.map((img: { id: string; image_url: string; is_primary: boolean; view_type: string; alt_text: string; variant_id?: string; display_order?: number; sort_order?: number }) => {
+        const variantIndex = product.product_variants?.findIndex((v: { id: string }) => v.id === img.variant_id);
         return {
           ...img,
           url: img.image_url,

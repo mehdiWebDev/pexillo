@@ -1,7 +1,7 @@
 // app/[locale]/checkout/success/page.tsx
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/src/i18n/routing';
 import { useTranslations } from 'next-intl';
@@ -37,7 +37,7 @@ interface OrderDetails {
   estimated_delivery: string;
 }
 
-export default function CheckoutSuccessPage() {
+function SuccessPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations('checkoutSuccess');
@@ -261,5 +261,15 @@ export default function CheckoutSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  const t = useTranslations('checkoutSuccess');
+
+  return (
+    <Suspense fallback={<Loader type="default" text={t('loadingOrder')} fullScreen />}>
+      <SuccessPageContent />
+    </Suspense>
   );
 }

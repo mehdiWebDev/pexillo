@@ -16,7 +16,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAppDispatch } from "@/src/store/hooks";
-import { setUser } from "@/src/store/slices/authSlice";
+import { setUser, AuthUser } from "@/src/store/slices/authSlice";
 import { useTranslations, useLocale } from "next-intl";
 
 
@@ -50,7 +50,7 @@ export function LoginForm({
       });
       if (error) throw error;
       // Update this route to redirect to an authenticated route. The user already has an active session.
-      dispatch(setUser({ user: data.user, isAuth: true }));
+      dispatch(setUser({ user: data.user as unknown as AuthUser, isAuth: true }));
 
       // Redirect to home page - root for English, /fr for French
       const redirectUrl = isFrench ? '/fr' : '/';

@@ -13,7 +13,7 @@ import { useTranslations } from 'next-intl';
 
 interface UserProfile {
     id: string;
-    email?: string;
+    email?: string | null;
     [key: string]: unknown;
 }
 

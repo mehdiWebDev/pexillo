@@ -6,11 +6,11 @@ interface OrderItem {
   total_price: number;
   products: {
     name: string;
-  };
+  }[];
   product_variants: {
     size: string;
     color: string;
-  };
+  }[];
 }
 
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
@@ -124,8 +124,8 @@ export async function sendTrackingEmail(orderId: string): Promise<void> {
 
   // Format items for email
   const items = (orderItems || []).map((item: OrderItem) => ({
-    name: item.products.name || 'Product',
-    variant: `${item.product_variants.size || ''} - ${item.product_variants.color || ''}`.trim(),
+    name: item.products[0]?.name || 'Product',
+    variant: `${item.product_variants[0]?.size || ''} - ${item.product_variants[0]?.color || ''}`.trim(),
     quantity: item.quantity,
     total: item.total_price.toFixed(2)
   }));
