@@ -1,12 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-interface SupabaseUser {
-  id: string;
-  email?: string;
-  [key: string]: unknown;
-}
-
 // Initialize Supabase Admin client
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -60,7 +54,7 @@ export async function POST(request: Request) {
     // Check if email already exists
     const { data: existingUser } = await supabaseAdmin.auth.admin.listUsers();
     const emailExists = existingUser?.users?.some(
-      (user: SupabaseUser) => user.email?.toLowerCase() === email.toLowerCase()
+      (user) => user.email?.toLowerCase() === email.toLowerCase()
     );
 
     if (emailExists) {

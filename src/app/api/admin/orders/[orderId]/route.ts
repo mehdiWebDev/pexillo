@@ -59,7 +59,7 @@ const supabaseAdmin = createClient(
 );
 
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
