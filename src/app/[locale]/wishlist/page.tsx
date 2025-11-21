@@ -13,7 +13,9 @@ import { Link } from '@/src/i18n/routing';
 interface ProductVariant {
   id: string;
   color: string;
+  color_hex: string;
   size: string;
+  inventory_count: number;
   translations?: Record<string, {
     color?: string;
     size_label?: string;
