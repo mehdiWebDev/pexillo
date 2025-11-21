@@ -28,7 +28,20 @@ interface GoogleMapsPlace {
   fetchFields: (options: { fields: string[] }) => Promise<void>;
 }
 
-// JSX IntrinsicElements augmentation for 'gmp-place-autocomplete' is defined globally in src/types/google-maps.d.ts
+// JSX IntrinsicElements augmentation for 'gmp-place-autocomplete'
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'gmp-place-autocomplete': React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement> & {
+          'included-primary-types'?: string;
+          placeholder?: string;
+        },
+        HTMLElement
+      >;
+    }
+  }
+}
 
 interface GoogleGeocodeResult {
   address_components: Array<{
@@ -610,7 +623,7 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
 
           {/* Address Search - Canada only */}
           <div>
-            <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+            <label className="text-sm font-medium mb-2 flex items-center gap-2">
               <Search size={16} />
               {t('deliverTo')} *
               {error && <span className="text-red-500 text-xs ml-2">({error})</span>}
