@@ -231,7 +231,7 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
       product.id,
       selectedVariant.id,
       {
-        name: translatedProduct.name,
+        name: translatedProduct!.name,
         slug: product.slug,
         image: product.primary_image_url,
         unitPrice: product.base_price,
