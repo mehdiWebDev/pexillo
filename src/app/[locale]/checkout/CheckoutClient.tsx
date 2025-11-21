@@ -198,7 +198,7 @@ export default function CheckoutClient() {
     // Create payment intent when moving to step 2
     const handleNextStep = async () => {
         // Validate all step 1 fields including password if creating account
-        const fieldsToValidate: string[] = [
+        const fieldsToValidate = [
             'email',
             'phone',
             'shipping.firstName',
@@ -208,15 +208,17 @@ export default function CheckoutClient() {
             'shipping.state',
             'shipping.postalCode',
             'shipping.country',
-        ];
+        ] as const;
 
         // Add password validation if creating account
         const createAccount = form.getValues('createAccount');
-        if (createAccount) {
-            fieldsToValidate.push('password');
-        }
 
-        const isValid = await form.trigger(fieldsToValidate);
+        let isValid: boolean;
+        if (createAccount) {
+            isValid = await form.trigger([...fieldsToValidate, 'password']);
+        } else {
+            isValid = await form.trigger([...fieldsToValidate]);
+        }
 
         if (!isValid) {
             toast({
