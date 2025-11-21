@@ -142,11 +142,17 @@ export async function POST(req: NextRequest) {
           };
         }
 
+        // Safely extract product name regardless of relation typing (array vs object)
+        const productName = (() => {
+          const rel = (variant as unknown as { products?: { name?: string } | { name?: string }[] }).products;
+          return Array.isArray(rel) ? rel[0]?.name : rel?.name;
+        })();
+
         if (variant.inventory_count < item.quantity) {
           return {
             valid: false,
             variantId: item.variant_id,
-            productName: variant.products.name,
+            productName,
             variantDetails: `${variant.size} - ${variant.color}`,
             requested: item.quantity,
             available: variant.inventory_count,
