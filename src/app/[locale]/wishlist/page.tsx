@@ -25,8 +25,10 @@ interface ProductVariant {
 interface ProductImage {
   id: string;
   image_url: string;
-  alt_text?: string;
-  is_primary?: boolean;
+  alt_text: string;
+  is_primary: boolean;
+  variant_id?: string;
+  view_type?: 'front' | 'back' | 'side' | 'detail';
 }
 
 interface WishlistProduct {
@@ -47,7 +49,11 @@ interface WishlistProduct {
   translations?: Record<string, {
     name?: string;
     short_description?: string;
+    description?: string;
+    material?: string;
+    care_instructions?: string;
     badge?: string;
+    tags?: string[];
   }>;
   wishlist_id: string;
   added_to_wishlist: string;
@@ -113,7 +119,7 @@ export default function WishlistPage() {
         // Apply JSONB translations
         name: trans.name || product.name,
         short_description: trans.short_description || product.short_description,
-        badge: trans.badge || product.badge,
+        badge: (trans.badge as 'NEW' | 'HOT' | 'SALE' | 'LIMITED' | null | undefined) || product.badge,
         // Translate variants
         variants: product.variants?.map((v: ProductVariant) => ({
           ...v,
