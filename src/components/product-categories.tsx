@@ -2,6 +2,7 @@
 
 import { Link } from '@/src//i18n/routing';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { ArrowRight, Shirt, Wind, Palette, Zap } from 'lucide-react';
 
 interface Category {
@@ -98,9 +99,11 @@ const ProductCategories = () => {
 
                 {/* Image Container */}
                 <div className="category-card__image-container">
-                  <img
+                  <Image
                     src={category.imageUrl}
                     alt={category.name}
+                    width={600}
+                    height={400}
                     className="category-card__image"
                   />
                   <div className="category-card__overlay" />

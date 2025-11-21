@@ -12,19 +12,6 @@ export function useFavorites() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load favorites on mount
-  useEffect(() => {
-    if (isAuth && user?.id) {
-      loadFavorites();
-    } else {
-      // Load from localStorage for guest users
-      const localFavorites = localStorage.getItem('favorites');
-      if (localFavorites) {
-        setFavorites(JSON.parse(localFavorites));
-      }
-    }
-  }, [isAuth, user?.id]);
-
   // Load favorites from database
   const loadFavorites = useCallback(async () => {
     if (!user?.id) return;
@@ -39,6 +26,19 @@ export function useFavorites() {
       setIsLoading(false);
     }
   }, [user?.id]);
+
+  // Load favorites on mount
+  useEffect(() => {
+    if (isAuth && user?.id) {
+      loadFavorites();
+    } else {
+      // Load from localStorage for guest users
+      const localFavorites = localStorage.getItem('favorites');
+      if (localFavorites) {
+        setFavorites(JSON.parse(localFavorites));
+      }
+    }
+  }, [isAuth, user?.id, loadFavorites]);
 
   // Toggle favorite (add or remove)
   const toggleFavorite = useCallback(async (productId: string) => {

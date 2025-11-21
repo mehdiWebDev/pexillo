@@ -9,13 +9,13 @@ interface OrderItem {
   quantity: number;
   unit_price: number;
   total_price: number;
-  products: {
+  products?: {
     name: string;
-  } | null;
-  product_variants: {
+  };
+  product_variants?: {
     size: string;
     color: string;
-  } | null;
+  };
 }
 
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
