@@ -28,6 +28,8 @@ interface GoogleMapsPlace {
   fetchFields: (options: { fields: string[] }) => Promise<void>;
 }
 
+// JSX IntrinsicElements augmentation for 'gmp-place-autocomplete' is defined globally in src/types/google-maps.d.ts
+
 interface GoogleGeocodeResult {
   address_components: Array<{
     types: string[];
@@ -613,7 +615,7 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
               {t('deliverTo')} *
               {error && <span className="text-red-500 text-xs ml-2">({error})</span>}
             </label>
-            
+
             {/* Google Places Autocomplete Element - Shipping */}
             {!isLoading ? (
               <gmp-place-autocomplete
@@ -629,7 +631,7 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
                 disabled
               />
             )}
-            
+
             <p className="text-xs text-muted-foreground mt-1">
               {t('searchAddressHelper')}
             </p>
@@ -745,7 +747,7 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
             {...register('shipping.country')}
             value="CA"
           />
-          
+
           {/* Display Canada as read-only info */}
           <div className="bg-muted/30 border border-muted rounded-lg p-3">
             <p className="text-sm text-muted-foreground">
@@ -817,14 +819,14 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
                 <Search size={16} />
                 {t('billingAddressSearch')}
               </label>
-              
+
               {/* Google Places Autocomplete Element - Billing */}
               <gmp-place-autocomplete
                 id="billing-place-autocomplete"
                 included-primary-types="street_address"
                 placeholder={t('startTypingAddress')}
               />
-              
+
               <p className="text-xs text-muted-foreground mt-1">
                 {t('searchAddressHelper')}
               </p>
