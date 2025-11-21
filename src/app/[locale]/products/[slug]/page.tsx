@@ -48,7 +48,7 @@ interface ProductVariant {
 
 interface ProductImage {
   image_url: string;
-  alt_text?: string;
+  alt_text: string;
 }
 
 interface Category {
@@ -67,7 +67,7 @@ interface Product {
   description?: string;
   material?: string;
   care_instructions?: string;
-  badge?: string;
+  badge?: 'NEW' | 'HOT' | 'SALE' | 'LIMITED' | null;
   base_price: number;
   primary_image_url: string;
   translations?: Record<string, {
@@ -76,7 +76,7 @@ interface Product {
     description?: string;
     material?: string;
     care_instructions?: string;
-    badge?: string;
+    badge?: 'NEW' | 'HOT' | 'SALE' | 'LIMITED' | null;
   }>;
   variants: ProductVariant[];
   images?: ProductImage[];
@@ -150,10 +150,10 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
       material: translations.material || product.material,
       care_instructions: translations.care_instructions || product.care_instructions,
       badge: translations.badge || product.badge,
-      category: product.categories ? {
+      categories: product.categories ? {
         ...product.categories,
         name: product.categories.translations?.[locale]?.name || product.categories.name
-      } : null
+      } : product.categories
     };
   }, [product, locale]);
 
@@ -279,15 +279,30 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
     );
   }
 
-  if (!translatedProduct) {
+  if (!product || !translatedProduct) {
     return null;
   }
 
+  type GalleryImage = {
+    id?: string;
+    image_url: string;
+    alt_text: string;
+    is_primary?: boolean;
+    view_type?: 'front' | 'back' | 'side' | 'detail';
+  };
+
   const availableColors = getAvailableColors(product.variants);
   const availableSizes = getAvailableSizes(selectedColor);
-  const productImages = product.images?.length > 0
+  const rawImages = (product.images && product.images.length > 0)
     ? product.images
     : [{ image_url: product.primary_image_url, alt_text: translatedProduct.name }];
+  const productImages: GalleryImage[] = rawImages.map((img: any) => ({
+    id: img.id,
+    image_url: img.image_url,
+    alt_text: img.alt_text ?? translatedProduct.name,
+    is_primary: img.is_primary,
+    view_type: img.view_type,
+  }));
 
   const productIsFavorited = isFavorite(product.id);
 
@@ -299,11 +314,11 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
           <Link href="/">Home</Link>
           <ChevronRight size={16} />
           <Link href="/products">Products</Link>
-          {translatedProduct.category && (
+          {translatedProduct.categories && (
             <>
               <ChevronRight size={16} />
-              <Link href={`/products/${translatedProduct.category.slug}`}>
-                {translatedProduct.category.name}
+              <Link href={`/products/${translatedProduct.categories.slug}`}>
+                {translatedProduct.categories.name}
               </Link>
             </>
           )}
@@ -318,7 +333,7 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
             <ImageGallery
               images={productImages}
               productName={translatedProduct.name}
-              badge={translatedProduct.badge}
+              badge={translatedProduct.badge as 'NEW' | 'HOT' | 'SALE' | 'LIMITED' | null | undefined}
             />
           </div>
 
@@ -327,9 +342,9 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
             <div className="space-y-6">
               {/* Header */}
               <div>
-                {translatedProduct.category && (
+                {translatedProduct.categories && (
                   <p className="text-sm text-muted-foreground mb-2">
-                    {translatedProduct.category.name}
+                    {translatedProduct.categories.name}
                   </p>
                 )}
                 <h1 className="text-3xl md:text-4xl font-bold mb-3">
