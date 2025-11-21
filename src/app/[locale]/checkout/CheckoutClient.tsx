@@ -62,7 +62,7 @@ const checkoutSchema = z.object({
     }),
 
     // Billing address
-    sameAsShipping: z.boolean().default(true),
+    sameAsShipping: z.boolean(),
     billing: z.object({
         firstName: z.string().optional(),
         lastName: z.string().optional(),
@@ -75,7 +75,7 @@ const checkoutSchema = z.object({
     }).optional(),
 
     // Account
-    createAccount: z.boolean().default(false),
+    createAccount: z.boolean(),
     password: z.string().optional(),
 }).superRefine((data, ctx) => {
     // If creating account, password is required and must be at least 8 characters
