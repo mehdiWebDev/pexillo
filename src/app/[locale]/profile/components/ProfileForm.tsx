@@ -8,6 +8,9 @@ import { Profile } from '../page';
 import { Save, Loader2, Mail, Phone, Calendar, Globe, BellRing, User } from 'lucide-react';
 import { toast } from '@/src/hooks/use-toast';
 import { createClient } from '@/lib/supabase/client';
+import { Label } from '@/src/components/ui/label';
+import { Input } from '@/src/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/src/components/ui/select';
 
 interface ProfileFormProps {
   profile: Profile;
@@ -74,103 +77,100 @@ export default function ProfileForm({ profile, onUpdate }: ProfileFormProps) {
 
       <div className="space-y-5">
         {/* Email (Read-only) */}
-        <div>
-          <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+        <div className="grid gap-2">
+          <Label htmlFor="email" className="flex items-center gap-2">
             <Mail className="h-4 w-4" />
             {t('email')}
-          </label>
-          <input
+          </Label>
+          <Input
+            id="email"
             type="email"
             value={profile.email}
             disabled
-            className="w-full px-4 py-2.5 bg-muted border border-border rounded-md text-muted-foreground cursor-not-allowed"
+            className="bg-muted text-muted-foreground cursor-not-allowed"
           />
-          <p className="mt-1.5 text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {t('emailCannotBeChanged')}
           </p>
         </div>
 
         {/* Full Name */}
-        <div>
-          <label htmlFor="fullName" className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+        <div className="grid gap-2">
+          <Label htmlFor="fullName" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             {t('fullName')}
-          </label>
-          <input
+          </Label>
+          <Input
             id="fullName"
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder={t('fullNamePlaceholder')}
-            className="w-full px-4 py-2.5 bg-background border border-input rounded-md text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-input transition-all duration-200"
           />
         </div>
 
         {/* Phone */}
-        <div>
-          <label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+        <div className="grid gap-2">
+          <Label htmlFor="phone" className="flex items-center gap-2">
             <Phone className="h-4 w-4" />
             {t('phone')}
-          </label>
-          <input
+          </Label>
+          <Input
             id="phone"
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder={t('phonePlaceholder')}
-            className="w-full px-4 py-2.5 bg-background border border-input rounded-md text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-input transition-all duration-200"
           />
         </div>
 
         {/* Date of Birth */}
-        <div>
-          <label htmlFor="dateOfBirth" className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+        <div className="grid gap-2">
+          <Label htmlFor="dateOfBirth" className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
             {t('dateOfBirth')}
-          </label>
-          <input
+          </Label>
+          <Input
             id="dateOfBirth"
             type="date"
             value={dateOfBirth}
             onChange={(e) => setDateOfBirth(e.target.value)}
-            className="w-full px-4 py-2.5 bg-background border border-input rounded-md text-foreground focus:ring-2 focus:ring-ring focus:border-input transition-all duration-200"
           />
         </div>
 
         {/* Gender */}
-        <div>
-          <label htmlFor="gender" className="text-sm font-medium text-foreground mb-2 block">
+        <div className="grid gap-2">
+          <Label htmlFor="gender">
             {t('gender')}
-          </label>
-          <select
-            id="gender"
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-            className="w-full px-4 py-2.5 bg-background border border-input rounded-md text-foreground focus:ring-2 focus:ring-ring focus:border-input transition-all duration-200"
-          >
-            <option value="">{t('selectGender')}</option>
-            <option value="male">{t('male')}</option>
-            <option value="female">{t('female')}</option>
-            <option value="other">{t('other')}</option>
-            <option value="prefer_not_to_say">{t('preferNotToSay')}</option>
-          </select>
+          </Label>
+          <Select value={gender} onValueChange={setGender}>
+            <SelectTrigger id="gender">
+              <SelectValue placeholder={t('selectGender')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="male">{t('male')}</SelectItem>
+              <SelectItem value="female">{t('female')}</SelectItem>
+              <SelectItem value="other">{t('other')}</SelectItem>
+              <SelectItem value="prefer_not_to_say">{t('preferNotToSay')}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Preferred Language */}
-        <div>
-          <label htmlFor="language" className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+        <div className="grid gap-2">
+          <Label htmlFor="language" className="flex items-center gap-2">
             <Globe className="h-4 w-4" />
             {t('preferredLanguage')}
-          </label>
-          <select
-            id="language"
-            value={preferredLanguage}
-            onChange={(e) => setPreferredLanguage(e.target.value)}
-            className="w-full px-4 py-2.5 bg-background border border-input rounded-md text-foreground focus:ring-2 focus:ring-ring focus:border-input transition-all duration-200"
-          >
-            <option value="en">{t('english')}</option>
-            <option value="fr">{t('french')}</option>
-          </select>
+          </Label>
+          <Select value={preferredLanguage} onValueChange={setPreferredLanguage}>
+            <SelectTrigger id="language">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">{t('english')}</SelectItem>
+              <SelectItem value="fr">{t('french')}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Marketing Consent */}

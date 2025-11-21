@@ -1,0 +1,132 @@
+// Wishlist Page Styles
+.wishlist-page {
+  min-height: calc(100vh - 4rem);
+  padding: 2rem 0 4rem;
+  background: hsl(var(--background));
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+
+  &__header {
+    margin-bottom: 3rem;
+    text-align: center;
+
+    @media (min-width: 768px) {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+    }
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+    margin-bottom: 0.5rem;
+    justify-content: center;
+
+    @media (min-width: 768px) {
+      font-size: 2.5rem;
+      justify-content: flex-start;
+      margin-bottom: 0;
+    }
+
+    svg {
+      color: hsl(var(--primary));
+    }
+  }
+
+  &__subtitle {
+    font-size: 1rem;
+    color: hsl(var(--muted-foreground));
+    margin-top: 0.5rem;
+
+    @media (min-width: 768px) {
+      margin-top: 0;
+    }
+  }
+
+  // Empty state
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    text-align: center;
+    padding: 3rem 1.5rem;
+
+    svg {
+      width: 80px;
+      height: 80px;
+      color: hsl(var(--muted-foreground));
+      opacity: 0.5;
+      margin-bottom: 1.5rem;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: hsl(var(--foreground));
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      font-size: 1rem;
+      color: hsl(var(--muted-foreground));
+      margin-bottom: 2rem;
+      max-width: 400px;
+    }
+
+    .btn {
+      min-width: 200px;
+    }
+
+    &__actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+
+  // Loading skeleton
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted) / 0.2) 25%,
+      hsl(var(--muted) / 0.3) 50%,
+      hsl(var(--muted) / 0.2) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 0.5rem;
+
+    &--title {
+      width: 300px;
+      height: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    &--text {
+      width: 200px;
+      height: 1rem;
+    }
+  }
+
+  @keyframes skeleton-loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+}

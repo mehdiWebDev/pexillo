@@ -1,8 +1,8 @@
 // src/app/[locale]/track-order/page.tsx
 'use client';
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useState, useMemo } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src/components/ui/card';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
@@ -37,8 +37,10 @@ interface TrackingData {
   };
   items: Array<{
     product_name: string;
+    product_translations?: any;
     variant_size: string;
     variant_color: string;
+    variant_translations?: any;
     quantity: number;
     unit_price: number;
     total_price: number;
@@ -86,6 +88,7 @@ const CARRIERS = {
 export default function TrackOrderPage() {
   const t = useTranslations('tracking');
   const tOrders = useTranslations('orders');
+  const locale = useLocale();
   const { toast } = useToast();
 
   const [orderNumber, setOrderNumber] = useState('');
@@ -93,6 +96,25 @@ export default function TrackOrderPage() {
   const [loading, setLoading] = useState(false);
   const [trackingData, setTrackingData] = useState<TrackingData | null>(null);
   const [error, setError] = useState('');
+
+  // Translate order items based on locale
+  const translatedItems = useMemo(() => {
+    if (!trackingData?.items || locale === 'en') {
+      return trackingData?.items || [];
+    }
+
+    return trackingData.items.map(item => {
+      const productTranslations = item.product_translations?.[locale] || {};
+      const variantTranslations = item.variant_translations?.[locale] || {};
+
+      return {
+        ...item,
+        product_name: productTranslations.name || item.product_name,
+        variant_size: variantTranslations.size_label || item.variant_size,
+        variant_color: variantTranslations.color || item.variant_color,
+      };
+    });
+  }, [trackingData, locale]);
 
   const handleTrackOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -369,7 +391,7 @@ export default function TrackOrderPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {trackingData.items.map((item, index) => (
+                  {translatedItems.map((item, index) => (
                     <div key={index} className="flex gap-4 pb-4 border-b last:border-0">
                       {item.image_url ? (
                         <img

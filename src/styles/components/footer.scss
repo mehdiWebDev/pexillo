@@ -4,7 +4,6 @@
     background: hsl(var(--foreground));
     color: hsl(var(--background));
     border-top: 6px solid hsl(var(--primary));
-    margin-top: 4rem;
     position: relative;
 
     &::before {
@@ -14,13 +13,11 @@
         left: 0;
         right: 0;
         height: 6px;
-        background: repeating-linear-gradient(
-            90deg,
-            hsl(var(--primary)),
-            hsl(var(--primary)) 10px,
-            hsl(var(--secondary)) 10px,
-            hsl(var(--secondary)) 20px
-        );
+        background: repeating-linear-gradient(90deg,
+                hsl(var(--primary)),
+                hsl(var(--primary)) 10px,
+                hsl(var(--secondary)) 10px,
+                hsl(var(--secondary)) 20px);
     }
 
     &__container {
@@ -178,7 +175,7 @@
     // Theme switcher in footer
     &__links .theme-switcher {
         margin-top: 0.75rem;
-        
+
         button {
             background: hsl(var(--background));
             color: hsl(var(--foreground));

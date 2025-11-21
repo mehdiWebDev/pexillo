@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import ProductCard from '@/src/components/product-card';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { EnhancedProduct } from '@/src/services/productListingService';
+import { useFavorites } from '@/src/hooks/useFavorites';
 
 interface ProductsGridProps {
   products: EnhancedProduct[];
@@ -22,6 +23,7 @@ export default function ProductsGrid({
   onPageChange,
 }: ProductsGridProps) {
   const t = useTranslations('productsGrid');
+  const { toggleFavorite, isFavorite } = useFavorites();
 
   // Loading skeleton
   if (isLoading) {
@@ -124,6 +126,8 @@ export default function ProductsGrid({
             showColorSwitcher={true}
             showSizePicker={false}
             showTooltips={true}
+            onToggleFavorite={toggleFavorite}
+            isFavorite={isFavorite(product.id)}
           />
         ))}
       </div>

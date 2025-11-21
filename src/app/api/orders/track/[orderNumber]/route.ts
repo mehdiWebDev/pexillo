@@ -88,7 +88,7 @@ export async function GET(
       }, { status: 200 }); // Return 200 so UI can display the message
     }
 
-    // Get order items with images
+    // Get order items with images and translations
     const { data: orderItems, error: itemsError } = await supabaseAdmin
       .from('order_items')
       .select(`
@@ -99,11 +99,13 @@ export async function GET(
         product_id,
         variant_id,
         products (
-          name
+          name,
+          translations
         ),
         product_variants (
           size,
-          color
+          color,
+          translations
         )
       `)
       .eq('order_id', order.id);
@@ -146,8 +148,10 @@ export async function GET(
 
       return {
         product_name: item.products?.name || 'Unknown Product',
+        product_translations: item.products?.translations || null,
         variant_size: item.product_variants?.size || '',
         variant_color: item.product_variants?.color || '',
+        variant_translations: item.product_variants?.translations || null,
         quantity: item.quantity,
         unit_price: item.unit_price || 0,
         total_price: item.total_price || 0,

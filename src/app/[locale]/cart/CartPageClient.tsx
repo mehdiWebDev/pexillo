@@ -8,7 +8,6 @@ import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import Loader from '@/src/components/ui/Loader';
 import {
-  ShoppingBag,
   Trash2,
   Plus,
   Minus,
@@ -18,7 +17,6 @@ import {
   Shield,
   CreditCard,
   AlertCircle,
-  Check
 } from 'lucide-react';
 import { RootState, AppDispatch } from '@/src/store';
 import {

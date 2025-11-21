@@ -5,7 +5,7 @@ import { usePathname } from '@/src/i18n/routing';
 import { Link } from '@/src/i18n/routing';
 import { cn } from "@/lib/utils";
 import { ThemeSwitcher } from "@/src/components/theme-switcher";
-import { User, Settings, LogOut, UserCircle } from "lucide-react";
+import { User, Settings, LogOut, UserCircle, Heart } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/src/store";
 import { clearUser } from "@/src/store/slices/authSlice";
@@ -15,6 +15,7 @@ import { useUserQuery } from "@/src/hooks/useUserQuery";
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher, LanguageSwitcherCompact } from '@/src/components/language-switcher';
 import MiniCart from '@/src/components/cart/MiniCart';
+import { useFavorites } from '@/src/hooks/useFavorites';
 
 
 const BrandLogo = () => (
@@ -56,6 +57,7 @@ export function ClientNavigationMenu({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, isAuth } = useSelector((state: RootState) => state.auth);
   const { data: profile } = useUserQuery(user?.id);
+  const { favorites } = useFavorites();
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -121,6 +123,12 @@ export function ClientNavigationMenu({
             <div className="navigation__desktop-actions">
               <LanguageSwitcher />
               <ThemeSwitcher />
+              <Link href="/wishlist" className="navigation__icon-link" title={t('wishlist')}>
+                <Heart size={20} className={favorites.length > 0 ? 'fill-current' : ''} />
+                {favorites.length > 0 && (
+                  <span className="navigation__icon-badge">{favorites.length}</span>
+                )}
+              </Link>
               <MiniCart />
               {children}
             </div>
@@ -208,11 +216,27 @@ export function ClientNavigationMenu({
               <>
                 <div className="mobile-menu__divider"></div>
                 <Link
+                  href="/wishlist"
+                  className={cn("mobile-menu__link", pathname === "/wishlist" && "mobile-menu__link--active")}
+                  onClick={closeMobileMenu}
+                  style={{
+                    animationDelay: isMobileMenuOpen ? `${(menuItems.length) * 100}ms` : '0ms'
+                  }}
+                >
+                  <Heart size={16} className={favorites.length > 0 ? 'fill-current' : ''} />
+                  <span className="mobile-menu__link-text">
+                    {t('wishlist')}
+                    {favorites.length > 0 && ` (${favorites.length})`}
+                  </span>
+                  {pathname === "/wishlist" && <div className="mobile-menu__link-indicator" />}
+                </Link>
+
+                <Link
                   href="/profile"
                   className={cn("mobile-menu__link", pathname === "/profile" && "mobile-menu__link--active")}
                   onClick={closeMobileMenu}
                   style={{
-                    animationDelay: isMobileMenuOpen ? `${(menuItems.length) * 100}ms` : '0ms'
+                    animationDelay: isMobileMenuOpen ? `${(menuItems.length + 1) * 100}ms` : '0ms'
                   }}
                 >
                   <UserCircle size={16} />
@@ -225,7 +249,7 @@ export function ClientNavigationMenu({
                   className={cn("mobile-menu__link", pathname === "/settings" && "mobile-menu__link--active")}
                   onClick={closeMobileMenu}
                   style={{
-                    animationDelay: isMobileMenuOpen ? `${(menuItems.length + 1) * 100}ms` : '0ms'
+                    animationDelay: isMobileMenuOpen ? `${(menuItems.length + 2) * 100}ms` : '0ms'
                   }}
                 >
                   <Settings size={16} />
@@ -237,7 +261,7 @@ export function ClientNavigationMenu({
                   onClick={handleMobileLogout}
                   className="mobile-menu__link mobile-menu__link--danger"
                   style={{
-                    animationDelay: isMobileMenuOpen ? `${(menuItems.length + 2) * 100}ms` : '0ms'
+                    animationDelay: isMobileMenuOpen ? `${(menuItems.length + 3) * 100}ms` : '0ms'
                   }}
                 >
                   <LogOut size={16} />

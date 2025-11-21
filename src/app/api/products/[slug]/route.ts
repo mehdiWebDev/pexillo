@@ -1,0 +1,85 @@
+// src/app/api/products/[slug]/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  SUPABASE_SERVICE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+);
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  try {
+    const { slug } = await params;
+
+    if (!slug) {
+      return NextResponse.json(
+        { error: 'Product slug is required' },
+        { status: 400 }
+      );
+    }
+
+    // Get product with all details
+    const { data: product, error: productError } = await supabaseAdmin
+      .from('products')
+      .select(`
+        *,
+        categories (
+          id,
+          name,
+          slug,
+          translations
+        )
+      `)
+      .eq('slug', slug)
+      .eq('is_active', true)
+      .single();
+
+    if (productError || !product) {
+      return NextResponse.json(
+        { error: 'Product not found' },
+        { status: 404 }
+      );
+    }
+
+    // Get product variants
+    const { data: variants } = await supabaseAdmin
+      .from('product_variants')
+      .select('*')
+      .eq('product_id', product.id)
+      .eq('is_active', true)
+      .order('size', { ascending: true });
+
+    // Get product images
+    const { data: images } = await supabaseAdmin
+      .from('product_images')
+      .select('*')
+      .eq('product_id', product.id)
+      .order('display_order', { ascending: true });
+
+    // Return product with all related data
+    return NextResponse.json({
+      product: {
+        ...product,
+        variants: variants || [],
+        images: images || [],
+      }
+    });
+  } catch (error: any) {
+    console.error('Error fetching product:', error);
+    return NextResponse.json(
+      { error: error.message || 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
