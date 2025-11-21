@@ -630,7 +630,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => copyLookupCode(customer.lookupCode)}
+                    onClick={() => copyLookupCode(customer.lookupCode!)}
                   >
                     {copiedLookupCode ? <Check size={16} /> : <Copy size={16} />}
                   </Button>
