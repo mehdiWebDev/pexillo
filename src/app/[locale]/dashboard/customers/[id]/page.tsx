@@ -2,11 +2,12 @@
 import CustomerForm from '@/src/components/dashboard/CustomerForm';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function CustomerDetailPage({ params }: PageProps) {
-  return <CustomerForm customerId={params.id} />;
+export default async function CustomerDetailPage({ params }: PageProps) {
+  const { id } = await params;
+  return <CustomerForm customerId={id} />;
 }
