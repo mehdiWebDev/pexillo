@@ -299,12 +299,12 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
   const rawImages = (product.images && product.images.length > 0)
     ? product.images
     : [{ image_url: product.primary_image_url, alt_text: translatedProduct.name }];
-  const productImages: GalleryImage[] = rawImages.map((img: any) => ({
-    id: img.id,
+  const productImages: GalleryImage[] = rawImages.map((img: ApiProductImage | { image_url: string; alt_text: string }) => ({
+    id: 'id' in img ? img.id : undefined,
     image_url: img.image_url,
     alt_text: img.alt_text ?? translatedProduct.name,
-    is_primary: img.is_primary,
-    view_type: img.view_type,
+    is_primary: 'is_primary' in img ? img.is_primary : undefined,
+    view_type: 'view_type' in img ? img.view_type : undefined,
   }));
 
   const productIsFavorited = isFavorite(product.id);
