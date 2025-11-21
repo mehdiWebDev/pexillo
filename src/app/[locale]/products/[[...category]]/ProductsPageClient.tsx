@@ -16,6 +16,18 @@ import { Filter, X } from 'lucide-react';
 // CLIENT COMPONENT
 // =============================================
 
+interface VariantTranslation {
+  color?: string;
+  size_label?: string;
+}
+
+interface ProductVariant {
+  id: string;
+  color: string;
+  size: string;
+  translations?: Record<string, VariantTranslation>;
+}
+
 interface ProductsPageClientProps {
   categorySlug?: string;
 }
@@ -92,7 +104,7 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
       meta_title: product.meta_title,
       meta_description: product.meta_description,
       // Translate variants
-      variants: product.variants?.map((v: any) => ({
+      variants: product.variants?.map((v: ProductVariant) => ({
         ...v,
         color_translated: v.translations?.[locale]?.color || v.color,
         size_label: v.translations?.[locale]?.size_label || v.size,

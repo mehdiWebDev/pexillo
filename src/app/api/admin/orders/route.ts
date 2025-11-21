@@ -3,6 +3,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 
+interface ShippingAddress {
+  firstName?: string;
+  lastName?: string;
+  [key: string]: unknown;
+}
+
+interface OrderListItem {
+  id: string;
+  order_number: string;
+  created_at: string;
+  status: string;
+  payment_status: string;
+  total_amount: number;
+  user_id: string | null;
+  guest_email: string | null;
+  shipping_address: ShippingAddress | string;
+  tracking_number: string | null;
+}
+
+interface RevenueOrder {
+  total_amount: number;
+}
+
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
 const supabaseAdmin = createClient(
@@ -113,7 +136,7 @@ export async function GET(req: NextRequest) {
 
     // Get order items count for each order
     const ordersWithDetails = await Promise.all(
-      (orders || []).map(async (order: any) => {
+      (orders || []).map(async (order: OrderListItem) => {
         // Get items count
         const { count: itemsCount } = await supabaseAdmin
           .from('order_items')
@@ -185,7 +208,7 @@ export async function GET(req: NextRequest) {
       { data: revenueData }
     ] = await Promise.all(statsPromises);
 
-    const totalRevenue = (revenueData || []).reduce((sum: number, order: any) => sum + (order.total_amount || 0), 0);
+    const totalRevenue = (revenueData || []).reduce((sum: number, order: RevenueOrder) => sum + (order.total_amount || 0), 0);
 
     return NextResponse.json({
       orders: ordersWithDetails,
@@ -203,10 +226,11 @@ export async function GET(req: NextRequest) {
         totalRevenue: totalRevenue
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in admin orders API:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

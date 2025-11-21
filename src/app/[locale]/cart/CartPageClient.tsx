@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from '@/src/i18n/routing';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
+import Image from 'next/image';
 import Loader from '@/src/components/ui/Loader';
 import {
   Trash2,
@@ -104,7 +105,7 @@ export default function CartPageClient() {
       } else {
         dispatch(updateCartItemLocal({ itemId, quantity: newQuantity }));
       }
-    } catch (error) {
+    } catch {
       toast({
         title: t('error'),
         description: t('updateFailed'),
@@ -133,7 +134,7 @@ export default function CartPageClient() {
         title: t('success'),
         description: t('itemRemoved'),
       });
-    } catch (error) {
+    } catch {
       toast({
         title: t('error'),
         description: t('removeFailed'),
@@ -164,7 +165,7 @@ export default function CartPageClient() {
         title: t('success'),
         description: t('cartCleared'),
       });
-    } catch (error) {
+    } catch {
       toast({
         title: t('error'),
         description: t('clearFailed'),
@@ -260,9 +261,11 @@ export default function CartPageClient() {
                       href={`/products/${item.product_slug}`}
                       className="flex-shrink-0"
                     >
-                      <img
+                      <Image
                         src={item.product_image}
                         alt={item.product_name}
+                        width={96}
+                        height={112}
                         className="w-24 h-28 object-cover rounded-md hover:opacity-80 transition-opacity"
                       />
                     </Link>

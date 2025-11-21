@@ -17,20 +17,65 @@ import { toast } from '@/src/hooks/use-toast';
 import { clearCartLocal, clearCartDB } from '@/src/store/slices/cartSlice';
 import { RootState } from '@/src/store';
 
+interface CartItem {
+  product_id: string;
+  variant_id: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  product_name: string;
+  variant_size: string;
+  variant_color: string;
+}
+
+interface CheckoutFormData {
+  email: string;
+  phone: string;
+  shipping: {
+    firstName: string;
+    lastName: string;
+    address: string;
+    apartment?: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  };
+  sameAsShipping: boolean;
+  billing?: {
+    firstName?: string;
+    lastName?: string;
+    address?: string;
+    apartment?: string;
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+  };
+  createAccount: boolean;
+  password?: string;
+}
+
+interface InventoryError {
+  productName: string;
+  variant: string;
+  message: string;
+}
+
 interface PaymentFormProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<CheckoutFormData>;
   clientSecret: string;
   total: number;
   tax: number;
   shipping: number;
-  items: any[];
+  items: CartItem[];
   onBack: () => void;
   createdUserId: string | null;
 }
 
 export default function PaymentForm({
   form,
-  clientSecret,
+  clientSecret: _clientSecret,
   total,
   tax,
   shipping,
@@ -169,7 +214,7 @@ export default function PaymentForm({
         // Inventory errors
         if (errorData.error === 'Insufficient inventory' && errorData.details) {
           const itemsList = errorData.details
-            .map((item: any) => `• ${item.productName} (${item.variant}): ${item.message}`)
+            .map((item: InventoryError) => `• ${item.productName} (${item.variant}): ${item.message}`)
             .join('\n');
 
           toast({

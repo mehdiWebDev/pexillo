@@ -1,7 +1,7 @@
 // src/app/[locale]/profile/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/src/store';
@@ -54,16 +54,7 @@ export default function ProfilePage() {
     checkAuth();
   }, [router]);
 
-  // Fetch profile once auth is confirmed
-  useEffect(() => {
-    if (!isCheckingAuth && user) {
-      fetchProfile();
-    } else if (!isCheckingAuth && !isAuth) {
-      router.push('/auth/login');
-    }
-  }, [isCheckingAuth, isAuth, user, router]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     setIsLoading(true);
     try {
       const supabase = createClient();
@@ -80,7 +71,16 @@ export default function ProfilePage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
+
+  // Fetch profile once auth is confirmed
+  useEffect(() => {
+    if (!isCheckingAuth && user) {
+      fetchProfile();
+    } else if (!isCheckingAuth && !isAuth) {
+      router.push('/auth/login');
+    }
+  }, [isCheckingAuth, isAuth, user, router, fetchProfile]);
 
   if (isCheckingAuth || isLoading) {
     return (

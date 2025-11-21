@@ -1,7 +1,7 @@
 // src/app/[locale]/dashboard/inventory/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src/components/ui/card';
 import { Button } from '@/src/components/ui/button';
@@ -17,9 +17,7 @@ import {
   RotateCcw,
   XCircle,
   Search,
-  Loader2,
-  ArrowUpDown,
-  Calendar
+  Loader2
 } from 'lucide-react';
 import { Badge } from '@/src/components/ui/badge';
 
@@ -61,11 +59,7 @@ export default function InventoryPage() {
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 50;
 
-  useEffect(() => {
-    fetchTransactions();
-  }, [currentPage, filterType]);
-
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams({
@@ -91,7 +85,11 @@ export default function InventoryPage() {
     } finally{
       setIsLoading(false);
     }
-  };
+  }, [currentPage, filterType, searchTerm]);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
 
   const handleSearch = () => {
     setCurrentPage(1);

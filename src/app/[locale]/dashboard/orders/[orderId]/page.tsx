@@ -1,7 +1,7 @@
 // src/app/[locale]/dashboard/orders/[orderId]/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src/components/ui/card';
@@ -35,24 +35,79 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/src/hooks/use-toast';
 import { use } from 'react';
+import Image from 'next/image';
 
-interface OrderDetail {
-  order: any;
-  customer: any;
-  items: any[];
-  notes: any[];
-  timeline: any[];
+interface Address {
+  firstName: string;
+  lastName: string;
+  address: string;
+  apartment?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  email?: string;
+  phone?: string;
 }
 
-const statusColors: Record<string, string> = {
-  pending: 'badge-warning',
-  confirmed: 'badge-info',
-  processing: 'badge-purple',
-  printing: 'badge-purple',
-  shipped: 'badge-success',
-  delivered: 'badge-success',
-  cancelled: 'badge-error'
-};
+interface OrderItem {
+  id: string;
+  product_name: string;
+  variant_size: string;
+  variant_color: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  image_url?: string;
+}
+
+interface OrderNote {
+  id: string;
+  note: string;
+  created_at: string;
+  created_by: string;
+}
+
+interface TimelineEvent {
+  event: string;
+  timestamp: string;
+  by: string;
+}
+
+interface Order {
+  order_number: string;
+  created_at: string;
+  status: string;
+  payment_status: string;
+  subtotal: number;
+  shipping_amount: number;
+  tax_amount: number;
+  total_amount: number;
+  shipping_carrier?: string;
+  tracking_number?: string;
+  estimated_delivery_date?: string;
+  shipping_address: Address;
+  billing_address?: Address;
+  payment_method?: string;
+  stripe_payment_intent_id?: string;
+  currency?: string;
+}
+
+interface Customer {
+  name: string;
+  email: string;
+  phone?: string;
+  accountType: string;
+  lookupCode?: string;
+}
+
+interface OrderDetail {
+  order: Order;
+  customer: Customer;
+  items: OrderItem[];
+  notes: OrderNote[];
+  timeline: TimelineEvent[];
+}
 
 const paymentStatusColors: Record<string, string> = {
   pending: 'badge-warning',
@@ -88,11 +143,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
   const [newNote, setNewNote] = useState('');
   const [copiedLookupCode, setCopiedLookupCode] = useState(false);
 
-  useEffect(() => {
-    fetchOrderDetail();
-  }, [resolvedParams.orderId]);
-
-  const fetchOrderDetail = async () => {
+  const fetchOrderDetail = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/admin/orders/${resolvedParams.orderId}`);
@@ -127,7 +178,11 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
     } finally {
       setLoading(false);
     }
-  };
+  }, [resolvedParams.orderId, toast]);
+
+  useEffect(() => {
+    fetchOrderDetail();
+  }, [fetchOrderDetail]);
 
   const handleUpdateTracking = async () => {
     try {
@@ -146,7 +201,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
 
       setEditingTracking(false);
       fetchOrderDetail();
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: t('errorUpdating'),
@@ -169,7 +224,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
         title: 'Success',
         description: t('trackingEmailSent')
       });
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: t('errorSendingEmail'),
@@ -195,10 +250,11 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
         title: 'Success',
         description: t('confirmationEmailSent') || 'Order confirmation email sent successfully'
       });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : t('errorSendingEmail');
       toast({
         title: 'Error',
-        description: error.message || t('errorSendingEmail'),
+        description: errorMessage,
         variant: 'destructive'
       });
     }
@@ -223,7 +279,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
 
       setNewNote('');
       fetchOrderDetail();
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to add note',
@@ -628,9 +684,11 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
             {items.map((item) => (
               <div key={item.id} className="flex items-start gap-4 border-b pb-4 last:border-0">
                 {item.image_url && (
-                  <img
+                  <Image
                     src={item.image_url}
                     alt={item.product_name}
+                    width={64}
+                    height={64}
                     className="w-16 h-16 object-cover rounded"
                   />
                 )}

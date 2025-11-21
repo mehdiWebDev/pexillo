@@ -1,14 +1,13 @@
 // src/app/[locale]/dashboard/settings/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src/components/ui/card';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
 import { toast } from '@/src/hooks/use-toast';
-import { createClient } from '@/lib/supabase/client';
 import {
   Settings as SettingsIcon,
   Mail,
@@ -26,12 +25,7 @@ export default function SettingsPage() {
   const [adminEmail, setAdminEmail] = useState('');
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true);
 
-  // Fetch current settings
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await fetch('/api/admin/settings');
@@ -52,7 +46,12 @@ export default function SettingsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [t]);
+
+  // Fetch current settings
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
 
   const handleSave = async () => {
     // Validate email

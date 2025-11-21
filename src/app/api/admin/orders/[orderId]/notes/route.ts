@@ -113,10 +113,11 @@ export async function POST(
       success: true,
       note: formattedNote
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in create order note API:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

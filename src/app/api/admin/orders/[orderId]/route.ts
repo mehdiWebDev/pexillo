@@ -4,6 +4,47 @@ import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendTrackingEmail } from '@/src/lib/email/sendTrackingEmail';
 
+interface OrderItem {
+  id: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  production_status: string | null;
+  product_id: string;
+  variant_id: string;
+  products?: {
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
+  product_variants?: {
+    id: string;
+    size: string;
+    color: string;
+    sku: string;
+  } | null;
+}
+
+interface OrderNote {
+  id: string;
+  note: string;
+  created_at: string;
+  created_by: string;
+  profiles?: {
+    email: string;
+    full_name: string | null;
+  } | null;
+}
+
+interface OrderUpdateData {
+  updated_at: string;
+  status?: string;
+  payment_status?: string;
+  shipping_carrier?: string;
+  tracking_number?: string;
+  estimated_delivery_date?: string;
+}
+
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
 const supabaseAdmin = createClient(
@@ -134,7 +175,7 @@ export async function GET(
 
     // Format items with image URLs
     const itemsWithImages = await Promise.all(
-      (orderItems || []).map(async (item: any) => {
+      (orderItems || []).map(async (item: OrderItem) => {
         // Get product images
         const { data: images } = await supabaseAdmin
           .from('product_images')
@@ -180,7 +221,7 @@ export async function GET(
     }
 
     // Format notes
-    const formattedNotes = (notes || []).map((note: any) => ({
+    const formattedNotes = (notes || []).map((note: OrderNote) => ({
       id: note.id,
       note: note.note,
       created_at: note.created_at,
@@ -249,10 +290,11 @@ export async function GET(
       notes: formattedNotes,
       timeline
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in admin order detail API:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
@@ -299,7 +341,7 @@ export async function PATCH(
       .single();
 
     // Build update object
-    const updateData: any = {
+    const updateData: OrderUpdateData = {
       updated_at: new Date().toISOString()
     };
 
@@ -347,10 +389,11 @@ export async function PATCH(
       success: true,
       order
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in admin order update API:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

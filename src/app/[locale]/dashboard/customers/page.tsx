@@ -1,10 +1,10 @@
 // src/app/[locale]/dashboard/customers/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/card';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import {
@@ -15,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/src/components/ui/table';
-import { Badge } from '@/src/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -69,7 +68,7 @@ export default function CustomersPage() {
   });
 
   // Fetch customers
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -99,11 +98,11 @@ export default function CustomersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, filters, toast]);
 
   useEffect(() => {
     fetchCustomers();
-  }, [page, filters]);
+  }, [page, filters, fetchCustomers]);
 
   const handleSearch = (value: string) => {
     setFilters(prev => ({ ...prev, search: value }));

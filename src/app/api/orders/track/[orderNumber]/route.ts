@@ -3,6 +3,41 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 
+interface OrderItem {
+  id: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  product_id: string;
+  variant_id: string;
+  products?: {
+    name: string;
+    translations: unknown;
+  } | null;
+  product_variants?: {
+    size: string;
+    color: string;
+    translations: unknown;
+  } | null;
+}
+
+interface Order {
+  id: string;
+  order_number: string;
+  created_at: string;
+  status: string;
+  payment_status: string;
+  total_amount: number;
+  currency: string | null;
+  user_id: string | null;
+  guest_email: string | null;
+  guest_lookup_code: string | null;
+  shipping_address: unknown;
+  shipping_carrier: string | null;
+  tracking_number: string | null;
+  estimated_delivery_date: string | null;
+}
+
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
 const supabaseAdmin = createClient(
@@ -37,7 +72,7 @@ export async function GET(
       .from('orders')
       .select('*')
       .eq('order_number', orderNumber)
-      .single();
+      .single() as { data: Order | null; error: unknown };
 
     if (orderError || !order) {
       return NextResponse.json(
@@ -108,14 +143,14 @@ export async function GET(
           translations
         )
       `)
-      .eq('order_id', order.id);
+      .eq('order_id', order.id) as { data: OrderItem[] | null; error: unknown };
 
     if (itemsError) {
       console.error('Error fetching order items:', itemsError);
     }
 
     // Get images for each item (prefer variant image, fallback to product image)
-    const itemsWithImages = await Promise.all((orderItems || []).map(async (item: any) => {
+    const itemsWithImages = await Promise.all((orderItems || []).map(async (item: OrderItem) => {
       let imageUrl = null;
 
       // Try to get variant-specific image first
@@ -159,6 +194,17 @@ export async function GET(
       };
     }));
 
+    // Parse shipping_address if it's a string
+    let shippingAddress = order.shipping_address;
+    if (typeof shippingAddress === 'string') {
+      try {
+        shippingAddress = JSON.parse(shippingAddress);
+      } catch (parseError) {
+        console.error('Error parsing shipping_address:', parseError);
+        shippingAddress = null;
+      }
+    }
+
     // Return tracking information
     return NextResponse.json({
       order: {
@@ -169,17 +215,18 @@ export async function GET(
         payment_status: order.payment_status,
         total_amount: order.total_amount,
         currency: order.currency || 'CAD',
-        shipping_address: order.shipping_address,
+        shipping_address: shippingAddress,
         shipping_carrier: order.shipping_carrier,
         tracking_number: order.tracking_number,
         estimated_delivery_date: order.estimated_delivery_date
       },
       items: itemsWithImages
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in track order API:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

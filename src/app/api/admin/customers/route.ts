@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 
+interface CustomerRevenueData {
+  total_spent: number;
+}
+
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
 const supabaseAdmin = createClient(
@@ -124,8 +128,8 @@ export async function GET(req: NextRequest) {
       { data: revenueData }
     ] = await Promise.all(statsPromises);
 
-    const totalRevenue = (revenueData || []).reduce((sum: number, customer: any) =>
-      sum + (parseFloat(customer.total_spent) || 0), 0
+    const totalRevenue = (revenueData || []).reduce((sum: number, customer: CustomerRevenueData) =>
+      sum + (parseFloat(String(customer.total_spent)) || 0), 0
     );
 
     return NextResponse.json({
@@ -143,10 +147,11 @@ export async function GET(req: NextRequest) {
         totalRevenue: totalRevenue
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in admin customers API:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

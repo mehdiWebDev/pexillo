@@ -76,10 +76,11 @@ export async function POST(req: NextRequest) {
       success: true,
       message: 'Confirmation email sent successfully'
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error resending confirmation email:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to send confirmation email';
     return NextResponse.json(
-      { error: error.message || 'Failed to send confirmation email' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

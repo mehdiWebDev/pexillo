@@ -2,6 +2,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+interface OrderItemData {
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  products?: {
+    name: string;
+    slug: string;
+    primary_image_url: string | null;
+  } | null;
+  product_variants?: {
+    size: string;
+    color: string;
+    color_hex: string | null;
+  } | null;
+}
+
 // Check for service role key
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
@@ -82,7 +98,7 @@ export async function GET(
       guest_lookup_code: order.guest_lookup_code,
       email: order.guest_email || order.shipping_address?.email,
       total: order.total_amount,
-      items: order.order_items?.map((item: any) => ({
+      items: order.order_items?.map((item: OrderItemData) => ({
         name: item.products?.name,
         quantity: item.quantity,
         size: item.product_variants?.size,

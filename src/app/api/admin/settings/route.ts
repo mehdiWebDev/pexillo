@@ -2,6 +2,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+interface SettingValue {
+  [key: string]: unknown;
+  is_active: boolean;
+  description?: string | null;
+}
+
+interface SettingsObject {
+  [key: string]: SettingValue;
+}
+
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
 const supabaseAdmin = createClient(
@@ -16,7 +26,7 @@ const supabaseAdmin = createClient(
 );
 
 // GET - Fetch all settings
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const { data: settings, error } = await supabaseAdmin
       .from('admin_settings')
@@ -32,7 +42,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Transform array to object for easier access
-    const settingsObj: any = {};
+    const settingsObj: SettingsObject = {};
     settings.forEach((setting) => {
       settingsObj[setting.setting_key] = {
         ...setting.setting_value,

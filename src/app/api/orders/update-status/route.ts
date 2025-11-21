@@ -22,6 +22,29 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-11-20.acacia',
 });
 
+interface OrderUpdateData {
+  updated_at: string;
+  status?: string;
+  payment_status?: string;
+  stripe_payment_intent_id?: string;
+  payment_method?: string;
+  shipping_carrier?: string | null;
+  tracking_number?: string | null;
+  estimated_delivery_date?: string | null;
+}
+
+interface OrderItem {
+  quantity: number;
+  total_price: number;
+  products?: {
+    name: string;
+  } | null;
+  product_variants?: {
+    size: string;
+    color: string;
+  } | null;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const {
@@ -61,7 +84,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     // Build update object
-    const updateData: any = {
+    const updateData: OrderUpdateData = {
       updated_at: new Date().toISOString(),
     };
 
@@ -178,10 +201,11 @@ export async function POST(req: NextRequest) {
         payment_status: order.payment_status,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('💥 Order update error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to update order';
     return NextResponse.json(
-      { error: error.message || 'Failed to update order' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
@@ -228,7 +252,7 @@ async function sendTrackingEmail(orderId: string) {
   // IMPORTANT: Always use the email from the checkout form (stored in shipping_address.email)
   // This ensures we send tracking info to the email entered during checkout,
   // not the profile email which might be different
-  let customerEmail = shippingAddress?.email || order.guest_email || '';
+  const customerEmail = shippingAddress?.email || order.guest_email || '';
   let customerName = '';
 
   if (order.user_id) {
@@ -264,7 +288,7 @@ async function sendTrackingEmail(orderId: string) {
     `)
     .eq('order_id', orderId);
 
-  const items = (orderItems || []).map((item: any) => ({
+  const items = (orderItems || []).map((item: OrderItem) => ({
     name: item.products?.name || 'Product',
     variant: `${item.product_variants?.size || ''} - ${item.product_variants?.color || ''}`.trim(),
     quantity: item.quantity,

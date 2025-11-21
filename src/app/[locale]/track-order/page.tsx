@@ -16,10 +16,30 @@ import {
   ExternalLink,
   MapPin,
   Calendar,
-  DollarSign,
   AlertCircle
 } from 'lucide-react';
-import { useToast } from '@/src/hooks/use-toast';
+import Image from 'next/image';
+
+interface ShippingAddress {
+  firstName: string;
+  lastName: string;
+  address: string;
+  apartment?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  phone?: string;
+}
+
+interface ProductTranslation {
+  name?: string;
+}
+
+interface VariantTranslation {
+  size_label?: string;
+  color?: string;
+}
 
 interface TrackingData {
   order: {
@@ -30,17 +50,17 @@ interface TrackingData {
     payment_status: string;
     total_amount: number;
     currency: string;
-    shipping_address: any;
+    shipping_address: ShippingAddress | string;
     shipping_carrier: string | null;
     tracking_number: string | null;
     estimated_delivery_date: string | null;
   };
   items: Array<{
     product_name: string;
-    product_translations?: any;
+    product_translations?: Record<string, ProductTranslation>;
     variant_size: string;
     variant_color: string;
-    variant_translations?: any;
+    variant_translations?: Record<string, VariantTranslation>;
     quantity: number;
     unit_price: number;
     total_price: number;
@@ -89,7 +109,6 @@ export default function TrackOrderPage() {
   const t = useTranslations('tracking');
   const tOrders = useTranslations('orders');
   const locale = useLocale();
-  const { toast } = useToast();
 
   const [orderNumber, setOrderNumber] = useState('');
   const [lookupCode, setLookupCode] = useState('');
@@ -394,9 +413,11 @@ export default function TrackOrderPage() {
                   {translatedItems.map((item, index) => (
                     <div key={index} className="flex gap-4 pb-4 border-b last:border-0">
                       {item.image_url ? (
-                        <img
+                        <Image
                           src={item.image_url}
                           alt={item.product_name}
+                          width={80}
+                          height={80}
                           className="w-20 h-20 object-cover rounded-md"
                         />
                       ) : (

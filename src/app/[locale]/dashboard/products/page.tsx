@@ -22,9 +22,18 @@ import {
   DropdownMenuTrigger,
 } from '@/src/components/ui/dropdown-menu';
 import { Badge } from '@/src/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
+import Image from 'next/image';
+
+interface ProductVariant {
+  id: string;
+  size: string;
+  color: string;
+  inventory_count: number;
+  is_active: boolean;
+}
 
 // Fetch products for admin with variant details
 async function fetchAdminProducts() {
@@ -50,7 +59,7 @@ async function fetchAdminProducts() {
   // Process the data to add stock information
   const processedData = data?.map(product => {
     // Calculate if product is in stock based on variants
-    const totalInventory = product.product_variants?.reduce((sum: number, variant: any) => {
+    const totalInventory = product.product_variants?.reduce((sum: number, variant: ProductVariant) => {
       if (variant.is_active) {
         return sum + (variant.inventory_count || 0);
       }
@@ -220,9 +229,11 @@ export default function ProductsPage() {
                       <TableCell>
                         <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center">
                           {product.primary_image_url ? (
-                            <img
+                            <Image
                               src={product.primary_image_url}
                               alt={product.name}
+                              width={64}
+                              height={64}
                               className="w-full h-full object-cover rounded-md"
                             />
                           ) : (

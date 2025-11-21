@@ -1,10 +1,10 @@
 // src/app/[locale]/profile/components/OrdersSection.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/src/i18n/routing';
-import { ShoppingBag, Package, Truck, CheckCircle, XCircle, Loader2, ExternalLink } from 'lucide-react';
+import { ShoppingBag, Package, Truck, CheckCircle, XCircle, Loader2, ExternalLink, LucideIcon } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 interface Order {
@@ -20,9 +20,22 @@ interface OrdersSectionProps {
   userId: string;
 }
 
+interface SupabaseOrderItem {
+  count: number;
+}
+
+interface SupabaseOrder {
+  id: string;
+  order_number: string;
+  status: string;
+  total_amount: number;
+  created_at: string;
+  order_items?: SupabaseOrderItem[];
+}
+
 const statusConfig: Record<string, {
   label: string;
-  icon: any;
+  icon: LucideIcon;
   className: string;
 }> = {
   pending: {
@@ -73,11 +86,7 @@ export default function OrdersSection({ userId }: OrdersSectionProps) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [userId]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setIsLoading(true);
     try {
       const supabase = createClient();
@@ -100,7 +109,7 @@ export default function OrdersSection({ userId }: OrdersSectionProps) {
       if (ordersError) throw ordersError;
 
       // Transform data
-      const transformedOrders = ordersData.map((order: any) => ({
+      const transformedOrders = ordersData.map((order: SupabaseOrder) => ({
         id: order.id,
         order_number: order.order_number,
         status: order.status,
@@ -115,7 +124,11 @@ export default function OrdersSection({ userId }: OrdersSectionProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const handleTrackOrder = (orderNumber: string) => {
     router.push(`/track-order?order=${orderNumber}`);

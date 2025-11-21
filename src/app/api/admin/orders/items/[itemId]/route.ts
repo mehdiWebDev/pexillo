@@ -85,10 +85,11 @@ export async function PATCH(
       success: true,
       item
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in update item status API:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

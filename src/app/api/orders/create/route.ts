@@ -2,7 +2,46 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createClient as createServerClient } from '@/lib/supabase/server';
-import { cookies } from 'next/headers';
+
+interface Address {
+  firstName: string;
+  lastName: string;
+  address: string;
+  apartment?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  email?: string;
+  phone?: string;
+}
+
+interface CartItem {
+  product_id: string;
+  variant_id: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  product_name?: string;
+}
+
+interface OrderInsertData {
+  user_id: string | null;
+  guest_email: string | null;
+  guest_lookup_code: string | null;
+  order_number: string;
+  status: string;
+  payment_status: string;
+  subtotal: number;
+  tax_amount: number;
+  shipping_amount: number;
+  total_amount: number;
+  shipping_address: Address;
+  billing_address?: Address;
+  currency: string;
+  stripe_payment_intent_id?: string;
+  payment_method?: string;
+}
 
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
@@ -38,8 +77,6 @@ function generateLookupCode(): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
-
     const {
       user_id, // User ID if account was created during checkout
       email,
@@ -70,14 +107,14 @@ export async function POST(req: NextRequest) {
     });
 
     // ✅ VALIDATE: Ensure all items have variant_id
-    const itemsWithoutVariant = items.filter((item: any) => !item.variant_id || !item.product_id);
+    const itemsWithoutVariant = items.filter((item: CartItem) => !item.variant_id || !item.product_id);
     if (itemsWithoutVariant.length > 0) {
       console.error('❌ Invalid cart data - items missing variant_id or product_id:', itemsWithoutVariant);
       return NextResponse.json(
         {
           error: 'Invalid cart data',
           message: 'Some items in your cart are missing required information. Please clear your cart and try again.',
-          details: itemsWithoutVariant.map((item: any) => ({
+          details: itemsWithoutVariant.map((item: CartItem) => ({
             product_id: item.product_id || 'missing',
             variant_id: item.variant_id || 'missing',
             product_name: item.product_name || 'unknown',
@@ -90,7 +127,7 @@ export async function POST(req: NextRequest) {
     // ✅ CRITICAL: Check inventory availability BEFORE creating order
     console.log('🔍 Checking inventory availability...');
     const inventoryChecks = await Promise.all(
-      items.map(async (item: any) => {
+      items.map(async (item: CartItem) => {
         const { data: variant, error } = await supabaseAdmin
           .from('product_variants')
           .select('id, inventory_count, size, color, products!inner(name)')
@@ -169,7 +206,7 @@ export async function POST(req: NextRequest) {
     const lookupCode = userId ? null : generateLookupCode();
 
     // Create order using admin client (bypasses RLS)
-    const orderInsertData: any = {
+    const orderInsertData: OrderInsertData = {
       user_id: userId,
       guest_email: userId ? null : email,
       guest_lookup_code: lookupCode,
@@ -214,7 +251,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create order items using admin client
-    const orderItems = items.map((item: any) => ({
+    const orderItems = items.map((item: CartItem) => ({
       order_id: order.id,
       product_id: item.product_id,
       variant_id: item.variant_id,
@@ -248,10 +285,11 @@ export async function POST(req: NextRequest) {
       lookupCode,
       success: true,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Order creation error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create order';
     return NextResponse.json(
-      { error: error.message || 'Failed to create order' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

@@ -15,10 +15,9 @@ import {
     CreditCard,
     Truck,
     Lock,
-    Currency,
 } from 'lucide-react';
 import { RootState } from '@/src/store';
-import { selectCartItems, selectCartSubtotal, clearCartLocal } from '@/src/store/slices/cartSlice';
+import { selectCartItems, selectCartSubtotal } from '@/src/store/slices/cartSlice';
 import { toast } from '@/src/hooks/use-toast';
 import ShippingForm from './components/ShippingForm';
 import PaymentForm from './components/PaymentForm';
@@ -93,7 +92,6 @@ type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
 export default function CheckoutClient() {
     const router = useRouter();
-    const dispatch = useDispatch();
     const t = useTranslations('checkout');
     const locale = useLocale();
 
@@ -111,7 +109,6 @@ export default function CheckoutClient() {
         qst: number;
         hst: number;
     } | null>(null);
-    const [shippingCost, setShippingCost] = useState(0);
     const [isInitialized, setIsInitialized] = useState(false);
     const [createdUserId, setCreatedUserId] = useState<string | null>(null);
 
@@ -161,7 +158,6 @@ export default function CheckoutClient() {
         }
 
         setIsInitialized(true);
-        setShippingCost(shipping);
     }, [items, router, shipping]);
 
     // Calculate tax on initial load if province is already selected
@@ -173,10 +169,10 @@ export default function CheckoutClient() {
                 country: 'CA'
             });
         }
-    }, [isInitialized]);
+    }, [isInitialized, form]);
 
     // Calculate tax when address changes
-    const handleAddressChange = async (address: any) => {
+    const handleAddressChange = async (address: { state: string; country: string }) => {
         if (address.state && address.country) {
             try {
                 const response = await fetch('/api/tax/calculate', {
@@ -202,7 +198,7 @@ export default function CheckoutClient() {
     // Create payment intent when moving to step 2
     const handleNextStep = async () => {
         // Validate all step 1 fields including password if creating account
-        const fieldsToValidate: any[] = [
+        const fieldsToValidate: string[] = [
             'email',
             'phone',
             'shipping.firstName',
@@ -309,7 +305,7 @@ export default function CheckoutClient() {
             setClientSecret(clientSecret);
             setCurrentStep(2);
 
-        } catch (error) {
+        } catch {
             toast({
                 title: t('error'),
                 description: t('paymentSetupFailed'),

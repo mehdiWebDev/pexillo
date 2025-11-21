@@ -1,7 +1,7 @@
 // src/components/dashboard/CategoryForm.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -60,7 +60,10 @@ interface Category {
   is_active: boolean;
   sort_order: number;
   created_at?: string;
-  translations?: Record<string, any>;
+  translations?: Record<string, {
+    name?: string;
+    description?: string;
+  }>;
 }
 
 interface CategoryFormProps {
@@ -91,14 +94,7 @@ export default function CategoryForm({ categoryId }: CategoryFormProps) {
     },
   });
 
-  // Load category data if editing
-  useEffect(() => {
-    if (isEditing && categoryId) {
-      fetchCategory();
-    }
-  }, [categoryId, isEditing]);
-
-  const fetchCategory = async () => {
+  const fetchCategory = useCallback(async () => {
     if (!categoryId) return;
 
     try {
@@ -121,7 +117,7 @@ export default function CategoryForm({ categoryId }: CategoryFormProps) {
         });
         setImageUrl(category.image_url);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching category:', error);
       toast({
         title: 'Error',
@@ -129,7 +125,14 @@ export default function CategoryForm({ categoryId }: CategoryFormProps) {
         variant: 'destructive',
       });
     }
-  };
+  }, [categoryId, supabase, form]);
+
+  // Load category data if editing
+  useEffect(() => {
+    if (isEditing && categoryId) {
+      fetchCategory();
+    }
+  }, [categoryId, isEditing, fetchCategory]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -254,11 +257,12 @@ export default function CategoryForm({ categoryId }: CategoryFormProps) {
 
       router.push('/dashboard/categories');
       router.refresh();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Submit error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Something went wrong';
       toast({
         title: 'Error',
-        description: error.message || 'Something went wrong',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {

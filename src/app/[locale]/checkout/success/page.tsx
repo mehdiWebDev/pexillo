@@ -1,7 +1,7 @@
 // app/[locale]/checkout/success/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/src/i18n/routing';
 import { useTranslations } from 'next-intl';
@@ -17,12 +17,23 @@ import {
 import { toast } from '@/src/hooks/use-toast';
 import Loader from '@/src/components/ui/Loader';
 
+interface OrderItem {
+  product_id: string;
+  variant_id: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  product_name: string;
+  variant_size: string;
+  variant_color: string;
+}
+
 interface OrderDetails {
   order_number: string;
   guest_lookup_code?: string;
   email: string;
   total: number;
-  items: any[];
+  items: OrderItem[];
   estimated_delivery: string;
 }
 
@@ -35,21 +46,10 @@ export default function CheckoutSuccessPage() {
 
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
 
   const orderNumber = searchParams.get('order');
 
-  useEffect(() => {
-    if (!orderNumber) {
-      router.push('/');
-      return;
-    }
-
-    // Fetch order details
-    fetchOrderDetails(orderNumber);
-  }, [orderNumber, router]);
-
-  const fetchOrderDetails = async (orderNum: string) => {
+  const fetchOrderDetails = useCallback(async (orderNum: string) => {
     try {
       const response = await fetch(`/api/orders/${orderNum}`);
       if (response.ok) {
@@ -64,12 +64,20 @@ export default function CheckoutSuccessPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    if (!orderNumber) {
+      router.push('/');
+      return;
+    }
+
+    // Fetch order details
+    fetchOrderDetails(orderNumber);
+  }, [orderNumber, router, fetchOrderDetails]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
 
     toast({
       title: t('copied'),

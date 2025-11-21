@@ -60,10 +60,11 @@ export async function POST(req: NextRequest) {
       success: true,
       message: 'Tracking email sent successfully'
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in send tracking email API:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

@@ -1,10 +1,10 @@
 // src/app/[locale]/dashboard/orders/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/card';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import {
@@ -112,7 +112,7 @@ export default function OrdersPage() {
   });
 
   // Fetch orders
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -144,11 +144,11 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, filters, toast]);
 
   useEffect(() => {
     fetchOrders();
-  }, [page, filters]);
+  }, [fetchOrders]);
 
   const handleSearch = (value: string) => {
     setFilters(prev => ({ ...prev, search: value }));

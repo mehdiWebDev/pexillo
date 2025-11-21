@@ -3,6 +3,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 
+interface UpdateCustomerData {
+  full_name?: string;
+  phone?: string;
+  date_of_birth?: string;
+  gender?: string;
+  marketing_consent?: boolean;
+  preferred_language?: string;
+  is_admin?: boolean;
+}
+
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
 const supabaseAdmin = createClient(
@@ -64,7 +74,7 @@ export async function GET(
     }
 
     // Get customer orders
-    const { data: orders, error: ordersError } = await supabaseAdmin
+    const { data: orders } = await supabaseAdmin
       .from('orders')
       .select('id, order_number, created_at, status, payment_status, total_amount')
       .eq('user_id', id)
@@ -75,10 +85,11 @@ export async function GET(
       customer,
       orders: orders || []
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching customer:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
@@ -119,7 +130,7 @@ export async function PUT(
     const body = await req.json();
 
     // Only allow updating specific fields
-    const allowedFields = [
+    const allowedFields: (keyof UpdateCustomerData)[] = [
       'full_name',
       'phone',
       'date_of_birth',
@@ -129,7 +140,7 @@ export async function PUT(
       'is_admin'
     ];
 
-    const updateData: any = {};
+    const updateData: UpdateCustomerData = {};
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
         updateData[field] = body[field];
@@ -156,10 +167,11 @@ export async function PUT(
       customer: updatedCustomer,
       message: 'Customer updated successfully'
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error updating customer:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
@@ -223,10 +235,11 @@ export async function DELETE(
     return NextResponse.json({
       message: 'Customer deleted successfully'
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error deleting customer:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

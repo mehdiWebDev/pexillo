@@ -16,6 +16,13 @@ import {
   ArrowRight
 } from 'lucide-react';
 
+interface RecentProduct {
+  id: string;
+  name: string;
+  base_price: number;
+  created_at: string;
+}
+
 // Fetch dashboard stats
 async function fetchDashboardStats() {
   const supabase = createClient();
@@ -200,9 +207,9 @@ export default function DashboardPage() {
               </p>
             ) : (
               <div className="space-y-2">
-                {stats?.recentProducts?.map((product: any) => (
-                  <div 
-                    key={product.id} 
+                {stats?.recentProducts?.map((product: RecentProduct) => (
+                  <div
+                    key={product.id}
                     className="flex justify-between items-center py-2 hover:bg-muted/50 px-2 rounded cursor-pointer"
                     onClick={() => router.push(`/dashboard/products/${product.id}`)}
                   >

@@ -6,6 +6,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-11-20.acacia',
 });
 
+interface CartItem {
+  id: string;
+  quantity: number;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { amount, email, items, currency = 'cad' } = await req.json();
@@ -39,7 +44,7 @@ export async function POST(req: NextRequest) {
       },
       metadata: {
         email,
-        items: JSON.stringify(items.map((item: any) => ({
+        items: JSON.stringify(items.map((item: CartItem) => ({
           id: item.id,
           quantity: item.quantity,
         }))),

@@ -6,6 +6,7 @@ import { createPortal } from 'react-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from '@/src/i18n/routing';
 import { useTranslations, useLocale } from 'next-intl';
+import Image from 'next/image';
 import { ShoppingCart, X, Plus, Minus, Trash2, ChevronRight } from 'lucide-react';
 import { RootState, AppDispatch } from '@/src/store';
 import {
@@ -62,7 +63,7 @@ function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
       } else {
         dispatch(updateCartItemLocal({ itemId, quantity: newQuantity }));
       }
-    } catch (error) {
+    } catch {
       toast({
         title: t('error'),
         description: t('updateFailed'),
@@ -91,7 +92,7 @@ function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
         title: t('success'),
         description: t('itemRemoved'),
       });
-    } catch (error) {
+    } catch {
       toast({
         title: t('error'),
         description: t('removeFailed'),
@@ -168,9 +169,11 @@ function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
 
                     return (
                       <div key={item.id} className="flex gap-3 pb-4 border-b last:border-0">
-                        <img
+                        <Image
                           src={item.product_image}
                           alt={item.product_name}
+                          width={80}
+                          height={96}
                           className="w-20 h-24 object-cover rounded-md cursor-pointer"
                           onClick={() => {
                             onClose();
@@ -366,9 +369,11 @@ export default function MiniCart() {
       {showAddedNotification && translatedLastAddedItem && mounted && createPortal(
         <div className="fixed top-4 right-4 bg-card border rounded-lg shadow-lg p-4 z-[10000] max-w-sm">
           <div className="flex gap-3">
-            <img
+            <Image
               src={translatedLastAddedItem.product_image}
               alt={translatedLastAddedItem.product_name}
+              width={48}
+              height={48}
               className="w-12 h-12 object-cover rounded-md"
             />
             <div className="flex-1 min-w-0">

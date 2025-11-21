@@ -8,6 +8,7 @@ import { Profile } from '../page';
 import { Camera, Loader2, ShoppingBag, DollarSign, Calendar } from 'lucide-react';
 import { toast } from '@/src/hooks/use-toast';
 import { createClient } from '@/lib/supabase/client';
+import Image from 'next/image';
 
 interface ProfileImageSectionProps {
   profile: Profile;
@@ -127,9 +128,11 @@ export default function ProfileImageSection({ profile, onUpdate }: ProfileImageS
           {/* Avatar */}
           <div className="relative">
             {profile.avatar_url ? (
-              <img
+              <Image
                 src={profile.avatar_url}
                 alt={profile.full_name || 'Avatar'}
+                width={160}
+                height={160}
                 className="w-40 h-40 rounded-full ring-4 ring-muted shadow-lg object-cover"
               />
             ) : (

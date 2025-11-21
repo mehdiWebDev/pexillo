@@ -2,6 +2,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+interface InventoryTransaction {
+  id: string;
+  variant_id: string;
+  order_id: string | null;
+  transaction_type: string;
+  quantity_change: number;
+  quantity_before: number;
+  quantity_after: number;
+  reason: string | null;
+  created_at: string;
+  created_by: string | null;
+  product_variants?: {
+    size: string;
+    color: string;
+    products?: {
+      name: string;
+    };
+  };
+  orders?: {
+    order_number: string;
+  } | null;
+  profiles?: {
+    full_name: string;
+  } | null;
+}
+
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
 const supabaseAdmin = createClient(
@@ -76,7 +102,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Transform the data
-    const transformedTransactions = transactions.map((t: any) => ({
+    const transformedTransactions = transactions.map((t: InventoryTransaction) => ({
       id: t.id,
       variant_id: t.variant_id,
       order_id: t.order_id,

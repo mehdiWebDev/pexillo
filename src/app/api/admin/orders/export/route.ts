@@ -3,6 +3,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 
+interface ShippingAddress {
+  firstName?: string;
+  lastName?: string;
+  [key: string]: unknown;
+}
+
+interface OrderExport {
+  id: string;
+  order_number: string;
+  created_at: string;
+  status: string;
+  payment_status: string;
+  total_amount: number;
+  user_id: string | null;
+  guest_email: string | null;
+  shipping_address: ShippingAddress | string;
+  tracking_number: string | null;
+}
+
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
 const supabaseAdmin = createClient(
@@ -99,7 +118,7 @@ export async function GET(req: NextRequest) {
 
     // Get customer details for each order
     const ordersWithDetails = await Promise.all(
-      (orders || []).map(async (order: any) => {
+      (orders || []).map(async (order: OrderExport) => {
         let customerName = '';
         let customerEmail = '';
 
@@ -116,7 +135,9 @@ export async function GET(req: NextRequest) {
           }
         } else {
           customerEmail = order.guest_email || '';
-          const shippingAddress = order.shipping_address || {};
+          const shippingAddress = typeof order.shipping_address === 'string'
+            ? JSON.parse(order.shipping_address)
+            : order.shipping_address || {};
           customerName = `${shippingAddress.firstName || ''} ${shippingAddress.lastName || ''}`.trim();
         }
 
@@ -170,10 +191,11 @@ export async function GET(req: NextRequest) {
         'Content-Disposition': `attachment; filename="orders-export-${new Date().toISOString().split('T')[0]}.csv"`
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error in export orders API:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

@@ -1,22 +1,88 @@
 // app/[locale]/checkout/components/ShippingForm.tsx
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { UseFormReturn } from 'react-hook-form';
-import { Mail, Phone, Home, CreditCard, Search } from 'lucide-react';
+import { Mail, Home, CreditCard, Search } from 'lucide-react';
 import { CANADIAN_PROVINCES } from '@/src/data/canadianProvinces';
 
 // TypeScript declarations for Google Maps
+interface GoogleMapsPlacePrediction {
+  toPlace: () => GoogleMapsPlace;
+}
+
+interface GoogleMapsPlace {
+  id: string;
+  formattedAddress: string;
+  displayName: string;
+  location?: {
+    lat: () => number;
+    lng: () => number;
+  };
+  addressComponents?: Array<{
+    types: string[];
+    longText: string;
+    shortText: string;
+  }>;
+  fetchFields: (options: { fields: string[] }) => Promise<void>;
+}
+
+interface GoogleGeocodeResult {
+  address_components: Array<{
+    types: string[];
+    long_name: string;
+    short_name: string;
+  }>;
+}
+
 declare global {
   interface Window {
-    google: any;
+    google: {
+      maps: {
+        importLibrary: (library: string) => Promise<void>;
+        Geocoder: new () => {
+          geocode: (
+            request: { location: { lat: number; lng: number }; region: string },
+            callback: (results: GoogleGeocodeResult[] | null, status: string) => void
+          ) => void;
+        };
+      };
+    };
     initMap?: () => void;
   }
 }
 
+interface CheckoutFormData {
+  email: string;
+  phone: string;
+  shipping: {
+    firstName: string;
+    lastName: string;
+    address: string;
+    apartment?: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  };
+  sameAsShipping: boolean;
+  billing?: {
+    firstName?: string;
+    lastName?: string;
+    address?: string;
+    apartment?: string;
+    city?: string;
+    state?: string;
+    postalCode?: string;
+    country?: string;
+  };
+  createAccount: boolean;
+  password?: string;
+}
+
 interface ShippingFormProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<CheckoutFormData>;
   onAddressChange: (address: { state: string; country: string }) => void;
   isAuth: boolean;
 }
@@ -33,189 +99,13 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
     formState: { errors },
     watch,
     setValue,
-    getValues,
   } = form;
 
   const sameAsShipping = watch('sameAsShipping');
   const createAccount = watch('createAccount');
 
-  // Load Google Maps Script (if not already loaded)
-  useEffect(() => {
-    let mounted = true;
-
-    const loadScript = async () => {
-      try {
-        // Check if script already exists
-        const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
-
-        if (!existingScript) {
-          // Create script with loading=async as Google recommends
-          const script = document.createElement('script');
-          script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&loading=async&libraries=places&v=weekly&callback=initMap`;
-          script.async = true;
-          script.defer = true;
-
-          // Create callback
-          window.initMap = () => {
-            console.log('Google Maps loaded via callback');
-            if (mounted) {
-              setIsLoading(false);
-            }
-          };
-
-          script.onerror = () => {
-            if (mounted) {
-              setError('Failed to load Google Maps');
-              setIsLoading(false);
-            }
-          };
-
-          document.head.appendChild(script);
-        } else {
-          // Script already exists
-          if (window.google?.maps) {
-            if (mounted) {
-              setIsLoading(false);
-            }
-          } else {
-            // Wait for callback
-            window.initMap = () => {
-              console.log('Google Maps loaded via existing script');
-              if (mounted) {
-                setIsLoading(false);
-              }
-            };
-          }
-        }
-      } catch (err) {
-        console.error('Error loading Google Places:', err);
-        if (mounted) {
-          setError('Failed to initialize Google Places');
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadScript();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  // Initialize Shipping Address Autocomplete
-  useEffect(() => {
-    if (isLoading || shippingAutocompleteInitialized.current) return;
-
-    const initShippingAutocomplete = async () => {
-      try {
-        // Import Places library
-        await window.google.maps.importLibrary('places');
-
-        // Query the shipping autocomplete element
-        const placeAutocomplete = document.querySelector(
-          '#shipping-place-autocomplete'
-        ) as any;
-
-        if (!placeAutocomplete) {
-          console.error('Shipping place autocomplete element not found');
-          return;
-        }
-
-        // Set region codes to CANADA ONLY
-        placeAutocomplete.includedRegionCodes = ['CA'];
-
-        // Apply custom styling
-        if (!document.getElementById('gmp-autocomplete-styles')) {
-          const style = document.createElement('style');
-          style.id = 'gmp-autocomplete-styles';
-          style.textContent = `
-            gmp-place-autocomplete {
-              width: 100%;
-              --gmpx-color-surface: #ffffff;
-              --gmpx-color-on-surface: #1f2937;
-              --gmpx-color-on-surface-variant: #6b7280;
-              --gmpx-color-primary: #dc2626;
-              --gmpx-color-on-primary: #ffffff;
-              --gmpx-color-outline: #d1d5db;
-              --gmpx-color-surface-variant: #f9fafb;
-              --gmpx-font-family-base: inherit;
-              --gmpx-font-size-base: 0.875rem;
-              --gmpx-border-radius: 0.5rem;
-            }
-            gmp-place-autocomplete::part(input) {
-              padding: 0.5rem 0.75rem;
-              border: 1px solid #d1d5db;
-              border-radius: 0.5rem;
-            }
-            gmp-place-autocomplete::part(input):focus {
-              outline: none;
-              border-color: #dc2626;
-              box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-            }
-          `;
-          document.head.appendChild(style);
-        }
-
-        // Handle the gmp-select event for shipping
-        placeAutocomplete.addEventListener('gmp-select', async ({ placePrediction }: any) => {
-          await fillInAddress(placePrediction, 'shipping');
-        });
-
-        shippingAutocompleteInitialized.current = true;
-        console.log('✅ Shipping PlaceAutocomplete initialized successfully (Canada only)');
-
-      } catch (error) {
-        console.error('Failed to initialize Shipping PlaceAutocomplete:', error);
-        setError('Failed to initialize address autocomplete');
-      }
-    };
-
-    initShippingAutocomplete();
-
-  }, [isLoading, setValue, onAddressChange]);
-
-  // Initialize Billing Address Autocomplete
-  useEffect(() => {
-    if (isLoading || billingAutocompleteInitialized.current || sameAsShipping) return;
-
-    const initBillingAutocomplete = async () => {
-      try {
-        // Import Places library
-        await window.google.maps.importLibrary('places');
-
-        // Query the billing autocomplete element
-        const placeAutocomplete = document.querySelector(
-          '#billing-place-autocomplete'
-        ) as any;
-
-        if (!placeAutocomplete) {
-          console.error('Billing place autocomplete element not found');
-          return;
-        }
-
-        // Set region codes to CANADA ONLY
-        placeAutocomplete.includedRegionCodes = ['CA'];
-
-        // Handle the gmp-select event for billing
-        placeAutocomplete.addEventListener('gmp-select', async ({ placePrediction }: any) => {
-          await fillInAddress(placePrediction, 'billing');
-        });
-
-        billingAutocompleteInitialized.current = true;
-        console.log('✅ Billing PlaceAutocomplete initialized successfully (Canada only)');
-
-      } catch (error) {
-        console.error('Failed to initialize Billing PlaceAutocomplete:', error);
-      }
-    };
-
-    initBillingAutocomplete();
-
-  }, [isLoading, sameAsShipping, setValue]);
-
   // Function to fill in the address form fields
-  const fillInAddress = async (placePrediction: any, type: 'shipping' | 'billing') => {
+  const fillInAddress = useCallback(async (placePrediction: GoogleMapsPlacePrediction, type: 'shipping' | 'billing') => {
     try {
       // Convert prediction to place
       const place = placePrediction.toPlace();
@@ -313,13 +203,13 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
 
           console.log('Attempting reverse geocoding for more accurate postal code...');
           const geocoder = new window.google.maps.Geocoder();
-          const geocodeResult = await new Promise((resolve, reject) => {
+          const geocodeResult = await new Promise<GoogleGeocodeResult>((resolve, reject) => {
             geocoder.geocode(
               {
                 location: { lat, lng },
                 region: 'CA'
               },
-              (results: any, status: any) => {
+              (results: GoogleGeocodeResult[] | null, status: string) => {
                 if (status === 'OK' && results && results[0]) {
                   resolve(results[0]);
                 } else {
@@ -327,7 +217,7 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
                 }
               }
             );
-          }) as any;
+          });
 
           // Extract postal code from geocoding result
           let geocodedPostalCode = '';
@@ -389,7 +279,7 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
 
       // Clear the autocomplete input
       const autocompleteId = type === 'shipping' ? '#shipping-place-autocomplete' : '#billing-place-autocomplete';
-      const placeAutocomplete = document.querySelector(autocompleteId) as any;
+      const placeAutocomplete = document.querySelector(autocompleteId) as HTMLElement & { value: string };
       if (placeAutocomplete) {
         placeAutocomplete.value = '';
       }
@@ -411,7 +301,182 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
     } catch (error) {
       console.error(`Error filling ${type} address:`, error);
     }
-  };
+  }, [setValue, onAddressChange]);
+
+  // Load Google Maps Script (if not already loaded)
+  useEffect(() => {
+    let mounted = true;
+
+    const loadScript = async () => {
+      try {
+        // Check if script already exists
+        const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+
+        if (!existingScript) {
+          // Create script with loading=async as Google recommends
+          const script = document.createElement('script');
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}&loading=async&libraries=places&v=weekly&callback=initMap`;
+          script.async = true;
+          script.defer = true;
+
+          // Create callback
+          window.initMap = () => {
+            console.log('Google Maps loaded via callback');
+            if (mounted) {
+              setIsLoading(false);
+            }
+          };
+
+          script.onerror = () => {
+            if (mounted) {
+              setError('Failed to load Google Maps');
+              setIsLoading(false);
+            }
+          };
+
+          document.head.appendChild(script);
+        } else {
+          // Script already exists
+          if (window.google?.maps) {
+            if (mounted) {
+              setIsLoading(false);
+            }
+          } else {
+            // Wait for callback
+            window.initMap = () => {
+              console.log('Google Maps loaded via existing script');
+              if (mounted) {
+                setIsLoading(false);
+              }
+            };
+          }
+        }
+      } catch (err) {
+        console.error('Error loading Google Places:', err);
+        if (mounted) {
+          setError('Failed to initialize Google Places');
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadScript();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Initialize Shipping Address Autocomplete
+  useEffect(() => {
+    if (isLoading || shippingAutocompleteInitialized.current) return;
+
+    const initShippingAutocomplete = async () => {
+      try {
+        // Import Places library
+        await window.google.maps.importLibrary('places');
+
+        // Query the shipping autocomplete element
+        const placeAutocomplete = document.querySelector(
+          '#shipping-place-autocomplete'
+        ) as HTMLElement & { includedRegionCodes?: string[]; addEventListener: (event: string, handler: (e: { placePrediction: GoogleMapsPlacePrediction }) => void) => void };
+
+        if (!placeAutocomplete) {
+          console.error('Shipping place autocomplete element not found');
+          return;
+        }
+
+        // Set region codes to CANADA ONLY
+        placeAutocomplete.includedRegionCodes = ['CA'];
+
+        // Apply custom styling
+        if (!document.getElementById('gmp-autocomplete-styles')) {
+          const style = document.createElement('style');
+          style.id = 'gmp-autocomplete-styles';
+          style.textContent = `
+            gmp-place-autocomplete {
+              width: 100%;
+              --gmpx-color-surface: #ffffff;
+              --gmpx-color-on-surface: #1f2937;
+              --gmpx-color-on-surface-variant: #6b7280;
+              --gmpx-color-primary: #dc2626;
+              --gmpx-color-on-primary: #ffffff;
+              --gmpx-color-outline: #d1d5db;
+              --gmpx-color-surface-variant: #f9fafb;
+              --gmpx-font-family-base: inherit;
+              --gmpx-font-size-base: 0.875rem;
+              --gmpx-border-radius: 0.5rem;
+            }
+            gmp-place-autocomplete::part(input) {
+              padding: 0.5rem 0.75rem;
+              border: 1px solid #d1d5db;
+              border-radius: 0.5rem;
+            }
+            gmp-place-autocomplete::part(input):focus {
+              outline: none;
+              border-color: #dc2626;
+              box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+            }
+          `;
+          document.head.appendChild(style);
+        }
+
+        // Handle the gmp-select event for shipping
+        placeAutocomplete.addEventListener('gmp-select', async ({ placePrediction }: { placePrediction: GoogleMapsPlacePrediction }) => {
+          await fillInAddress(placePrediction, 'shipping');
+        });
+
+        shippingAutocompleteInitialized.current = true;
+        console.log('✅ Shipping PlaceAutocomplete initialized successfully (Canada only)');
+
+      } catch (error) {
+        console.error('Failed to initialize Shipping PlaceAutocomplete:', error);
+        setError('Failed to initialize address autocomplete');
+      }
+    };
+
+    initShippingAutocomplete();
+
+  }, [isLoading, fillInAddress]);
+
+  // Initialize Billing Address Autocomplete
+  useEffect(() => {
+    if (isLoading || billingAutocompleteInitialized.current || sameAsShipping) return;
+
+    const initBillingAutocomplete = async () => {
+      try {
+        // Import Places library
+        await window.google.maps.importLibrary('places');
+
+        // Query the billing autocomplete element
+        const placeAutocomplete = document.querySelector(
+          '#billing-place-autocomplete'
+        ) as HTMLElement & { includedRegionCodes?: string[]; addEventListener: (event: string, handler: (e: { placePrediction: GoogleMapsPlacePrediction }) => void) => void };
+
+        if (!placeAutocomplete) {
+          console.error('Billing place autocomplete element not found');
+          return;
+        }
+
+        // Set region codes to CANADA ONLY
+        placeAutocomplete.includedRegionCodes = ['CA'];
+
+        // Handle the gmp-select event for billing
+        placeAutocomplete.addEventListener('gmp-select', async ({ placePrediction }: { placePrediction: GoogleMapsPlacePrediction }) => {
+          await fillInAddress(placePrediction, 'billing');
+        });
+
+        billingAutocompleteInitialized.current = true;
+        console.log('✅ Billing PlaceAutocomplete initialized successfully (Canada only)');
+
+      } catch (error) {
+        console.error('Failed to initialize Billing PlaceAutocomplete:', error);
+      }
+    };
+
+    initBillingAutocomplete();
+
+  }, [isLoading, sameAsShipping, fillInAddress]);
 
   return (
     <div className="space-y-6">

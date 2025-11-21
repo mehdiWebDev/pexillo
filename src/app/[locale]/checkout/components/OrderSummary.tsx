@@ -1,9 +1,10 @@
 // app/[locale]/checkout/components/OrderSummary.tsx
 'use client';
 
-import { useTranslations, useLocale } from 'next-intl';
-import { ChevronDown, ChevronUp, Tag, Truck } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { ChevronDown, ChevronUp, Truck } from 'lucide-react';
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface TaxBreakdown {
   gst: number;
@@ -12,8 +13,18 @@ interface TaxBreakdown {
   hst: number;
 }
 
+interface CartItem {
+  id: string;
+  product_image: string;
+  product_name: string;
+  variant_size: string;
+  variant_color: string;
+  quantity: number;
+  unit_price: number;
+}
+
 interface OrderSummaryProps {
-  items: any[];
+  items: CartItem[];
   subtotal: number;
   shipping: number;
   tax: number;
@@ -30,7 +41,6 @@ export default function OrderSummary({
   total
 }: OrderSummaryProps) {
   const t = useTranslations('checkout');
-  const locale = useLocale();
   const [showItems, setShowItems] = useState(true);
 
   return (
@@ -64,9 +74,11 @@ export default function OrderSummary({
           {items.map((item) => (
             <div key={item.id} className="flex gap-3">
               <div className="relative">
-                <img
+                <Image
                   src={item.product_image}
                   alt={item.product_name}
+                  width={64}
+                  height={80}
                   className="w-16 h-20 object-cover rounded"
                 />
                 <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">
