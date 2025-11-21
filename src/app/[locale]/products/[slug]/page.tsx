@@ -217,7 +217,7 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
   };
 
   const handleAddToCart = async () => {
-    if (!selectedVariant) {
+    if (!product || !selectedVariant) {
       toast({
         title: t('selectVariant') || 'Select options',
         description: t('selectSizeColor') || 'Please select size and color',
