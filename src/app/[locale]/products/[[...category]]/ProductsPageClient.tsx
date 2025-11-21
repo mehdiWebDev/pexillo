@@ -11,22 +11,11 @@ import ActiveFilters from '@/src/components/products/ActiveFilters';
 import { useProductFilters } from '@/src/hooks/useProductFilters';
 import { useProductsEnhanced, useFilterOptions, useCategoryInfo } from '@/src/hooks/useProductsQuery';
 import { Filter, X } from 'lucide-react';
+import type { ProductVariant } from '@/src/services/productListingService';
 
 // =============================================
 // CLIENT COMPONENT
 // =============================================
-
-interface VariantTranslation {
-  color?: string;
-  size_label?: string;
-}
-
-interface ProductVariant {
-  id: string;
-  color: string;
-  size: string;
-  translations?: Record<string, VariantTranslation>;
-}
 
 interface ProductsPageClientProps {
   categorySlug?: string;
