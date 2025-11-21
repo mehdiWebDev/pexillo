@@ -11,7 +11,6 @@ import { Button } from '@/src/components/ui/button';
 import {
   ShoppingCart,
   Heart,
-  ArrowLeft,
   Truck,
   RotateCcw,
   Shield,
@@ -34,6 +33,56 @@ interface ProductDetailProps {
   params: Promise<{ slug: string }>;
 }
 
+interface ProductVariant {
+  id: string;
+  color: string;
+  color_hex: string;
+  size: string;
+  size_label?: string;
+  inventory_count: number;
+  translations?: Record<string, {
+    color?: string;
+    size_label?: string;
+  }>;
+}
+
+interface ProductImage {
+  image_url: string;
+  alt_text?: string;
+}
+
+interface Category {
+  name: string;
+  slug: string;
+  translations?: Record<string, {
+    name?: string;
+  }>;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  short_description?: string;
+  description?: string;
+  material?: string;
+  care_instructions?: string;
+  badge?: string;
+  base_price: number;
+  primary_image_url: string;
+  translations?: Record<string, {
+    name?: string;
+    short_description?: string;
+    description?: string;
+    material?: string;
+    care_instructions?: string;
+    badge?: string;
+  }>;
+  variants: ProductVariant[];
+  images?: ProductImage[];
+  categories?: Category;
+}
+
 export default function ProductDetailPage({ params }: ProductDetailProps) {
   const resolvedParams = use(params);
   const router = useRouter();
@@ -43,11 +92,11 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
   const { toggleFavorite, isFavorite } = useFavorites();
   const { toast } = useToast();
 
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
-  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
@@ -85,7 +134,7 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
     };
 
     fetchProduct();
-  }, [resolvedParams.slug]);
+  }, [resolvedParams.slug, router, t, toast]);
 
   // Translate product details
   const translatedProduct = useMemo(() => {
@@ -112,7 +161,7 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
   const translatedVariants = useMemo(() => {
     if (!product?.variants || locale === 'en') return product?.variants || [];
 
-    return product.variants.map((variant: any) => {
+    return product.variants.map((variant: ProductVariant) => {
       const variantTranslations = variant.translations?.[locale] || {};
       return {
         ...variant,
@@ -123,7 +172,7 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
   }, [product, locale]);
 
   // Helper functions
-  const getAvailableColors = (variants: any[]) => {
+  const getAvailableColors = (variants: ProductVariant[]) => {
     if (!variants) return [];
     return Array.from(new Map(
       variants.map(v => [v.color, { color: v.color, hex: v.color_hex }])
@@ -133,8 +182,8 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
   const getAvailableSizes = (color: string) => {
     if (!translatedVariants) return [];
     return translatedVariants
-      .filter((v: any) => v.color === color)
-      .map((v: any) => ({
+      .filter((v: ProductVariant) => v.color === color)
+      .map((v: ProductVariant) => ({
         size: v.size,
         size_label: v.size_label || v.size,
         id: v.id,
@@ -145,7 +194,7 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
   // Update selected variant when color/size changes
   useEffect(() => {
     if (selectedColor && selectedSize && translatedVariants) {
-      const variant = translatedVariants.find((v: any) =>
+      const variant = translatedVariants.find((v: ProductVariant) =>
         v.color === selectedColor && v.size === selectedSize
       );
       setSelectedVariant(variant || null);

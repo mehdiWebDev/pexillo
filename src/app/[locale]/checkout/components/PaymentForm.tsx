@@ -75,7 +75,6 @@ interface PaymentFormProps {
 
 export default function PaymentForm({
   form,
-  clientSecret: _clientSecret,
   total,
   tax,
   shipping,

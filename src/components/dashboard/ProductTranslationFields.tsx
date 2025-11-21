@@ -1,7 +1,7 @@
 // src/components/dashboard/ProductTranslationFields.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/src/components/ui/card';
 import { Input } from '@/src/components/ui/input';
 import { Textarea } from '@/src/components/ui/textarea';
@@ -45,6 +45,40 @@ interface ProductTranslationFieldsProps {
   variants?: Variant[];
 }
 
+interface ProductTranslation {
+  name: string;
+  short_description: string;
+  material: string;
+  care_instructions: string;
+  badge: string;
+  tags: string[];
+}
+
+interface RichTranslation {
+  description: string;
+  meta_title: string;
+  meta_description: string;
+}
+
+interface VariantTranslation {
+  color: string;
+  size_label: string;
+}
+
+interface ProductTranslationsState {
+  fr: ProductTranslation;
+}
+
+interface RichTranslationsState {
+  fr: RichTranslation;
+}
+
+interface VariantTranslationsState {
+  [variantId: string]: {
+    fr: VariantTranslation;
+  };
+}
+
 export default function ProductTranslationFields({
   productId,
   productData,
@@ -57,7 +91,7 @@ export default function ProductTranslationFields({
   const [saving, setSaving] = useState(false);
 
   // Product translations state
-  const [productTranslations, setProductTranslations] = useState<any>({
+  const [productTranslations, setProductTranslations] = useState<ProductTranslationsState>({
     fr: {
       name: '',
       short_description: '',
@@ -69,7 +103,7 @@ export default function ProductTranslationFields({
   });
 
   // Rich content translations state
-  const [richTranslations, setRichTranslations] = useState<any>({
+  const [richTranslations, setRichTranslations] = useState<RichTranslationsState>({
     fr: {
       description: '',
       meta_title: '',
@@ -78,17 +112,10 @@ export default function ProductTranslationFields({
   });
 
   // Variant translations state
-  const [variantTranslations, setVariantTranslations] = useState<any>({});
+  const [variantTranslations, setVariantTranslations] = useState<VariantTranslationsState>({});
   const [tagInput, setTagInput] = useState('');
 
-  // Load existing translations
-  useEffect(() => {
-    if (productId && productId !== 'new') {
-      loadTranslations();
-    }
-  }, [productId]);
-
-  const loadTranslations = async () => {
+  const loadTranslations = useCallback(async () => {
     setLoading(true);
     try {
       // Load product JSONB translations
@@ -99,12 +126,12 @@ export default function ProductTranslationFields({
         .single();
 
       if (product?.translations?.fr) {
-        setProductTranslations({
+        setProductTranslations((prev) => ({
           fr: {
-            ...productTranslations.fr,
+            ...prev.fr,
             ...product.translations.fr
           }
-        });
+        }));
       }
 
       // Load rich content from translations table
@@ -116,9 +143,11 @@ export default function ProductTranslationFields({
         .eq('language_code', 'fr');
 
       if (richContent) {
-        const richData: any = { fr: {} };
+        const richData: RichTranslationsState = { fr: { description: '', meta_title: '', meta_description: '' } };
         richContent.forEach((item) => {
-          richData.fr[item.field_name] = item.translated_text;
+          if (item.field_name in richData.fr) {
+            richData.fr[item.field_name as keyof RichTranslation] = item.translated_text;
+          }
         });
         setRichTranslations(richData);
       }
@@ -132,7 +161,7 @@ export default function ProductTranslationFields({
           .in('id', savedVariants.map(v => v.id!));
 
         if (variantsData) {
-          const varTranslations: any = {};
+          const varTranslations: VariantTranslationsState = {};
           variantsData.forEach((variant) => {
             if (variant.translations?.fr) {
               varTranslations[variant.id] = { fr: variant.translations.fr };
@@ -151,10 +180,17 @@ export default function ProductTranslationFields({
     } finally {
       setLoading(false);
     }
-  };
+  }, [productId, supabase, variants, toast]);
+
+  // Load existing translations
+  useEffect(() => {
+    if (productId && productId !== 'new') {
+      loadTranslations();
+    }
+  }, [productId, loadTranslations]);
 
   const handleProductFieldChange = (field: string, value: string | string[]) => {
-    setProductTranslations((prev: any) => ({
+    setProductTranslations((prev) => ({
       ...prev,
       fr: {
         ...prev.fr,
@@ -164,7 +200,7 @@ export default function ProductTranslationFields({
   };
 
   const handleRichFieldChange = (field: string, value: string) => {
-    setRichTranslations((prev: any) => ({
+    setRichTranslations((prev) => ({
       ...prev,
       fr: {
         ...prev.fr,
@@ -174,11 +210,11 @@ export default function ProductTranslationFields({
   };
 
   const handleVariantFieldChange = (variantId: string, field: string, value: string) => {
-    setVariantTranslations((prev: any) => ({
+    setVariantTranslations((prev) => ({
       ...prev,
       [variantId]: {
         fr: {
-          ...(prev[variantId]?.fr || {}),
+          ...(prev[variantId]?.fr || { color: '', size_label: '' }),
           [field]: value
         }
       }
@@ -298,11 +334,12 @@ export default function ProductTranslationFields({
 
       // Reload translations to confirm save
       loadTranslations();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving translations:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save translations';
       toast({
         title: 'Error',
-        description: error.message || 'Failed to save translations',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {

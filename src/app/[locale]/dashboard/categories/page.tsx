@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { 
   Plus, 
   Search, 
@@ -34,7 +34,7 @@ import {
 import { Badge } from '@/src/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/src/components/ui/card';
 import { Switch } from '@/src/components/ui/switch';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/src/hooks/use-toast';
 
@@ -75,7 +75,6 @@ async function fetchCategories() {
 }
 
 export default function CategoriesPage() {
-  const t = useTranslations('dashboard.categories');
   const router = useRouter();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -114,10 +113,11 @@ export default function CategoriesPage() {
       });
 
       queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete category';
       toast({
         title: 'Error',
-        description: error.message || 'Failed to delete category',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
@@ -140,10 +140,11 @@ export default function CategoriesPage() {
       });
 
       queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update category';
       toast({
         title: 'Error',
-        description: error.message || 'Failed to update category',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -186,7 +187,7 @@ export default function CategoriesPage() {
         title: 'Success',
         description: 'Sort order updated',
       });
-    } catch (error: any) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to update sort order',
@@ -313,11 +314,13 @@ export default function CategoriesPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center overflow-hidden">
                           {category.image_url ? (
-                            <img
+                            <Image
                               src={category.image_url}
                               alt={category.name}
+                              width={64}
+                              height={64}
                               className="w-full h-full object-cover rounded-md"
                             />
                           ) : (

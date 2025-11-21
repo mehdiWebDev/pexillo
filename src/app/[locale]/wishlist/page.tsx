@@ -5,10 +5,27 @@ import { useState, useEffect, useMemo } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/src/store';
-import { Heart, Trash2, ShoppingCart, AlertCircle } from 'lucide-react';
+import { Heart, AlertCircle } from 'lucide-react';
 import ProductCard from '@/src/components/product-card';
 import { useFavorites } from '@/src/hooks/useFavorites';
 import { Link } from '@/src/i18n/routing';
+
+interface ProductVariant {
+  id: string;
+  color: string;
+  size: string;
+  translations?: Record<string, {
+    color?: string;
+    size_label?: string;
+  }>;
+}
+
+interface ProductImage {
+  id: string;
+  image_url: string;
+  alt_text?: string;
+  is_primary?: boolean;
+}
 
 interface WishlistProduct {
   id: string;
@@ -23,9 +40,13 @@ interface WishlistProduct {
   discount_percentage: number;
   discounted_price: number;
   available_colors: number;
-  variants?: any[];
-  images?: any[];
-  translations?: any;
+  variants?: ProductVariant[];
+  images?: ProductImage[];
+  translations?: Record<string, {
+    name?: string;
+    short_description?: string;
+    badge?: string;
+  }>;
   wishlist_id: string;
   added_to_wishlist: string;
 }
@@ -35,7 +56,7 @@ export default function WishlistPage() {
   const tCommon = useTranslations('common');
   const locale = useLocale();
   const { isAuth, user } = useSelector((state: RootState) => state.auth);
-  const { toggleFavorite, isFavorite, favorites } = useFavorites();
+  const { toggleFavorite } = useFavorites();
 
   const [products, setProducts] = useState<WishlistProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,7 +113,7 @@ export default function WishlistPage() {
         short_description: trans.short_description || product.short_description,
         badge: trans.badge || product.badge,
         // Translate variants
-        variants: product.variants?.map((v: any) => ({
+        variants: product.variants?.map((v: ProductVariant) => ({
           ...v,
           color_translated: v.translations?.[locale]?.color || v.color,
           size_label: v.translations?.[locale]?.size_label || v.size,
