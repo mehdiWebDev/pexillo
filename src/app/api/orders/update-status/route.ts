@@ -19,7 +19,7 @@ const supabaseAdmin = createClient(
 );
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
+  apiVersion: '2025-10-29.clover',
 });
 
 interface OrderUpdateData {
@@ -38,11 +38,11 @@ interface OrderItem {
   total_price: number;
   products?: {
     name: string;
-  } | null;
+  }[] | null;
   product_variants?: {
     size: string;
     color: string;
-  } | null;
+  }[] | null;
 }
 
 export async function POST(req: NextRequest) {
@@ -289,8 +289,8 @@ async function sendTrackingEmail(orderId: string) {
     .eq('order_id', orderId);
 
   const items = (orderItems || []).map((item: OrderItem) => ({
-    name: item.products?.name || 'Product',
-    variant: `${item.product_variants?.size || ''} - ${item.product_variants?.color || ''}`.trim(),
+    name: item.products?.[0]?.name || 'Product',
+    variant: `${item.product_variants?.[0]?.size || ''} - ${item.product_variants?.[0]?.color || ''}`.trim(),
     quantity: item.quantity,
     total: item.total_price.toFixed(2)
   }));
