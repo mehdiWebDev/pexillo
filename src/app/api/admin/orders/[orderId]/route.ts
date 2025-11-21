@@ -16,13 +16,13 @@ interface OrderItem {
     id: string;
     name: string;
     slug: string;
-  } | null;
+  }[] | null;
   product_variants?: {
     id: string;
     size: string;
     color: string;
     sku: string;
-  } | null;
+  }[] | null;
 }
 
 interface OrderNote {
@@ -33,7 +33,7 @@ interface OrderNote {
   profiles?: {
     email: string;
     full_name: string | null;
-  } | null;
+  }[] | null;
 }
 
 interface OrderUpdateData {
@@ -188,9 +188,9 @@ export async function GET(
 
         return {
           id: item.id,
-          product_name: item.products?.name || 'Unknown Product',
-          variant_size: item.product_variants?.size || '',
-          variant_color: item.product_variants?.color || '',
+          product_name: item.products?.[0]?.name || 'Unknown Product',
+          variant_size: item.product_variants?.[0]?.size || '',
+          variant_color: item.product_variants?.[0]?.color || '',
           quantity: item.quantity,
           unit_price: item.unit_price,
           total_price: item.total_price,
@@ -225,8 +225,8 @@ export async function GET(
       id: note.id,
       note: note.note,
       created_at: note.created_at,
-      created_by: note.profiles
-        ? note.profiles.full_name || note.profiles.email
+      created_by: note.profiles?.[0]
+        ? note.profiles[0].full_name || note.profiles[0].email
         : 'System'
     }));
 
