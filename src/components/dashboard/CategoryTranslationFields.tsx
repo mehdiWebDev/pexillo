@@ -1,7 +1,7 @@
 // src/components/dashboard/CategoryTranslationFields.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
@@ -41,12 +41,7 @@ export default function CategoryTranslationFields({
     }
   });
 
-  // Load translations on mount
-  useEffect(() => {
-    loadTranslations();
-  }, [categoryId]);
-
-  const loadTranslations = async () => {
+  const loadTranslations = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -74,7 +69,12 @@ export default function CategoryTranslationFields({
     } finally {
       setLoading(false);
     }
-  };
+  }, [categoryId, supabase]);
+
+  // Load translations on mount
+  useEffect(() => {
+    loadTranslations();
+  }, [loadTranslations]);
 
   const handleFieldChange = (field: keyof Translations['fr'], value: string) => {
     setTranslations(prev => ({
@@ -103,11 +103,11 @@ export default function CategoryTranslationFields({
         description: 'Translations saved successfully',
       });
       
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving translations:', error);
       toast({
         title: 'Error',
-        description: error.message || 'Failed to save translations',
+        description: error instanceof Error ? error.message : 'Failed to save translations',
         variant: 'destructive',
       });
     } finally {

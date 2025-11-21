@@ -132,7 +132,7 @@ export default function SizeGuideModal({ isOpen, onClose }: SizeGuideModalProps)
             <h3 className="size-guide-modal__subtitle">Fit Information</h3>
             <ul className="size-guide-modal__fit-info">
               <li><strong>Fit:</strong> Regular fit - not too tight, not too loose</li>
-              <li><strong>Model:</strong> Model is 6'0" (183cm) and wearing size M</li>
+              <li><strong>Model:</strong> Model is 6&apos;0&quot; (183cm) and wearing size M</li>
               <li><strong>Recommendation:</strong> This item runs true to size</li>
               <li><strong>Fabric:</strong> Slight stretch for comfort</li>
             </ul>

@@ -47,11 +47,6 @@ const FeaturedProducts = () => {
     }
   };
 
-  const handleQuickView = (productId: string) => {
-    // TODO: Implement quick view modal
-    console.log('Quick view for:', productId);
-  };
-
   // Loading state
   if (isLoading) {
     return (

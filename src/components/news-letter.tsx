@@ -42,7 +42,7 @@ const NewsletterSignup = () => {
         setStatus('idle');
         setMessage('');
       }, 5000);
-    } catch (error) {
+    } catch {
       setStatus('error');
       setMessage(t('errorGeneral'));
     }

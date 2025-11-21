@@ -1,9 +1,49 @@
 // src/app/api/wishlist/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-export async function GET(request: NextRequest) {
+interface ProductVariant {
+  id: string;
+  size: string;
+  color: string;
+  color_hex: string;
+  inventory_count: number;
+  is_active: boolean;
+  translations: Record<string, unknown>;
+}
+
+interface ProductImage {
+  id: string;
+  image_url: string;
+  alt_text: string;
+  is_primary: boolean;
+  variant_id: string | null;
+  view_type: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  short_description: string;
+  base_price: number;
+  badge: string | null;
+  primary_image_url: string;
+  is_active: boolean;
+  translations: Record<string, unknown>;
+  product_variants?: ProductVariant[];
+  product_images?: ProductImage[];
+}
+
+interface WishlistItem {
+  id: string;
+  created_at: string;
+  product_id: string;
+  products: Product;
+}
+
+export async function GET() {
   const cookieStore = await cookies();
 
   const supabase = createServerClient(
@@ -88,16 +128,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform the data to match the product listing format
-    const products = wishlistItems?.map((item: any) => {
+    const products = wishlistItems?.map((item: WishlistItem) => {
       const product = item.products;
 
       // Get unique colors
       const availableColors = product.product_variants
-        ? Array.from(new Set(product.product_variants.map((v: any) => v.color))).length
+        ? Array.from(new Set(product.product_variants.map((v: ProductVariant) => v.color))).length
         : 0;
 
       // Check if in stock
-      const inStock = product.product_variants?.some((v: any) =>
+      const inStock = product.product_variants?.some((v: ProductVariant) =>
         v.is_active && v.inventory_count > 0
       ) || false;
 

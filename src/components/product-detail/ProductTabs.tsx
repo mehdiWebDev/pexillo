@@ -189,7 +189,7 @@ export default function ProductTabs({ description, material, careInstructions }:
                 <h4 className="product-tabs__subtitle">Fit Information</h4>
                 <ul className="product-tabs__list">
                   <li><strong>Fit:</strong> Regular fit</li>
-                  <li><strong>Model:</strong> Model is 6'0" and wearing size M</li>
+                  <li><strong>Model:</strong> Model is 6&apos;0&quot; and wearing size M</li>
                   <li><strong>Recommendation:</strong> True to size</li>
                 </ul>
               </div>
@@ -227,7 +227,7 @@ export default function ProductTabs({ description, material, careInstructions }:
 
               <div className="product-tabs__section">
                 <h4 className="product-tabs__subtitle">Order Tracking</h4>
-                <p>You'll receive a tracking number via email once your order ships. Track your package in real-time from our warehouse to your door.</p>
+                <p>You&apos;ll receive a tracking number via email once your order ships. Track your package in real-time from our warehouse to your door.</p>
               </div>
             </div>
           </div>

@@ -8,11 +8,17 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { clearUser } from "@/src/store/slices/authSlice";
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslations } from 'next-intl';
 
+interface UserProfile {
+    id: string;
+    email?: string;
+    [key: string]: unknown;
+}
 
 interface ProfileDropdownProps {
-    user: any;
+    user: UserProfile;
 }
 
 export function Profile({ user }: ProfileDropdownProps) {
@@ -64,9 +70,11 @@ export function Profile({ user }: ProfileDropdownProps) {
     ) : (
         <div className="profile-icon profile-icon--image">
             <div className="profile-icon__avatar">
-                <img
+                <Image
                     src={profile?.avatar_url || ""}
                     alt={profile?.full_name || "User avatar"}
+                    width={40}
+                    height={40}
                     className="profile-icon__image"
                 />
             </div>
@@ -90,9 +98,11 @@ export function Profile({ user }: ProfileDropdownProps) {
                     <div className="profile-dropdown__header">
                         <div className="profile-dropdown__user-info">
                             {profile?.avatar_url ? (
-                                <img
+                                <Image
                                     src={profile.avatar_url}
                                     alt={profile?.full_name || "User"}
+                                    width={32}
+                                    height={32}
                                     className="profile-dropdown__avatar"
                                 />
                             ) : (

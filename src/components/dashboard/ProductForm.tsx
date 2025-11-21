@@ -1,12 +1,13 @@
 // src/components/dashboard/ProductForm.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import Image from 'next/image';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Save,
@@ -88,6 +89,45 @@ interface ProductImage {
   sort_order: number;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  is_active: boolean;
+  sort_order: number;
+}
+
+interface ProductData {
+  id: string;
+  name: string;
+  slug: string;
+  short_description?: string | null;
+  description?: string | null;
+  base_price: number;
+  category_id: string;
+  badge?: string | null;
+  sku?: string | null;
+  material?: string | null;
+  care_instructions?: string | null;
+  tags?: string[] | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  dtf_compatible?: boolean;
+  is_active: boolean;
+  is_featured: boolean;
+  product_variants?: Variant[];
+  product_images?: Array<{
+    id: string;
+    image_url: string;
+    is_primary: boolean;
+    view_type: string;
+    alt_text: string;
+    display_order: number;
+    sort_order: number;
+    variant_id?: string | null;
+  }>;
+}
+
 interface ProductFormProps {
   productId?: string;
 }
@@ -101,11 +141,11 @@ export default function ProductForm({ productId }: ProductFormProps) {
 
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [images, setImages] = useState<ProductImage[]>([]);
   const [tagInput, setTagInput] = useState('');
-  const [productData, setProductData] = useState<any>(null);
+  const [productData, setProductData] = useState<ProductData | null>(null);
   const isEditing = !!productId;
   
   const form = useForm<z.infer<typeof productSchema>>({
@@ -137,19 +177,13 @@ export default function ProductForm({ productId }: ProductFormProps) {
         .select('*')
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
-      
+
       if (data) setCategories(data);
     }
     loadCategories();
-  }, []);
+  }, [supabase]);
 
-  useEffect(() => {
-    if (productId) {
-      loadProduct();
-    }
-  }, [productId]);
-
-  const loadProduct = async () => {
+  const loadProduct = useCallback(async () => {
     if (!productId) return;
     
     const { data: product } = await supabase
@@ -185,9 +219,9 @@ export default function ProductForm({ productId }: ProductFormProps) {
       });
       
       setVariants(product.product_variants || []);
-      
-      const loadedImages = product.product_images?.map((img: any) => {
-        const variantIndex = product.product_variants?.findIndex((v: any) => v.id === img.variant_id);
+
+      const loadedImages = product.product_images?.map((img) => {
+        const variantIndex = product.product_variants?.findIndex((v) => v.id === img.variant_id);
         return {
           ...img,
           url: img.image_url,
@@ -196,10 +230,16 @@ export default function ProductForm({ productId }: ProductFormProps) {
           sort_order: img.sort_order || 0,
         };
       }) || [];
-      
+
       setImages(loadedImages);
     }
-  };
+  }, [productId, supabase, form]);
+
+  useEffect(() => {
+    if (productId) {
+      loadProduct();
+    }
+  }, [productId, loadProduct]);
 
   const generateSlug = (name: string) => {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -256,7 +296,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
     setVariants(variants.filter((_, i) => i !== index));
   };
 
-  const updateVariant = (index: number, field: keyof Variant, value: any) => {
+  const updateVariant = (index: number, field: keyof Variant, value: string | number | boolean) => {
     const updated = [...variants];
     updated[index] = { ...updated[index], [field]: value };
     
@@ -336,17 +376,17 @@ export default function ProductForm({ productId }: ProductFormProps) {
   const uploadImageToStorage = async (file: File, productId: string): Promise<string> => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${productId}/${Math.random()}.${fileExt}`;
-    
-    const { data, error } = await supabase.storage
+
+    const { error } = await supabase.storage
       .from('product-images')
       .upload(fileName, file);
 
     if (error) throw error;
-    
+
     const { data: { publicUrl } } = supabase.storage
       .from('product-images')
       .getPublicUrl(fileName);
-    
+
     return publicUrl;
   };
 
@@ -354,7 +394,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
     setLoading(true);
 
     try {
-      const submitData: any = {
+      const submitData = {
         name: data.name,
         slug: data.slug,
         short_description: data.short_description || null,
@@ -481,12 +521,13 @@ export default function ProductForm({ productId }: ProductFormProps) {
       setTimeout(() => {
         router.push('/dashboard/products');
       }, 500);
-      
-    } catch (error: any) {
+
+    } catch (error) {
       console.error('Error saving product:', error);
+      const errorMessage = error instanceof Error ? error.message : t('errorSaving');
       toast({
         title: t('error'),
-        description: error.message || t('errorSaving'),
+        description: errorMessage,
         variant: 'destructive',
       });
       setLoading(false);
@@ -952,9 +993,11 @@ export default function ProductForm({ productId }: ProductFormProps) {
                       <Card key={index} className="overflow-hidden">
                         <div className="aspect-square relative">
                           {image.url ? (
-                            <img
+                            <Image
                               src={image.url}
                               alt={image.alt_text || `Product image ${index + 1}`}
+                              width={400}
+                              height={400}
                               className="w-full h-full object-cover"
                             />
                           ) : (

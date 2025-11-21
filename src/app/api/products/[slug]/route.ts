@@ -75,10 +75,10 @@ export async function GET(
         images: images || [],
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching product:', error);
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }

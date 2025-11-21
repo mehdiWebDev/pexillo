@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight, X, ZoomIn, Check } from 'lucide-react';
 import { Badge } from '@/src/components/ui/badge';
 
@@ -69,10 +70,13 @@ export default function ImageGallery({ images, productName, badge }: ImageGaller
             tabIndex={0}
             aria-label="Click to zoom"
           >
-            <img
+            <Image
               src={images[currentIndex]?.image_url}
               alt={images[currentIndex]?.alt_text || productName}
+              width={800}
+              height={800}
               className="image-gallery__main-image"
+              priority
             />
 
             {/* Badge */}
@@ -136,9 +140,11 @@ export default function ImageGallery({ images, productName, badge }: ImageGaller
                   }`}
                   aria-label={`View image ${index + 1}`}
                 >
-                  <img
+                  <Image
                     src={image.image_url}
                     alt={image.alt_text || `${productName} view ${index + 1}`}
+                    width={80}
+                    height={80}
                   />
                   {index === currentIndex && (
                     <div className="image-gallery__thumbnail-check">
@@ -173,9 +179,11 @@ export default function ImageGallery({ images, productName, badge }: ImageGaller
             </button>
 
             {/* Lightbox Image */}
-            <img
+            <Image
               src={images[lightboxIndex]?.image_url}
               alt={images[lightboxIndex]?.alt_text || productName}
+              width={1200}
+              height={1200}
               className="image-gallery__lightbox-image"
             />
 

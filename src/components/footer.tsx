@@ -8,8 +8,6 @@ import {
   Mail,
   Instagram,
   Twitter,
-  Github,
-  MapPin,
   Clock,
   Shield,
   Package

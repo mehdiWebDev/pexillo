@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { ShoppingCart, Heart, Zap, ArrowRight, Palette, Ruler, AlertCircle, Check } from 'lucide-react';
 import { useCart } from '@/src/hooks/useCart';
 import { toast } from '@/src/hooks/use-toast';
@@ -14,7 +15,10 @@ export interface ProductVariant {
   color: string;
   color_hex: string;
   inventory_count: number;
-  translations?: any;
+  translations?: Record<string, {
+    color?: string;
+    size_label?: string;
+  }>;
 }
 
 // Product image interface
@@ -47,7 +51,15 @@ export interface ProductCardData {
   images?: ProductImage[];
   product_type?: 'apparel' | 'accessory' | 'other';
   has_multiple_views?: boolean;
-  translations?: any;
+  translations?: Record<string, {
+    name?: string;
+    short_description?: string;
+    description?: string;
+    material?: string;
+    care_instructions?: string;
+    badge?: string;
+    tags?: string[];
+  }>;
 }
 
 interface ProductCardProps {
@@ -141,7 +153,7 @@ export default function ProductCard({
     } else if (availableSizes.length === 0) {
       setSelectedSize('');
     }
-  }, [selectedColor]);
+  }, [selectedColor, availableSizes, selectedSize]);
 
   // Update selected variant when color or size changes
   useEffect(() => {
@@ -369,9 +381,11 @@ export default function ProductCard({
         onMouseEnter={() => canFlip && setShowBackView(true)}
         onMouseLeave={() => canFlip && setShowBackView(false)}
       >
-        <img
+        <Image
           src={getCurrentImage()}
           alt={`${product.name} - ${showBackView ? 'Back' : 'Front'} view`}
+          width={400}
+          height={500}
           className="product-card__image"
           onError={() => setImageError(true)}
         />

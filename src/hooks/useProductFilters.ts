@@ -94,8 +94,8 @@ export function useProductFilters() {
       const params = new URLSearchParams(searchParams.toString());
 
       // Helper function to set or delete param
-      const setOrDelete = (key: string, value: any) => {
-        if (value === undefined || value === false || value === '' || 
+      const setOrDelete = (key: string, value: string | number | boolean | string[] | undefined) => {
+        if (value === undefined || value === false || value === '' ||
             (Array.isArray(value) && value.length === 0)) {
           params.delete(key);
         } else if (Array.isArray(value)) {

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { resetCart } from "@/src/store/slices/cartSlice";
 
-export function LogoutButton({ user }: { user: any }) {
+export function LogoutButton() {
   const router = useRouter();
   const dispatch = useDispatch();
 

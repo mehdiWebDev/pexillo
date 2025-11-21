@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { usePathname } from '@/src/i18n/routing';
 import { Link } from '@/src/i18n/routing';
 import { cn } from "@/lib/utils";
+import Image from 'next/image';
 import { ThemeSwitcher } from "@/src/components/theme-switcher";
 import { User, Settings, LogOut, UserCircle, Heart } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
@@ -168,9 +169,11 @@ export function ClientNavigationMenu({
             <div className="mobile-menu__user-section">
               <div className="mobile-menu__user-info">
                 {profile?.avatar_url ? (
-                  <img
+                  <Image
                     src={profile?.avatar_url}
                     alt={profile?.full_name || t('user')}
+                    width={48}
+                    height={48}
                     className="mobile-menu__user-avatar"
                   />
                 ) : (

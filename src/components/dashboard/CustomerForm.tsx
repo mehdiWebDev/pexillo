@@ -1,13 +1,13 @@
 // src/components/dashboard/CustomerForm.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Save, Loader2, User, Mail, Phone, Calendar, Shield } from 'lucide-react';
+import { Save, Loader2, User, Shield } from 'lucide-react';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
 import {
@@ -89,42 +89,42 @@ export default function CustomerForm({ customerId }: CustomerFormProps) {
   });
 
   // Fetch customer data
+  const fetchCustomer = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/admin/customers/${customerId}`);
+
+      if (!response.ok) throw new Error('Failed to fetch customer');
+
+      const data = await response.json();
+      setCustomer(data.customer);
+      setOrders(data.orders || []);
+
+      // Populate form with customer data
+      form.reset({
+        full_name: data.customer.full_name || '',
+        phone: data.customer.phone || '',
+        date_of_birth: data.customer.date_of_birth || '',
+        gender: data.customer.gender || null,
+        marketing_consent: data.customer.marketing_consent || false,
+        preferred_language: data.customer.preferred_language || 'en',
+        is_admin: data.customer.is_admin || false,
+      });
+    } catch (error) {
+      console.error('Error fetching customer:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load customer data',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [customerId, form, toast]);
+
   useEffect(() => {
-    const fetchCustomer = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/admin/customers/${customerId}`);
-
-        if (!response.ok) throw new Error('Failed to fetch customer');
-
-        const data = await response.json();
-        setCustomer(data.customer);
-        setOrders(data.orders || []);
-
-        // Populate form with customer data
-        form.reset({
-          full_name: data.customer.full_name || '',
-          phone: data.customer.phone || '',
-          date_of_birth: data.customer.date_of_birth || '',
-          gender: data.customer.gender || null,
-          marketing_consent: data.customer.marketing_consent || false,
-          preferred_language: data.customer.preferred_language || 'en',
-          is_admin: data.customer.is_admin || false,
-        });
-      } catch (error) {
-        console.error('Error fetching customer:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load customer data',
-          variant: 'destructive',
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCustomer();
-  }, [customerId]);
+  }, [fetchCustomer]);
 
   const onSubmit = async (values: z.infer<typeof customerSchema>) => {
     try {

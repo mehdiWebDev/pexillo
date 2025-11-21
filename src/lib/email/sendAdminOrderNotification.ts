@@ -1,6 +1,23 @@
 // lib/email/sendAdminOrderNotification.ts
 import { createClient } from '@supabase/supabase-js';
 
+interface SettingValue {
+  email?: string;
+}
+
+interface OrderItem {
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  products: {
+    name: string;
+  } | null;
+  product_variants: {
+    size: string;
+    color: string;
+  } | null;
+}
+
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
 const supabaseAdmin = createClient(
@@ -34,7 +51,7 @@ async function getAdminNotificationEmail(): Promise<string | null> {
 
     // setting_value is JSONB, extract the email
     const email = typeof data.setting_value === 'object'
-      ? (data.setting_value as any).email
+      ? (data.setting_value as SettingValue).email
       : data.setting_value;
 
     return email || process.env.MAIL_TO_ME || null;
@@ -81,7 +98,7 @@ export async function sendAdminOrderNotification(orderId: string): Promise<void>
     : order.shipping_address;
 
   // Get customer info
-  let customerEmail = shippingAddress?.email || order.guest_email || 'N/A';
+  const customerEmail = shippingAddress?.email || order.guest_email || 'N/A';
   let customerName = '';
 
   if (order.user_id) {
@@ -114,7 +131,7 @@ export async function sendAdminOrderNotification(orderId: string): Promise<void>
     `)
     .eq('order_id', orderId);
 
-  const items = (orderItems || []).map((item: any) => ({
+  const items = (orderItems || []).map((item: OrderItem) => ({
     name: item.products?.name || 'Product',
     variant: `${item.product_variants?.size || ''} - ${item.product_variants?.color || ''}`.trim().replace(/^-\s*/, ''),
     quantity: item.quantity,

@@ -12,7 +12,7 @@ class FavoritesService {
   /**
    * Get all favorites for a user
    */
-  async getFavorites(userId: string): Promise<{ data: string[] | null; error: any }> {
+  async getFavorites(userId: string): Promise<{ data: string[] | null; error: unknown }> {
     const supabase = createClient();
 
     const { data, error } = await supabase
@@ -31,7 +31,7 @@ class FavoritesService {
   /**
    * Add a product to favorites
    */
-  async addFavorite(userId: string, productId: string): Promise<{ success: boolean; error: any }> {
+  async addFavorite(userId: string, productId: string): Promise<{ success: boolean; error: unknown }> {
     const supabase = createClient();
 
     const { error } = await supabase
@@ -52,7 +52,7 @@ class FavoritesService {
   /**
    * Remove a product from favorites
    */
-  async removeFavorite(userId: string, productId: string): Promise<{ success: boolean; error: any }> {
+  async removeFavorite(userId: string, productId: string): Promise<{ success: boolean; error: unknown }> {
     const supabase = createClient();
 
     const { error } = await supabase
@@ -72,7 +72,7 @@ class FavoritesService {
   /**
    * Toggle a product in favorites (add if not present, remove if present)
    */
-  async toggleFavorite(userId: string, productId: string): Promise<{ isFavorite: boolean; error: any }> {
+  async toggleFavorite(userId: string, productId: string): Promise<{ isFavorite: boolean; error: unknown }> {
     const supabase = createClient();
 
     // Check if already in favorites
@@ -102,7 +102,7 @@ class FavoritesService {
   /**
    * Check if a product is in favorites
    */
-  async isFavorite(userId: string, productId: string): Promise<{ isFavorite: boolean; error: any }> {
+  async isFavorite(userId: string, productId: string): Promise<{ isFavorite: boolean; error: unknown }> {
     const supabase = createClient();
 
     const { data, error } = await supabase

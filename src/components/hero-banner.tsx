@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { Link } from '@/src/i18n/routing';
 import { useTranslations } from 'next-intl';
-import { ArrowRight, Sparkles, Palette, Truck, Shield, Star, Zap } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowRight, Palette, Truck, Shield, Star, Zap } from 'lucide-react';
 import { Button } from '@/src/components/ui/button';
 import Tshirt from '@/src/img/quebec-city.png';
 import QuebecCity from '@/src/img/quebec-2.png';
@@ -101,27 +102,34 @@ const HeroBanner = () => {
                     <div className="hero-banner__visual">
                         <div className="hero-banner__showcase-grid">
                             <div className="hero-banner__showcase-item hero-banner__showcase-item--main">
-                                <img
-                                    src={Tshirt.src}
+                                <Image
+                                    src={Tshirt}
                                     alt="Featured Design"
+                                    width={600}
+                                    height={600}
                                     className="hero-banner__showcase-image"
+                                    priority
                                 />
                                 <div className="hero-banner__showcase-tag">
                                     {t('showcase.featured')}
                                 </div>
                             </div>
                             <div className="hero-banner__showcase-item hero-banner__showcase-item--secondary">
-                                <img
-                                    src={QuebecCity.src}
+                                <Image
+                                    src={QuebecCity}
                                     alt="T-Shirt Design"
+                                    width={400}
+                                    height={400}
                                     className="hero-banner__showcase-image"
                                 />
                                 <div className="hero-banner__showcase-label">T-Shirts</div>
                             </div>
                             <div className="hero-banner__showcase-item hero-banner__showcase-item--tertiary">
-                                <img
-                                    src={Tshirt.src}
+                                <Image
+                                    src={Tshirt}
                                     alt="Hoodie Design"
+                                    width={400}
+                                    height={400}
                                     className="hero-banner__showcase-image"
                                 />
                                 <div className="hero-banner__showcase-label">Hoodies</div>
