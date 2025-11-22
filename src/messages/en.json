@@ -10,7 +10,15 @@
         "wishlist": "Wishlist",
         "user": "User",
         "toggleMenu": "Toggle mobile menu",
-        "closeMenu": "Close menu"
+        "closeMenu": "Close menu",
+        "featuredProducts": "FEATURED",
+        "featuredProductsDesc": "Discover our latest collection. Limited edition designs.",
+        "allProducts": "ALL PRODUCTS",
+        "allProductsDesc": "Browse our complete catalog",
+        "clothing": "CLOTHING",
+        "clothingDesc": "T-shirts, hoodies, and more",
+        "accessories": "ACCESSORIES",
+        "accessoriesDesc": "Complete your style"
     },
     "common": {
         "welcome": "Welcome",
@@ -205,6 +213,7 @@
         "about": "About Us",
         "privacy": "Privacy Policy",
         "terms": "Terms of Service",
+        "returns": "Returns & Exchanges",
         "securePayments": "Secure Payments",
         "fastShipping": "Fast Shipping",
         "newWeekly": "New Weekly",

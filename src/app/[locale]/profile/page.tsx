@@ -84,17 +84,24 @@ export default function ProfilePage() {
 
   if (isCheckingAuth || isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 animate-spin text-acid-lime" />
+          <span className="text-zinc-500 font-mono text-xs uppercase">{'//'}{'/'}  LOADING PROFILE</span>
+        </div>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="bg-card border border-border rounded-lg shadow-sm p-8">
-          <p className="text-lg font-medium text-foreground">
+      <div className="min-h-screen bg-black flex items-center justify-center p-4">
+        <div className="bg-zinc-900 border border-zinc-800 p-8">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            <span className="font-mono text-xs text-red-400 uppercase">ERROR</span>
+          </div>
+          <p className="text-lg font-medium text-white">
             {t('profileNotFound')}
           </p>
         </div>
@@ -103,14 +110,18 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-black py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="rounded-lg shadow-md p-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+        <div className="bg-zinc-900 border border-zinc-800 p-8">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-2 h-2 bg-acid-lime rounded-full animate-pulse"></div>
+            <span className="font-mono text-xs text-zinc-500 uppercase">{'//'}{'/'}  USER PROFILE</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-white">
             {t('title')}
           </h1>
-          <p className="mt-2 text-lg text-foreground/90">
+          <p className="mt-3 text-zinc-400 font-mono text-sm border-l-2 border-acid-lime pl-4">
             {t('description')}
           </p>
         </div>

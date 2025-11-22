@@ -115,36 +115,36 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
   ].filter(Boolean).reduce((a, b) => (a as number) + (b as number), 0);
 
   return (
-    <div className="products-page">
+    <div className="bg-black min-h-screen">
       {/* Hero Section */}
       <ProductsHero categoryInfo={categoryInfo} categorySlug={categorySlug} />
 
       {/* Main Content */}
-      <div className="products-page__container">
+      <div className="container mx-auto px-4 lg:px-8 py-8">
         {/* Mobile Filter Button */}
         <button
-          className="products-page__mobile-filter-btn"
+          className="lg:hidden flex items-center gap-2 w-full px-6 py-3 mb-6 bg-zinc-900 border border-zinc-800 text-white font-bold uppercase text-sm tracking-wider hover:border-acid-lime transition-all"
           onClick={() => setMobileFiltersOpen(true)}
         >
-          <Filter size={20} />
+          <Filter size={20} className="text-acid-lime" />
           {t('filters')}
           {hasActiveFilters && (
-            <span className="products-page__filter-badge">
+            <span className="ml-auto px-2 py-1 bg-acid-lime text-black text-xs font-bold">
               {activeFilterCount}
             </span>
           )}
         </button>
 
-        <div className="products-page__content">
+        <div className="flex gap-8">
           {/* Sidebar Filters */}
           <aside
-            className={`products-page__sidebar ${
-              mobileFiltersOpen ? 'products-page__sidebar--open' : ''
+            className={`lg:w-80 lg:block ${
+              mobileFiltersOpen ? 'fixed inset-0 z-50 bg-black p-4 overflow-y-auto' : 'hidden'
             }`}
           >
             {/* Mobile Close Button */}
             <button
-              className="products-page__sidebar-close"
+              className="lg:hidden absolute top-4 right-4 p-2 text-white hover:text-acid-lime"
               onClick={() => setMobileFiltersOpen(false)}
             >
               <X size={24} />
@@ -172,17 +172,17 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
           </aside>
 
           {/* Main Products Area */}
-          <main className="products-page__main">
+          <main className="flex-1">
             {/* Toolbar */}
-            <div className="products-page__toolbar">
+            <div className="flex items-center justify-between mb-6 pb-6 border-b border-zinc-800">
               {/* Product Count */}
-              <div className="products-page__count">
+              <div className="flex items-center gap-2">
                 {productsLoading ? (
-                  <div className="skeleton skeleton--text" style={{ width: '150px' }} />
+                  <div className="h-4 w-32 bg-zinc-900 animate-pulse"></div>
                 ) : (
-                  <p>
-                    {t('showing')} <strong>{translatedProducts.length}</strong> {t('of')}{' '}
-                    <strong>{totalCount}</strong> {t('products')}
+                  <p className="text-zinc-400 font-mono text-sm">
+                    {t('showing')} <span className="text-white font-bold">{translatedProducts.length}</span> {t('of')}{' '}
+                    <span className="text-white font-bold">{totalCount}</span> {t('products')}
                   </p>
                 )}
               </div>

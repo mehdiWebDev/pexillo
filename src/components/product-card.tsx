@@ -71,7 +71,6 @@ interface ProductCardProps {
   showColorSwitcher?: boolean;
   showSizePicker?: boolean;
   showTooltips?: boolean;
-  compactSizes?: boolean;
 }
 
 export default function ProductCard({
@@ -83,7 +82,6 @@ export default function ProductCard({
   showColorSwitcher = true,
   showSizePicker = false,
   showTooltips = false,
-  compactSizes = false,
 }: ProductCardProps) {
   const t = useTranslations('productCard');
   const router = useRouter();
@@ -223,18 +221,6 @@ export default function ProductCard({
   const displayPrice = product.has_discount ? product.discounted_price : product.base_price;
   const hasDiscount = product.has_discount && product.discount_percentage > 0;
 
-  // Badge color helper
-  const getBadgeColor = (badge: string | null) => {
-    if (!badge) return '';
-    const badgeMap = {
-      'NEW': 'badge--new',
-      'HOT': 'badge--hot',
-      'SALE': 'badge--sale',
-      'LIMITED': 'badge--limited',
-    };
-    return badgeMap[badge as keyof typeof badgeMap] || '';
-  };
-
   // Helper function to determine if a color is light
   const isLightColor = (hex: string): boolean => {
     const color = hex.replace('#', '');
@@ -346,38 +332,38 @@ export default function ProductCard({
 
   return (
     <div
-      className="product-card"
+      className="group relative bg-zinc-900 border border-zinc-800 hover:border-acid-lime transition-all duration-300 cursor-pointer overflow-hidden"
       onClick={handleCardClick}
       role="article"
       aria-label={product.name}
     >
       {/* Badge */}
       {product.badge && (
-        <div className={`product-card__badge ${getBadgeColor(product.badge)}`}>
-          <Zap size={14} />
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2 py-1 bg-acid-lime text-black text-xs font-bold uppercase">
+          <Zap size={12} />
           {product.badge}
         </div>
       )}
 
       {/* Discount Badge */}
       {hasDiscount && (
-        <div className="product-card__discount">
+        <div className="absolute top-3 right-3 z-10 px-2 py-1 bg-red-500 text-white text-xs font-bold uppercase">
           -{product.discount_percentage}%
         </div>
       )}
 
       {/* Favorite Button */}
       <button
-        className={`product-card__favorite ${isFavorite ? 'product-card__favorite--active' : ''}`}
+        className={`absolute top-3 ${product.badge ? 'right-3' : hasDiscount ? 'left-3' : 'right-3'} z-10 w-8 h-8 flex items-center justify-center bg-black/80 border border-zinc-800 hover:border-acid-lime transition-colors ${isFavorite ? 'text-acid-lime' : 'text-zinc-400'}`}
         onClick={handleFavoriteClick}
         aria-label={t('addToFavorites')}
       >
-        <Heart size={20} />
+        <Heart size={16} fill={isFavorite ? 'currentColor' : 'none'} />
       </button>
 
       {/* Image Container */}
       <div
-        className={`product-card__image-container ${isImageChanging ? 'product-card__image-container--changing' : ''}`}
+        className={`relative aspect-[3/4] overflow-hidden bg-black ${isImageChanging ? 'opacity-50' : ''}`}
         onMouseEnter={() => canFlip && setShowBackView(true)}
         onMouseLeave={() => canFlip && setShowBackView(false)}
       >
@@ -386,25 +372,30 @@ export default function ProductCard({
           alt={`${product.name} - ${showBackView ? 'Back' : 'Front'} view`}
           width={400}
           height={500}
-          className="product-card__image"
+          className="w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-500"
           onError={() => setImageError(true)}
         />
 
+        {/* Scan Line Effect */}
+        <div className="absolute inset-0 scan-line opacity-0 group-hover:opacity-100"></div>
+
         {/* View Details Link */}
-        <div className="product-card__view-details">
-          <span>{t('viewDetails')}</span>
-          <ArrowRight size={16} />
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+          <div className="flex items-center justify-between text-white">
+            <span className="font-mono text-xs uppercase">{t('viewDetails')}</span>
+            <ArrowRight size={14} className="text-acid-lime" />
+          </div>
         </div>
 
         {/* Flip indicator dots */}
         {canFlip && (
-          <div className="product-card__view-dots">
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
             <span
-              className={`product-card__view-dot ${!showBackView ? 'product-card__view-dot--active' : ''}`}
+              className={`w-1.5 h-1.5 rounded-full transition-colors ${!showBackView ? 'bg-acid-lime' : 'bg-zinc-600'}`}
               aria-label="Front view"
             />
             <span
-              className={`product-card__view-dot ${showBackView ? 'product-card__view-dot--active' : ''}`}
+              className={`w-1.5 h-1.5 rounded-full transition-colors ${showBackView ? 'bg-acid-lime' : 'bg-zinc-600'}`}
               aria-label="Back view"
             />
           </div>
@@ -412,38 +403,48 @@ export default function ProductCard({
       </div>
 
       {/* Product Info */}
-      <div className="product-card__info" onClick={(e) => e.stopPropagation()}>
-        <div className="product-card__header">
-          <span className="product-card__category">
-            {product.available_colors} {t('colorsAvailable')}
-          </span>
+      <div className="p-4 space-y-3" onClick={(e) => e.stopPropagation()}>
+        {/* Product Header */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs text-zinc-500 uppercase">
+              {product.available_colors} {t('colorsAvailable')}
+            </span>
+          </div>
 
-          <h3 className="product-card__name">{product.name}</h3>
+          <h3 className="text-white font-bold text-base uppercase tracking-tight leading-tight">
+            {product.name}
+          </h3>
 
           {product.short_description && (
-            <p className="product-card__description">
+            <p className="text-zinc-300 text-sm font-mono leading-snug line-clamp-2">
               {product.short_description}
             </p>
           )}
         </div>
 
-        {/* Modern variant selector design */}
-        <div className="product-card__variants">
+        {/* Variant Selectors */}
+        <div className="space-y-3 pt-2 border-t border-zinc-800">
           {/* Color Switcher */}
           {showColorSwitcher && availableColors.length > 0 && (
-            <div className="product-card__variants-row">
-              <span className="product-card__variants-label">
-                <Palette size={12} />
-                {t('color')}
-              </span>
-              <div className="product-card__variants-options">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Palette size={12} className="text-acid-lime" />
+                <span className="font-mono text-xs text-zinc-400 uppercase">
+                  {t('color')}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
                 {availableColors.map(({ color, hex }) => (
-                  <div key={color} className="product-card__color-wrapper">
+                  <div key={color} className="relative">
                     <button
                       className={`
-                        product-card__color 
-                        ${selectedColor === color ? 'product-card__color--active' : ''} 
-                        ${isLightColor(hex) ? 'product-card__color--light' : ''}
+                        w-8 h-8 rounded-full border-2 transition-all
+                        ${selectedColor === color
+                          ? 'border-acid-lime shadow-lg shadow-acid-lime/20 scale-110'
+                          : 'border-zinc-700 hover:border-zinc-500'
+                        }
+                        ${isLightColor(hex) ? 'shadow-inner' : ''}
                       `}
                       style={{ backgroundColor: hex }}
                       onClick={(e) => {
@@ -454,9 +455,21 @@ export default function ProductCard({
                       onMouseLeave={() => setHoveredColor(null)}
                       aria-label={color}
                       title={color}
-                    />
+                    >
+                      {selectedColor === color && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Check
+                            size={16}
+                            className={isLightColor(hex) ? 'text-black' : 'text-white'}
+                            strokeWidth={3}
+                          />
+                        </div>
+                      )}
+                    </button>
                     {showTooltips && hoveredColor === color && (
-                      <span className="product-card__color-tooltip">{color}</span>
+                      <span className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-black border border-zinc-700 text-white text-xs font-mono whitespace-nowrap z-20">
+                        {color}
+                      </span>
                     )}
                   </div>
                 ))}
@@ -466,20 +479,25 @@ export default function ProductCard({
 
           {/* Size Picker */}
           {showSizePicker && sizesWithStock.length > 0 && (
-            <div className="product-card__variants-row">
-              <span className="product-card__variants-label">
-                <Ruler size={12} />
-                {t('size')}
-              </span>
-              <div className="product-card__variants-options">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Ruler size={12} className="text-acid-lime" />
+                <span className="font-mono text-xs text-zinc-400 uppercase">
+                  {t('size')}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
                 {sizesWithStock.map(({ size, inStock, stockCount }) => (
                   <button
                     key={size}
                     className={`
-                      product-card__size 
-                      ${compactSizes ? 'product-card__size--tag' : ''} 
-                      ${selectedSize === size ? 'product-card__size--active' : ''} 
-                      ${!inStock ? 'product-card__size--out-of-stock' : ''}
+                      px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all border
+                      ${selectedSize === size
+                        ? 'bg-acid-lime text-black border-acid-lime'
+                        : inStock
+                        ? 'bg-zinc-800 text-white border-zinc-700 hover:border-acid-lime'
+                        : 'bg-zinc-900 text-zinc-600 border-zinc-800 cursor-not-allowed line-through'
+                      }
                     `}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -488,7 +506,7 @@ export default function ProductCard({
                     disabled={!inStock}
                     title={inStock ? `${stockCount} in stock` : 'Out of stock'}
                   >
-                    <span>{size}</span>
+                    {size}
                   </button>
                 ))}
               </div>
@@ -497,42 +515,48 @@ export default function ProductCard({
         </div>
 
         {/* Price and Add to Cart */}
-        <div className="product-card__footer">
-          <div className="product-card__price-wrapper">
-            <span className="product-card__price">
+        <div className="flex items-center justify-between pt-3 border-t border-zinc-800">
+          <div className="space-y-1">
+            <div className="text-2xl font-black text-white tracking-tight">
               ${displayPrice.toFixed(2)}
-            </span>
+            </div>
             {hasDiscount && (
-              <span className="product-card__original-price">
+              <div className="text-sm text-zinc-500 line-through font-mono">
                 ${product.base_price.toFixed(2)}
-              </span>
+              </div>
             )}
           </div>
 
-          {/* Add to Cart Button with inventory check */}
+          {/* Add to Cart Button */}
           <button
             className={`
-              product-card__add-to-cart 
-              ${isAddingToCart || isLoading ? 'product-card__add-to-cart--loading' : ''}
-              ${!canAddMore && selectedVariant ? 'opacity-50 cursor-not-allowed' : ''}
+              w-12 h-12 flex items-center justify-center transition-all border-2
+              ${isAddingToCart || isLoading
+                ? 'bg-zinc-800 border-zinc-700 cursor-wait'
+                : !canAddMore && selectedVariant
+                ? 'bg-green-600 border-green-600 text-white'
+                : isCurrentVariantInStock && selectedVariant
+                ? 'bg-acid-lime border-acid-lime text-black hover:bg-white hover:border-white'
+                : 'bg-zinc-800 border-zinc-700 text-zinc-500 cursor-not-allowed'
+              }
             `}
             onClick={handleAddToCart}
             disabled={isAddingToCart || isLoading || !isCurrentVariantInStock || !selectedVariant || !canAddMore}
             aria-label={t('addToCart')}
             title={
-              !selectedVariant 
+              !selectedVariant
                 ? 'Select size'
-                : !canAddMore 
+                : !canAddMore
                 ? `Maximum quantity (${currentCartQuantity}) in cart`
-                : isCurrentVariantInStock 
+                : isCurrentVariantInStock
                 ? 'Add to cart'
                 : 'Out of stock'
             }
           >
             {isAddingToCart || isLoading ? (
-              <span className="btn__loader" />
+              <div className="w-5 h-5 border-2 border-zinc-600 border-t-acid-lime rounded-full animate-spin" />
             ) : !canAddMore && selectedVariant ? (
-              <Check size={20} />
+              <Check size={20} strokeWidth={3} />
             ) : (
               <ShoppingCart size={20} />
             )}
@@ -541,19 +565,19 @@ export default function ProductCard({
 
         {/* In Cart Badge */}
         {currentCartQuantity > 0 && remainingAvailable > 0 && (
-          <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 text-xs rounded-full mt-1">
+          <div className="inline-flex items-center gap-1 px-2 py-1 bg-green-950/30 text-green-400 border border-green-800 text-xs font-mono uppercase">
             <Check size={12} />
             <span>{currentCartQuantity} {t('inCart')}</span>
           </div>
         )}
 
-        {/* Low Stock Indicator - Shows remaining available */}
+        {/* Low Stock Indicator */}
         {stockInfo && canAddMore && (
           <div className={`
-            inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium mt-2
+            inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono uppercase border
             ${stockInfo.isCritical
-              ? 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 animate-pulse'
-              : 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800'
+              ? 'bg-red-950/30 text-red-400 border-red-800 animate-pulse'
+              : 'bg-amber-950/30 text-amber-400 border-amber-800'
             }
           `}>
             {stockInfo.isCritical && (
@@ -569,7 +593,7 @@ export default function ProductCard({
 
         {/* Stock Warning */}
         {selectedVariant && !isCurrentVariantInStock && (
-          <div className="product-card__stock-warning">
+          <div className="px-3 py-2 bg-red-950/30 text-red-400 border border-red-800 text-xs font-mono uppercase text-center">
             {t('outOfStock')}
           </div>
         )}

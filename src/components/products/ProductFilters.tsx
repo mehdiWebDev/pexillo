@@ -88,17 +88,6 @@ export default function ProductFilters({
     return luma > 200;
   };
 
-  // Badge color mapping
-  const getBadgeColor = (badge: string) => {
-    switch(badge) {
-      case 'NEW': return '#10B981'; // green
-      case 'HOT': return '#EF4444'; // red
-      case 'SALE': return '#F59E0B'; // amber
-      case 'LIMITED': return '#8B5CF6'; // purple
-      default: return '#6B7280'; // gray
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="product-filters">
@@ -116,13 +105,19 @@ export default function ProductFilters({
   }
 
   return (
-    <div className="product-filters">
+    <div className="bg-black border border-zinc-800 p-6 space-y-6">
       {/* Header */}
-      <div className="product-filters__header">
-        <h3 className="product-filters__title">{t('title')}</h3>
+      <div className="flex items-center justify-between pb-4 border-b border-zinc-800">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-acid-lime rounded-full animate-pulse"></div>
+          <h3 className="text-white font-bold uppercase text-sm tracking-wider">{'//'}{'/'}  {t('title')}</h3>
+        </div>
         {hasActiveFilters && (
-          <button className="product-filters__reset" onClick={onReset}>
-            <RotateCcw size={16} />
+          <button
+            className="flex items-center gap-1 text-xs font-mono text-zinc-500 hover:text-acid-lime transition-colors uppercase"
+            onClick={onReset}
+          >
+            <RotateCcw size={12} />
             {t('reset')}
           </button>
         )}
@@ -130,24 +125,25 @@ export default function ProductFilters({
 
       {/* Categories Filter - Using translated categories */}
       {translatedCategories && translatedCategories.length > 0 && (
-        <div className="product-filters__section">
-          <div className="product-filters__section-header">
-            <FolderOpen size={16} />
-            <h4>{t('categories')}</h4>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <FolderOpen size={14} className="text-acid-lime" />
+            <h4 className="text-white font-bold uppercase text-xs tracking-wider font-mono">{t('categories')}</h4>
           </div>
 
-          <div className="category-filter">
+          <div className="space-y-2">
             {translatedCategories.map((category) => (
-              <label key={category.slug} className="checkbox-filter">
+              <label key={category.slug} className="flex items-center gap-2 cursor-pointer group">
                 <input
                   type="checkbox"
                   checked={currentFilters.categories.includes(category.slug)}
                   onChange={() => onCategoryToggle(category.slug)}
+                  className="w-4 h-4 bg-zinc-900 border-2 border-zinc-700 checked:bg-acid-lime checked:border-acid-lime focus:ring-2 focus:ring-acid-lime focus:ring-offset-0 cursor-pointer"
                 />
-                <span className="checkbox-filter__label">
-                  {category.name} 
-                  <span className="checkbox-filter__count">({category.count})</span>
+                <span className="text-zinc-200 text-sm font-mono group-hover:text-white transition-colors flex-1">
+                  {category.name}
                 </span>
+                <span className="text-zinc-500 text-xs font-mono">({category.count})</span>
               </label>
             ))}
           </div>
@@ -156,24 +152,21 @@ export default function ProductFilters({
 
       {/* Badges Filter */}
       {filterOptions && filterOptions.available_badges && filterOptions.available_badges.length > 0 && (
-        <div className="product-filters__section">
-          <div className="product-filters__section-header">
-            <Award size={16} />
-            <h4>{t('badges')}</h4>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Award size={14} className="text-acid-lime" />
+            <h4 className="text-white font-bold uppercase text-xs tracking-wider font-mono">{t('badges')}</h4>
           </div>
 
-          <div className="badge-filter">
+          <div className="flex flex-wrap gap-2">
             {filterOptions.available_badges.map((badge) => (
               <button
                 key={badge}
-                className={`badge-filter__option ${
-                  currentFilters.badges.includes(badge) ? 'badge-filter__option--active' : ''
+                className={`px-3 py-1 text-xs font-bold uppercase tracking-wider transition-all ${
+                  currentFilters.badges.includes(badge)
+                    ? 'bg-acid-lime text-black border border-acid-lime'
+                    : 'bg-zinc-900 text-zinc-200 border border-zinc-800 hover:border-acid-lime hover:text-white'
                 }`}
-                style={{
-                  '--badge-color': getBadgeColor(badge),
-                  borderColor: currentFilters.badges.includes(badge) ? getBadgeColor(badge) : undefined,
-                  backgroundColor: currentFilters.badges.includes(badge) ? `${getBadgeColor(badge)}15` : undefined
-                } as React.CSSProperties}
                 onClick={() => onBadgeToggle(badge)}
               >
                 {badge}
@@ -185,37 +178,38 @@ export default function ProductFilters({
 
       {/* Featured Filter */}
       {filterOptions && filterOptions.featured_products > 0 && (
-        <div className="product-filters__section">
-          <div className="product-filters__section-header">
-            <Star size={16} />
-            <h4>{t('featured')}</h4>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Star size={14} className="text-acid-lime" />
+            <h4 className="text-white font-bold uppercase text-xs tracking-wider font-mono">{t('featured')}</h4>
           </div>
 
-          <label className="checkbox-filter">
+          <label className="flex items-center gap-2 cursor-pointer group">
             <input
               type="checkbox"
               checked={currentFilters.featuredOnly}
               onChange={(e) => onFeaturedToggle(e.target.checked)}
+              className="w-4 h-4 bg-zinc-900 border-2 border-zinc-700 checked:bg-acid-lime checked:border-acid-lime focus:ring-2 focus:ring-acid-lime focus:ring-offset-0 cursor-pointer"
             />
-            <span className="checkbox-filter__label">
-              {t('featuredOnly')} 
-              <span className="checkbox-filter__count">({filterOptions.featured_products})</span>
+            <span className="text-zinc-200 text-sm font-mono group-hover:text-white transition-colors flex-1">
+              {t('featuredOnly')}
+              <span className="text-zinc-500 text-xs ml-1">({filterOptions.featured_products})</span>
             </span>
           </label>
         </div>
       )}
 
       {/* Price Range Filter */}
-      <div className="product-filters__section">
-        <div className="product-filters__section-header">
-          <DollarSign size={16} />
-          <h4>{t('priceRange')}</h4>
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <DollarSign size={14} className="text-acid-lime" />
+          <h4 className="text-white font-bold uppercase text-xs tracking-wider font-mono">{t('priceRange')}</h4>
         </div>
 
-        <div className="price-filter">
-          <div className="price-filter__inputs">
-            <div className="price-filter__input-group">
-              <label htmlFor="min-price">{t('min')}</label>
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <label htmlFor="min-price" className="text-zinc-500 text-xs font-mono uppercase mb-1 block">{t('min')}</label>
               <input
                 id="min-price"
                 type="number"
@@ -228,12 +222,12 @@ export default function ProductFilters({
                     handlePriceChange(value, localMaxPrice);
                   }
                 }}
-                className="price-filter__input"
+                className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 text-white font-mono text-sm focus:border-acid-lime focus:outline-none"
               />
             </div>
-            <span className="price-filter__separator">-</span>
-            <div className="price-filter__input-group">
-              <label htmlFor="max-price">{t('max')}</label>
+            <span className="text-zinc-400 pt-6">-</span>
+            <div className="flex-1">
+              <label htmlFor="max-price" className="text-zinc-500 text-xs font-mono uppercase mb-1 block">{t('max')}</label>
               <input
                 id="max-price"
                 type="number"
@@ -246,7 +240,7 @@ export default function ProductFilters({
                     handlePriceChange(localMinPrice, value);
                   }
                 }}
-                className="price-filter__input"
+                className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 text-white font-mono text-sm focus:border-acid-lime focus:outline-none"
               />
             </div>
           </div>
@@ -285,30 +279,41 @@ export default function ProductFilters({
 
       {/* Colors Filter */}
       {filterOptions && filterOptions.available_colors && filterOptions.available_colors.length > 0 && (
-        <div className="product-filters__section">
-          <div className="product-filters__section-header">
-            <Palette size={16} />
-            <h4>{t('colors')}</h4>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Palette size={14} className="text-acid-lime" />
+            <h4 className="text-white font-bold uppercase text-xs tracking-wider font-mono">{t('colors')}</h4>
           </div>
 
-          <div className="color-filter">
+          <div className="flex flex-wrap gap-2">
             {filterOptions.available_colors.map(({ color, hex, count }) => (
               <button
                 key={color}
-                className={`color-filter__swatch ${
-                  currentFilters.colors.includes(color) ? 'color-filter__swatch--active' : ''
-                } ${isLightColor(hex) ? 'color-filter__swatch--light' : ''}`}
+                className={`
+                  w-10 h-10 rounded-full border-2 transition-all relative
+                  ${currentFilters.colors.includes(color)
+                    ? 'border-acid-lime shadow-lg shadow-acid-lime/20 scale-110'
+                    : 'border-zinc-700 hover:border-zinc-500'
+                  }
+                  ${isLightColor(hex) ? 'shadow-inner' : ''}
+                `}
                 style={{ backgroundColor: hex }}
                 onClick={() => onColorToggle(color)}
                 title={`${color} (${count})`}
                 aria-label={`${color} (${count} products)`}
               >
                 {currentFilters.colors.includes(color) && (
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    className={`absolute inset-0 m-auto ${isLightColor(hex) ? 'text-black' : 'text-white'}`}
+                  >
                     <path
                       d="M10 3L4.5 8.5L2 6"
                       stroke="currentColor"
-                      strokeWidth="2"
+                      strokeWidth="2.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
@@ -322,19 +327,23 @@ export default function ProductFilters({
 
       {/* Sizes Filter */}
       {filterOptions && filterOptions.available_sizes && filterOptions.available_sizes.length > 0 && (
-        <div className="product-filters__section">
-          <div className="product-filters__section-header">
-            <Ruler size={16} />
-            <h4>{t('sizes')}</h4>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Ruler size={14} className="text-acid-lime" />
+            <h4 className="text-white font-bold uppercase text-xs tracking-wider font-mono">{t('sizes')}</h4>
           </div>
 
-          <div className="size-filter">
+          <div className="flex flex-wrap gap-2">
             {filterOptions.available_sizes.map((size) => (
               <button
                 key={size}
-                className={`size-filter__option ${
-                  currentFilters.sizes.includes(size) ? 'size-filter__option--active' : ''
-                }`}
+                className={`
+                  px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all border
+                  ${currentFilters.sizes.includes(size)
+                    ? 'bg-acid-lime text-black border-acid-lime'
+                    : 'bg-zinc-900 text-zinc-200 border-zinc-800 hover:border-acid-lime hover:text-white'
+                  }
+                `}
                 onClick={() => onSizeToggle(size)}
               >
                 {size}
@@ -345,39 +354,43 @@ export default function ProductFilters({
       )}
 
       {/* Availability Filter */}
-      <div className="product-filters__section">
-        <div className="product-filters__section-header">
-          <Package size={16} />
-          <h4>{t('availability')}</h4>
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Package size={14} className="text-acid-lime" />
+          <h4 className="text-white font-bold uppercase text-xs tracking-wider font-mono">{t('availability')}</h4>
         </div>
 
-        <label className="checkbox-filter">
+        <label className="flex items-center gap-2 cursor-pointer group">
           <input
             type="checkbox"
             checked={currentFilters.inStockOnly}
             onChange={(e) => onInStockToggle(e.target.checked)}
+            className="w-4 h-4 bg-zinc-900 border-2 border-zinc-700 checked:bg-acid-lime checked:border-acid-lime focus:ring-2 focus:ring-acid-lime focus:ring-offset-0 cursor-pointer"
           />
-          <span className="checkbox-filter__label">{t('inStockOnly')}</span>
+          <span className="text-zinc-200 text-sm font-mono group-hover:text-white transition-colors">
+            {t('inStockOnly')}
+          </span>
         </label>
       </div>
 
       {/* Sale Filter */}
       {filterOptions && filterOptions.products_on_sale > 0 && (
-        <div className="product-filters__section">
-          <div className="product-filters__section-header">
-            <Tag size={16} />
-            <h4>{t('sale')}</h4>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Tag size={14} className="text-acid-lime" />
+            <h4 className="text-white font-bold uppercase text-xs tracking-wider font-mono">{t('sale')}</h4>
           </div>
 
-          <label className="checkbox-filter">
+          <label className="flex items-center gap-2 cursor-pointer group">
             <input
               type="checkbox"
               checked={currentFilters.onSaleOnly}
               onChange={(e) => onSaleToggle(e.target.checked)}
+              className="w-4 h-4 bg-zinc-900 border-2 border-zinc-700 checked:bg-acid-lime checked:border-acid-lime focus:ring-2 focus:ring-acid-lime focus:ring-offset-0 cursor-pointer"
             />
-            <span className="checkbox-filter__label">
-              {t('onSaleOnly')} 
-              <span className="checkbox-filter__count">({filterOptions.products_on_sale})</span>
+            <span className="text-zinc-200 text-sm font-mono group-hover:text-white transition-colors flex-1">
+              {t('onSaleOnly')}
+              <span className="text-zinc-400 text-xs ml-1">({filterOptions.products_on_sale})</span>
             </span>
           </label>
         </div>

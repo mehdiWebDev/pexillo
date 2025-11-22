@@ -17,26 +17,26 @@ import { useTranslations } from 'next-intl';
 import { LanguageSwitcher, LanguageSwitcherCompact } from '@/src/components/language-switcher';
 import MiniCart from '@/src/components/cart/MiniCart';
 import { useFavorites } from '@/src/hooks/useFavorites';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  NavigationMenuContentItem,
+  NavigationMenuContentGrid,
+  NavigationMenuFeaturedItem,
+} from "@/src/components/ui/navigation-menu";
 
 
 const BrandLogo = () => (
-  <svg
-    width="28"
-    height="28"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="text-current"
-  >
-    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-    <path
-      d="M8 12L11 15L16 9"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
+  <div className="relative group">
+    <div className="w-10 h-10 bg-acid-lime flex items-center justify-center transition-all duration-300">
+      <span className="text-black font-black text-xl">P</span>
+    </div>
+    <div className="absolute inset-0 bg-acid-lime blur-md opacity-50 group-hover:opacity-75 transition-opacity -z-10"></div>
+  </div>
 );
 
 const HamburgerIcon = ({ isOpen }: { isOpen: boolean }) => (
@@ -100,22 +100,111 @@ export function ClientNavigationMenu({
           <div className="navigation__left">
             <Link href="/" className="navigation__logo" onClick={closeMobileMenu}>
               <BrandLogo />
-              <span className="navigation__brand">{t('brand')}</span>
+              <span className="text-white font-black text-xl tracking-tighter italic hidden sm:block">
+                PIXELLO
+              </span>
             </Link>
 
             <div className="navigation__desktop-menu">
-              {menuItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn("navigation__link", isActive && "navigation__link--active")}
-                  >
-                    {t(item.titleKey)}
-                  </Link>
-                );
-              })}
+              <NavigationMenu>
+                <NavigationMenuList>
+                  {/* Home Link */}
+                  <NavigationMenuItem>
+                    <Link href="/" legacyBehavior passHref>
+                      <NavigationMenuLink className={cn(
+                        "group inline-flex h-10 w-max items-center justify-center px-4 py-2",
+                        "text-sm font-bold uppercase tracking-wider",
+                        "bg-transparent text-zinc-400",
+                        "hover:bg-zinc-900 hover:text-white",
+                        "transition-all duration-200",
+                        "relative",
+                        "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-acid-lime",
+                        "after:scale-x-0 after:transition-transform after:duration-300",
+                        "hover:after:scale-x-100",
+                        pathname === "/" && "text-white after:scale-x-100"
+                      )}>
+                        {t('home')}
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+
+                  {/* Products Dropdown */}
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger variant="default">
+                      {t('products')}
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <NavigationMenuContentGrid>
+                        <NavigationMenuFeaturedItem
+                          href="/products?featured=true"
+                          title={t('featuredProducts') || "FEATURED"}
+                          badge="NEW"
+                        >
+                          {t('featuredProductsDesc') || "Discover our latest collection. Limited edition designs."}
+                        </NavigationMenuFeaturedItem>
+
+                        <div className="space-y-2">
+                          <NavigationMenuContentItem
+                            href="/products"
+                            title={t('allProducts') || "ALL PRODUCTS"}
+                            description={t('allProductsDesc') || "Browse our complete catalog"}
+                          />
+                          <NavigationMenuContentItem
+                            href="/products?category=clothing"
+                            title={t('clothing') || "CLOTHING"}
+                            description={t('clothingDesc') || "T-shirts, hoodies, and more"}
+                          />
+                          <NavigationMenuContentItem
+                            href="/products?category=accessories"
+                            title={t('accessories') || "ACCESSORIES"}
+                            description={t('accessoriesDesc') || "Complete your style"}
+                          />
+                        </div>
+                      </NavigationMenuContentGrid>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+
+                  {/* Services Link */}
+                  <NavigationMenuItem>
+                    <Link href="/services" legacyBehavior passHref>
+                      <NavigationMenuLink className={cn(
+                        "group inline-flex h-10 w-max items-center justify-center px-4 py-2",
+                        "text-sm font-bold uppercase tracking-wider",
+                        "bg-transparent text-zinc-400",
+                        "hover:bg-zinc-900 hover:text-white",
+                        "transition-all duration-200",
+                        "relative",
+                        "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-acid-lime",
+                        "after:scale-x-0 after:transition-transform after:duration-300",
+                        "hover:after:scale-x-100",
+                        pathname === "/services" && "text-white after:scale-x-100"
+                      )}>
+                        {t('services')}
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+
+                  {/* Contact Link */}
+                  <NavigationMenuItem>
+                    <Link href="/contact" legacyBehavior passHref>
+                      <NavigationMenuLink className={cn(
+                        "group inline-flex h-10 w-max items-center justify-center px-4 py-2",
+                        "text-sm font-bold uppercase tracking-wider",
+                        "bg-transparent text-zinc-400",
+                        "hover:bg-zinc-900 hover:text-white",
+                        "transition-all duration-200",
+                        "relative",
+                        "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-acid-lime",
+                        "after:scale-x-0 after:transition-transform after:duration-300",
+                        "hover:after:scale-x-100",
+                        pathname === "/contact" && "text-white after:scale-x-100"
+                      )}>
+                        {t('contact')}
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
             </div>
           </div>
 
@@ -153,7 +242,7 @@ export function ClientNavigationMenu({
           <div className="mobile-menu__header">
             <div className="mobile-menu__brand">
               <BrandLogo />
-              <span>{t('brand')}</span>
+              <span className="text-white font-black text-lg tracking-tighter italic">PIXELLO</span>
             </div>
             <button
               className="mobile-menu__close"
