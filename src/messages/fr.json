@@ -10,7 +10,15 @@
         "wishlist": "Liste de Souhaits",
         "user": "Utilisateur",
         "toggleMenu": "Basculer le menu mobile",
-        "closeMenu": "Fermer le menu"
+        "closeMenu": "Fermer le menu",
+        "featuredProducts": "EN VEDETTE",
+        "featuredProductsDesc": "Découvrez notre dernière collection. Designs en édition limitée.",
+        "allProducts": "TOUS LES PRODUITS",
+        "allProductsDesc": "Parcourez notre catalogue complet",
+        "clothing": "VÊTEMENTS",
+        "clothingDesc": "T-shirts, sweats à capuche et plus",
+        "accessories": "ACCESSOIRES",
+        "accessoriesDesc": "Complétez votre style"
     },
     "common": {
         "welcome": "Bienvenue",
@@ -205,6 +213,7 @@
         "about": "À Propos",
         "privacy": "Politique de Confidentialité",
         "terms": "Conditions d'Utilisation",
+        "returns": "Retours et Échanges",
         "securePayments": "Paiements Sécurisés",
         "fastShipping": "Livraison Rapide",
         "newWeekly": "Nouveautés Hebdomadaires",

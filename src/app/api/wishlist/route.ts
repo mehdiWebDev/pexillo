@@ -40,7 +40,7 @@ interface WishlistItem {
   id: string;
   created_at: string;
   product_id: string;
-  products: Product[];
+  products: Product | Product[];
 }
 
 export async function GET() {
@@ -129,7 +129,13 @@ export async function GET() {
 
     // Transform the data to match the product listing format
     const products = wishlistItems?.map((item: WishlistItem) => {
-      const product = item.products[0];
+      // Handle both array and single object from Supabase
+      const product = Array.isArray(item.products) ? item.products[0] : item.products;
+
+      // Skip if no product data
+      if (!product) {
+        return null;
+      }
 
       // Get unique colors
       const availableColors = product.product_variants
@@ -165,7 +171,7 @@ export async function GET() {
         wishlist_id: item.id,
         added_to_wishlist: item.created_at,
       };
-    }) || [];
+    }).filter(Boolean) || [];
 
     return NextResponse.json({
       products,

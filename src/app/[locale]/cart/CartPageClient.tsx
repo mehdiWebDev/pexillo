@@ -192,19 +192,29 @@ export default function CartPageClient() {
   // Empty cart state
   if (items.length === 0 && !cartIsLoading) {
     return (
-      <div className="min-h-screen bg-background mt-10">
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-4xl mx-auto text-center">
-            <ShoppingCart className="w-24 h-24 mx-auto text-muted-foreground mb-6" />
-            <h1 className="text-3xl font-bold mb-4">{t('emptyCartTitle')}</h1>
-            <p className="text-muted-foreground mb-8">{t('emptyCartMessage')}</p>
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
-            >
-              <ArrowLeft size={20} />
-              {t('continueShopping')}
-            </Link>
+      <div className="min-h-screen bg-black py-16">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="bg-zinc-900 border border-zinc-800 p-12">
+              <div className="flex justify-center mb-6">
+                <div className="w-24 h-24 bg-black border-2 border-zinc-800 flex items-center justify-center">
+                  <ShoppingCart className="w-12 h-12 text-zinc-600" />
+                </div>
+              </div>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <div className="w-2 h-2 bg-zinc-600 rounded-full"></div>
+                <span className="font-mono text-xs text-zinc-500 uppercase">{'//'}{'/'}  MEMORY EMPTY</span>
+              </div>
+              <h1 className="text-3xl font-black uppercase tracking-tighter text-white mb-4">{t('emptyCartTitle')}</h1>
+              <p className="text-zinc-400 font-mono text-sm mb-8">{t('emptyCartMessage')}</p>
+              <Link
+                href="/products"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-acid-lime text-black font-bold uppercase text-sm tracking-wider hover:bg-white transition-colors"
+              >
+                <ArrowLeft size={16} />
+                {t('continueShopping')}
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -214,25 +224,29 @@ export default function CartPageClient() {
 
 
   return (
-    <div className="min-h-screen bg-background mt-10">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-black py-12">
+      <div className="container mx-auto px-4 lg:px-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">
-            {t('pageTitle')} ({itemCount} {itemCount === 1 ? t('item') : t('items')})
+        <div className="bg-zinc-900 border border-zinc-800 p-8 mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-2 h-2 bg-acid-lime rounded-full animate-pulse"></div>
+            <span className="font-mono text-xs text-zinc-500 uppercase">{'//'}{'/'}  SYSTEM CART</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-white mb-4">
+            {t('pageTitle')} <span className="text-acid-lime">({itemCount})</span>
           </h1>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between border-t border-zinc-800 pt-4">
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 text-primary hover:underline"
+              className="inline-flex items-center gap-2 text-zinc-400 hover:text-acid-lime transition-colors font-mono text-sm"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={14} />
               {t('continueShopping')}
             </Link>
             <button
               onClick={handleClearCart}
               disabled={isClearing}
-              className="text-sm text-destructive hover:underline disabled:opacity-50"
+              className="text-sm font-mono text-red-400 hover:text-red-300 disabled:opacity-50 transition-colors uppercase"
             >
               {t('clearCart')}
             </button>

@@ -35,19 +35,19 @@ export default function ProductSort({ sortBy, sortOrder, onSortChange }: Product
   };
 
   return (
-    <div className="product-sort">
-      <label htmlFor="sort-select" className="product-sort__label">
-        <ArrowUpDown size={16} />
+    <div className="flex items-center gap-3">
+      <label htmlFor="sort-select" className="flex items-center gap-2 text-zinc-500 font-mono text-xs uppercase">
+        <ArrowUpDown size={14} className="text-acid-lime" />
         {t('sortBy')}
       </label>
       <select
         id="sort-select"
         value={currentValue}
         onChange={(e) => handleChange(e.target.value)}
-        className="product-sort__select"
+        className="px-4 py-2 bg-zinc-900 border border-zinc-800 text-white font-mono text-sm focus:border-acid-lime focus:outline-none cursor-pointer hover:border-zinc-700 transition-colors"
       >
         {sortOptions.map((option) => (
-          <option key={option.value} value={option.value}>
+          <option key={option.value} value={option.value} className="bg-zinc-900">
             {option.label}
           </option>
         ))}

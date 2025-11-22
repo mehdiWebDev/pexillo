@@ -2,7 +2,6 @@ import * as React from "react"
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu"
 import { cva } from "class-variance-authority"
 import { ChevronDown } from "lucide-react"
-import { Link } from "@/src/i18n/routing"
 
 import { cn } from "@/lib/utils"
 
@@ -188,14 +187,14 @@ NavigationMenuIndicator.displayName =
 // Additional styled components for content items
 const NavigationMenuContentItem = React.forwardRef<
   HTMLAnchorElement,
-  React.ComponentPropsWithoutRef<typeof Link> & {
+  React.AnchorHTMLAttributes<HTMLAnchorElement> & {
     title?: string
     description?: string
   }
 >(({ className, title, children, description, href, ...props }, ref) => (
-  <Link
+  <a
     ref={ref}
-    href={href || "/"}
+    href={href}
     className={cn(
       "block select-none space-y-1 p-3",
       "bg-transparent hover:bg-zinc-900",
@@ -218,7 +217,7 @@ const NavigationMenuContentItem = React.forwardRef<
       </p>
     )}
     {children}
-  </Link>
+  </a>
 ))
 NavigationMenuContentItem.displayName = "NavigationMenuContentItem"
 
@@ -258,14 +257,14 @@ NavigationMenuContentList.displayName = "NavigationMenuContentList"
 // Featured item for highlighting important content
 const NavigationMenuFeaturedItem = React.forwardRef<
   HTMLAnchorElement,
-  React.ComponentPropsWithoutRef<typeof Link> & {
+  React.AnchorHTMLAttributes<HTMLAnchorElement> & {
     title?: string
     badge?: string
   }
 >(({ className, title, children, badge, href, ...props }, ref) => (
-  <Link
+  <a
     ref={ref}
-    href={href || "/"}
+    href={href}
     className={cn(
       "flex h-full w-full select-none flex-col justify-end",
       "bg-gradient-to-b from-zinc-900 to-zinc-800",
@@ -281,13 +280,13 @@ const NavigationMenuFeaturedItem = React.forwardRef<
   >
     {/* Scan line effect on hover */}
     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-acid-lime/5 to-transparent translate-y-[-100%] group-hover:translate-y-[100%] transition-transform duration-1000" />
-
+    
     {badge && (
       <span className="absolute top-4 right-4 px-2 py-1 bg-acid-lime text-black text-xs font-bold uppercase">
         {badge}
       </span>
     )}
-
+    
     {title && (
       <div className="mb-2 mt-4 text-lg font-black uppercase text-white group-hover:text-acid-lime transition-colors">
         {title}
@@ -296,7 +295,7 @@ const NavigationMenuFeaturedItem = React.forwardRef<
     <p className="text-sm font-mono leading-tight text-zinc-400 group-hover:text-zinc-300 transition-colors">
       {children}
     </p>
-  </Link>
+  </a>
 ))
 NavigationMenuFeaturedItem.displayName = "NavigationMenuFeaturedItem"
 

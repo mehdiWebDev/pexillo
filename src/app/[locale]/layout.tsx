@@ -9,7 +9,7 @@ import { ReactQueryProvider } from "@/src/providers/ReactQueryProvider";
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ClientNavigationMenu } from "@/src/components/nav-menu";
 import { AuthButton } from "@/src/components/auth-button";
-import { Geist } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import Footer from "@/src/components/footer";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -17,9 +17,13 @@ const defaultUrl = process.env.VERCEL_URL
     : "http://localhost:3000";
 
 const geistSans = Geist({
-    variable: "--font-geist-sans",
-    display: "swap",
-    subsets: ["latin"],
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
 });
 
 // Generate static params for all locales
@@ -64,7 +68,7 @@ export default async function LocaleLayout({
 
     return (
         <html lang={locale} suppressHydrationWarning>
-            <body className={`${geistSans.className} antialiased`}>
+            <body className={`${geistSans.className} ${geistMono.className} antialiased`}>
                 <ReduxProvider>
                     <ReactQueryProvider>
                         <ThemeProvider
