@@ -4,15 +4,13 @@
 import { useState } from 'react';
 import { Link } from '@/src/i18n/routing';
 import { useTranslations } from 'next-intl';
-import { TrendingUp } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { useFeaturedProducts } from '@/src/hooks/useProductsQuery';
 import ProductCard, { ProductCardData } from './product-card';
 
 const FeaturedProducts = () => {
   const t = useTranslations('featuredProducts');
-  const { data: products, isLoading, error } = useFeaturedProducts(6);
-
-  console.log(products);
+  const { data: products, isLoading, error } = useFeaturedProducts(8);
 
   const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
   const [favoriteStates, setFavoriteStates] = useState<{ [key: string]: boolean }>({});
@@ -50,34 +48,16 @@ const FeaturedProducts = () => {
   // Loading state
   if (isLoading) {
     return (
-      <section className="featured-products">
-        <div className="featured-products__container">
-          <div className="featured-products__header">
-            <div className="featured-products__title-wrapper">
-              <h2 className="featured-products__title">
-                {t('title')}
-                <span className="featured-products__title-accent">
-                  {t('titleAccent')}
-                </span>
-              </h2>
-              <div className="featured-products__title-underline" />
-            </div>
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-end mb-12">
+            <h2 className="text-3xl md:text-5xl font-black text-brand-dark">
+              {t('title')}
+            </h2>
           </div>
 
-          {/* Loading skeleton */}
-          <div className="featured-products__grid">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="product-card product-card--loading">
-                <div className="product-card__image-container">
-                  <div className="skeleton skeleton--image" />
-                </div>
-                <div className="product-card__info">
-                  <div className="skeleton skeleton--text skeleton--text-sm" />
-                  <div className="skeleton skeleton--text skeleton--text-lg" />
-                  <div className="skeleton skeleton--text skeleton--text-md" />
-                </div>
-              </div>
-            ))}
+          <div className="flex justify-center items-center min-h-[400px]">
+            <Loader2 className="w-8 h-8 animate-spin text-brand-dark" />
           </div>
         </div>
       </section>
@@ -87,24 +67,19 @@ const FeaturedProducts = () => {
   // Error state
   if (error) {
     return (
-      <section className="featured-products">
-        <div className="featured-products__container">
-          <div className="featured-products__header">
-            <div className="featured-products__title-wrapper">
-              <h2 className="featured-products__title">
-                {t('title')}
-                <span className="featured-products__title-accent">
-                  {t('titleAccent')}
-                </span>
-              </h2>
-            </div>
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-end mb-12">
+            <h2 className="text-3xl md:text-5xl font-black text-brand-dark">
+              {t('title')}
+            </h2>
           </div>
 
-          <div className="error-message">
-            <p>{t('errorLoading')}</p>
+          <div className="text-center py-12">
+            <p className="text-gray-600 mb-4">{t('errorLoading')}</p>
             <button
               onClick={() => window.location.reload()}
-              className="btn btn--primary btn--sm"
+              className="px-6 py-3 bg-brand-dark text-white font-bold rounded-xl hover:-translate-y-1 transition-all"
             >
               {t('retry')}
             </button>
@@ -117,21 +92,16 @@ const FeaturedProducts = () => {
   // Empty state
   if (!products || products.length === 0) {
     return (
-      <section className="featured-products">
-        <div className="featured-products__container">
-          <div className="featured-products__header">
-            <div className="featured-products__title-wrapper">
-              <h2 className="featured-products__title">
-                {t('title')}
-                <span className="featured-products__title-accent">
-                  {t('titleAccent')}
-                </span>
-              </h2>
-            </div>
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-end mb-12">
+            <h2 className="text-3xl md:text-5xl font-black text-brand-dark">
+              {t('title')}
+            </h2>
           </div>
 
-          <div className="empty-state">
-            <p>{t('noProducts')}</p>
+          <div className="text-center py-12">
+            <p className="text-gray-600">{t('noProducts')}</p>
           </div>
         </div>
       </section>
@@ -139,30 +109,24 @@ const FeaturedProducts = () => {
   }
 
   return (
-    <section className="featured-products">
-      <div className="featured-products__container">
+    <section className="py-16 px-4 bg-white">
+      <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <div className="featured-products__header">
-          <div className="featured-products__title-wrapper">
-            <h2 className="featured-products__title">
-              {t('title')}
-              <span className="featured-products__title-accent">
-                {t('titleAccent')}
-              </span>
-            </h2>
-            <div className="featured-products__title-underline" />
-          </div>
-
-          <div className="featured-products__header-actions">
-            <Link href="/products" className="btn btn--outline-primary btn--md btn--responsive">
-              {t('viewAll')}
-              <TrendingUp className="btn__icon" />
-            </Link>
-          </div>
+        <div className="flex justify-between items-end mb-12">
+          <h2 className="text-3xl md:text-5xl font-black text-brand-dark">
+            {t('title')}
+          </h2>
+          <Link
+            href="/products"
+            className="hidden md:flex items-center gap-2 font-bold hover:text-brand-red transition-colors group"
+          >
+            {t('viewAll')}
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
 
         {/* Products Grid */}
-        <div className="featured-products__grid">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {products.map((product) => (
             <ProductCard
               key={product.id}
@@ -171,19 +135,10 @@ const FeaturedProducts = () => {
               onToggleFavorite={handleToggleFavorite}
               isLoading={loadingStates[product.id]}
               isFavorite={favoriteStates[product.id]}
-              showColorSwitcher={true} // Enable when you have variant data
-              showSizePicker={true}     // Enable when you have variant data
+              showColorSwitcher={true}
+              showSizePicker={true}
             />
           ))}
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="featured-products__bottom-cta">
-          <p className="featured-products__cta-text">{t('moreProducts')}</p>
-          <Link href="/products" className="btn btn--accent btn--lg btn--brutalist">
-            {t('exploreAll')}
-            <TrendingUp size={20} />
-          </Link>
         </div>
       </div>
     </section>

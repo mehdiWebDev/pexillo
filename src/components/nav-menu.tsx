@@ -5,45 +5,20 @@ import { usePathname } from '@/src/i18n/routing';
 import { Link } from '@/src/i18n/routing';
 import { cn } from "@/lib/utils";
 import Image from 'next/image';
-import { ThemeSwitcher } from "@/src/components/theme-switcher";
-import { User, Settings, LogOut, UserCircle, Heart } from "lucide-react";
-import { useSelector, useDispatch } from "react-redux";
+import { Heart, Menu, Search } from "lucide-react";
+import { useSelector } from "react-redux";
 import { RootState } from "@/src/store";
-import { clearUser } from "@/src/store/slices/authSlice";
-import { createClient } from "@/lib/supabase/client";
-import { useRouter } from '@/src/i18n/routing';
 import { useUserQuery } from "@/src/hooks/useUserQuery";
-import { useTranslations } from 'next-intl';
-import { LanguageSwitcher, LanguageSwitcherCompact } from '@/src/components/language-switcher';
+import { useTranslations, useLocale } from 'next-intl';
 import MiniCart from '@/src/components/cart/MiniCart';
 import { useFavorites } from '@/src/hooks/useFavorites';
-
+import { locales, type Locale } from '@/src/i18n/config';
+import { useRouter } from '@/src/i18n/routing';
 
 const BrandLogo = () => (
-  <svg
-    width="28"
-    height="28"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="text-current"
-  >
-    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-    <path
-      d="M8 12L11 15L16 9"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const HamburgerIcon = ({ isOpen }: { isOpen: boolean }) => (
-  <div className="mobile-menu__hamburger">
-    <span className={`mobile-menu__line ${isOpen ? 'mobile-menu__line--open-1' : ''}`} />
-    <span className={`mobile-menu__line ${isOpen ? 'mobile-menu__line--open-2' : ''}`} />
-    <span className={`mobile-menu__line ${isOpen ? 'mobile-menu__line--open-3' : ''}`} />
+  <div className="flex items-center gap-1 group">
+    <span className="text-2xl md:text-3xl font-black tracking-tighter text-gray-900">Pexillo</span>
+    <span className="text-2xl md:text-3xl font-black text-brand-red group-hover:rotate-12 transition-transform inline-block">.</span>
   </div>
 );
 
@@ -55,24 +30,15 @@ export function ClientNavigationMenu({
   children,
 }: ClientNavigationMenuProps) {
   const pathname = usePathname();
+  const locale = useLocale();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { user, isAuth } = useSelector((state: RootState) => state.auth);
   const { data: profile } = useUserQuery(user?.id);
   const { favorites } = useFavorites();
-  const dispatch = useDispatch();
-  const router = useRouter();
 
-  // Add translations
   const t = useTranslations('navigation');
-  const tCommon = useTranslations('common');
-
-  // Define menu items with translation keys
-  const menuItems = [
-    { titleKey: "home", href: "/" },
-    { titleKey: "products", href: "/products" },
-    { titleKey: "services", href: "/services" },
-    { titleKey: "contact", href: "/contact" },
-  ];
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -82,214 +48,239 @@ export function ClientNavigationMenu({
     setIsMobileMenuOpen(false);
   };
 
-  // Mobile logout function
-  const handleMobileLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    dispatch(clearUser());
-    closeMobileMenu();
-    router.push("/auth/login");
+  const handleLanguageChange = (newLocale: Locale) => {
+    router.replace(pathname, { locale: newLocale });
   };
 
   return (
     <>
-      <nav className={"navigation"}>
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 py-4 px-4 md:px-8">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 md:gap-8">
 
-        <div className="navigation__container container">
-          {/* Left: logo + desktop menu */}
-          <div className="navigation__left">
-            <Link href="/" className="navigation__logo" onClick={closeMobileMenu}>
-              <BrandLogo />
-              <span className="navigation__brand">{t('brand')}</span>
+          {/* Logo */}
+          <Link href="/" onClick={closeMobileMenu} className="shrink-0">
+            <BrandLogo />
+          </Link>
+
+          {/* Primary Navigation (Desktop Only) */}
+          <div className="hidden lg:flex items-center gap-6 font-bold text-sm shrink-0">
+            <Link href="/products" className="hover:text-brand-red transition-colors">
+              {t('shopAll')}
             </Link>
+            <Link href="/products" className="hover:text-brand-red transition-colors">
+              {t('tees')}
+            </Link>
+            <Link href="/products" className="hover:text-brand-red transition-colors">
+              {t('hoodies')}
+            </Link>
+            <Link href="/products" className="text-brand-red hover:text-brand-dark transition-colors">
+              {t('sale')}
+            </Link>
+          </div>
 
-            <div className="navigation__desktop-menu">
-              {menuItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn("navigation__link", isActive && "navigation__link--active")}
+          {/* Search Bar (Desktop) */}
+          <div className="hidden md:flex flex-1 max-w-md relative group">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t('searchProducts')}
+              className="w-full pl-12 pr-4 py-3 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:border-brand-dark focus:ring-0 outline-none transition-all font-medium placeholder-gray-400 group-hover:border-gray-300"
+            />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-brand-dark transition-colors" />
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-4 md:gap-6 shrink-0">
+            {/* Language Switcher (Desktop Only) */}
+            <div className="hidden md:flex items-center gap-1 font-bold text-sm">
+              {locales.map((loc, idx) => (
+                <span key={loc}>
+                  <button
+                    onClick={() => handleLanguageChange(loc)}
+                    className={cn(
+                      "transition-colors",
+                      locale === loc
+                        ? "text-brand-dark cursor-default"
+                        : "text-gray-400 hover:text-brand-red"
+                    )}
                   >
-                    {t(item.titleKey)}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Right: language + theme + auth + mobile hamburger */}
-          <div className="navigation__right">
-            <div className="navigation__desktop-actions">
-              <LanguageSwitcher />
-              <ThemeSwitcher />
-              <Link href="/wishlist" className="navigation__icon-link" title={t('wishlist')}>
-                <Heart size={20} className={favorites.length > 0 ? 'fill-current' : ''} />
-                {favorites.length > 0 && (
-                  <span className="navigation__icon-badge">{favorites.length}</span>
-                )}
-              </Link>
-              <MiniCart />
-              {children}
+                    {loc.toUpperCase()}
+                  </button>
+                  {idx < locales.length - 1 && <span className="text-gray-300 mx-1">/</span>}
+                </span>
+              ))}
             </div>
 
-            <button
-              className="mobile-menu__trigger"
-              onClick={toggleMobileMenu}
-              aria-label={t('toggleMenu')}
-            >
-              <HamburgerIcon isOpen={isMobileMenuOpen} />
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobile Menu Overlay */}
-      <div className={cn("mobile-menu", isMobileMenuOpen && "mobile-menu--open")}>
-        <div className="mobile-menu__backdrop" onClick={closeMobileMenu} />
-
-        <div className="mobile-menu__content">
-          <div className="mobile-menu__header">
-            <div className="mobile-menu__brand">
-              <BrandLogo />
-              <span>{t('brand')}</span>
-            </div>
-            <button
-              className="mobile-menu__close"
-              onClick={closeMobileMenu}
-              aria-label={t('closeMenu')}
-            >
-              ✕
-            </button>
-          </div>
-
-          {/* User Profile Section for Mobile */}
-          {isAuth && profile && (
-            <div className="mobile-menu__user-section">
-              <div className="mobile-menu__user-info">
-                {profile?.avatar_url ? (
-                  <Image
-                    src={profile?.avatar_url}
-                    alt={profile?.full_name || t('user')}
-                    width={48}
-                    height={48}
-                    className="mobile-menu__user-avatar"
-                  />
-                ) : (
-                  <div className="mobile-menu__user-avatar mobile-menu__user-avatar--placeholder">
-                    <User size={20} />
-                  </div>
-                )}
-                <div className="mobile-menu__user-details">
-                  <div className="mobile-menu__user-name">
-                    {profile?.full_name || profile?.email || t('user')}
-                  </div>
-                  {profile?.email && (
-                    <div className="mobile-menu__user-email">
-                      {profile?.email}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="mobile-menu__links">
-            {menuItems.map((item, index) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn("mobile-menu__link", isActive && "mobile-menu__link--active")}
-                  onClick={closeMobileMenu}
-                  style={{
-                    animationDelay: isMobileMenuOpen ? `${index * 100}ms` : '0ms'
-                  }}
-                >
-                  <span className="mobile-menu__link-text">{t(item.titleKey)}</span>
-                  {isActive && <div className="mobile-menu__link-indicator" />}
-                </Link>
-              );
-            })}
-
-            {/* Profile Links for Mobile (only show if authenticated) */}
-            {isAuth && profile && (
-              <>
-                <div className="mobile-menu__divider"></div>
-                <Link
-                  href="/wishlist"
-                  className={cn("mobile-menu__link", pathname === "/wishlist" && "mobile-menu__link--active")}
-                  onClick={closeMobileMenu}
-                  style={{
-                    animationDelay: isMobileMenuOpen ? `${(menuItems.length) * 100}ms` : '0ms'
-                  }}
-                >
-                  <Heart size={16} className={favorites.length > 0 ? 'fill-current' : ''} />
-                  <span className="mobile-menu__link-text">
-                    {t('wishlist')}
-                    {favorites.length > 0 && ` (${favorites.length})`}
-                  </span>
-                  {pathname === "/wishlist" && <div className="mobile-menu__link-indicator" />}
-                </Link>
-
+            <div className="flex items-center gap-3">
+              {/* Profile Avatar */}
+              {isAuth && profile ? (
                 <Link
                   href="/profile"
-                  className={cn("mobile-menu__link", pathname === "/profile" && "mobile-menu__link--active")}
-                  onClick={closeMobileMenu}
-                  style={{
-                    animationDelay: isMobileMenuOpen ? `${(menuItems.length + 1) * 100}ms` : '0ms'
-                  }}
+                  className="relative w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden border border-gray-200 hover:border-brand-red transition-all group"
+                  aria-label="Profile"
                 >
-                  <UserCircle size={16} />
-                  <span className="mobile-menu__link-text">{t('myProfile')}</span>
-                  {pathname === "/profile" && <div className="mobile-menu__link-indicator" />}
+                  {profile?.avatar_url ? (
+                    <Image
+                      src={profile.avatar_url}
+                      alt={profile.full_name || 'Profile'}
+                      width={40}
+                      height={40}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <span className="text-gray-600 font-bold text-sm">
+                        {profile?.full_name?.[0] || profile?.email?.[0] || 'U'}
+                      </span>
+                    </div>
+                  )}
                 </Link>
+              ) : (
+                <div className="hidden lg:flex items-center gap-2">
+                  {children}
+                </div>
+              )}
 
-                <Link
-                  href="/settings"
-                  className={cn("mobile-menu__link", pathname === "/settings" && "mobile-menu__link--active")}
-                  onClick={closeMobileMenu}
-                  style={{
-                    animationDelay: isMobileMenuOpen ? `${(menuItems.length + 2) * 100}ms` : '0ms'
-                  }}
-                >
-                  <Settings size={16} />
-                  <span className="mobile-menu__link-text">{t('accountSettings')}</span>
-                  {pathname === "/settings" && <div className="mobile-menu__link-indicator" />}
-                </Link>
+              {/* Heart/Wishlist */}
+              <Link
+                href="/wishlist"
+                className="relative p-2 hover:bg-gray-100 rounded-full transition-colors group"
+                title={t('wishlist')}
+              >
+                <Heart
+                  className={cn(
+                    "w-6 h-6 transition-colors",
+                    favorites.length > 0
+                      ? "fill-brand-red text-brand-red"
+                      : "group-hover:fill-brand-red group-hover:text-brand-red"
+                  )}
+                />
+                {favorites.length > 0 && (
+                  <span className="absolute top-0 right-0 bg-brand-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-white">
+                    {favorites.length}
+                  </span>
+                )}
+              </Link>
 
-                <button
-                  onClick={handleMobileLogout}
-                  className="mobile-menu__link mobile-menu__link--danger"
-                  style={{
-                    animationDelay: isMobileMenuOpen ? `${(menuItems.length + 3) * 100}ms` : '0ms'
-                  }}
-                >
-                  <LogOut size={16} />
-                  <span className="mobile-menu__link-text">{tCommon('logout')}</span>
-                </button>
-              </>
-            )}
+              {/* Cart */}
+              <MiniCart />
+
+              {/* Mobile Menu Trigger */}
+              <button
+                className="lg:hidden p-2 hover:bg-gray-100 rounded-full transition-colors"
+                onClick={toggleMobileMenu}
+                aria-label={t('toggleMenu')}
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+            </div>
           </div>
+        </div>
 
-          <div className="mobile-menu__actions">
-            <div className="mobile-menu__language-switcher">
-              <LanguageSwitcherCompact />
+        {/* Mobile Menu Dropdown */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden bg-white border-b border-gray-100 p-4 absolute top-full left-0 w-full z-40 shadow-xl">
+            {/* Mobile Search */}
+            <div className="relative mb-6">
+              <input
+                type="text"
+                placeholder={t('search')}
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-brand-dark outline-none"
+              />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             </div>
-            <div className="mobile-menu__theme-switcher">
-              <ThemeSwitcher />
+
+            {/* User Profile Section (Mobile) */}
+            {isAuth && profile && (
+              <div className="mb-6 pb-6 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  {profile?.avatar_url ? (
+                    <Image
+                      src={profile.avatar_url}
+                      alt={profile.full_name || 'Profile'}
+                      width={48}
+                      height={48}
+                      className="rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-600 font-bold">
+                        {profile?.full_name?.[0] || profile?.email?.[0] || 'U'}
+                      </span>
+                    </div>
+                  )}
+                  <div>
+                    <div className="font-bold text-gray-900">
+                      {profile?.full_name || profile?.email || 'User'}
+                    </div>
+                    {profile?.email && profile?.full_name && (
+                      <div className="text-sm text-gray-500">{profile.email}</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Mobile Links */}
+            <div className="flex flex-col gap-4 font-bold text-lg">
+              <Link href="/products" className="hover:text-brand-red" onClick={closeMobileMenu}>
+                {t('shopAll')}
+              </Link>
+              <Link href="/products" className="hover:text-brand-red" onClick={closeMobileMenu}>
+                {t('tees')}
+              </Link>
+              <Link href="/products" className="hover:text-brand-red" onClick={closeMobileMenu}>
+                {t('hoodies')}
+              </Link>
+              <Link href="/products" className="text-brand-red" onClick={closeMobileMenu}>
+                {t('sale')}
+              </Link>
+              {isAuth && (
+                <>
+                  <div className="h-px bg-gray-200 my-2"></div>
+                  <Link href="/wishlist" className="hover:text-brand-red flex items-center gap-2" onClick={closeMobileMenu}>
+                    {t('wishlist')}
+                    {favorites.length > 0 && (
+                      <span className="text-sm text-gray-500">({favorites.length})</span>
+                    )}
+                  </Link>
+                  <Link href="/profile" className="hover:text-brand-red" onClick={closeMobileMenu}>
+                    {t('myProfile')}
+                  </Link>
+                </>
+              )}
             </div>
-            {/* Only show auth buttons if not authenticated */}
+
+            {/* Mobile Footer - Language Switcher */}
+            <div className="mt-6 pt-6 border-t border-gray-100 flex justify-center items-center">
+              <div className="flex gap-2 items-center text-sm font-bold">
+                {locales.map((loc, idx) => (
+                  <span key={loc}>
+                    <button
+                      onClick={() => handleLanguageChange(loc)}
+                      className={cn(
+                        locale === loc ? "text-brand-dark" : "text-gray-400"
+                      )}
+                    >
+                      {loc.toUpperCase()}
+                    </button>
+                    {idx < locales.length - 1 && <span className="mx-1 text-gray-300">/</span>}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Auth Buttons (Mobile - only if not authenticated) */}
             {!isAuth && (
-              <div className="mobile-menu__auth" onClick={closeMobileMenu}>
+              <div className="mt-4 pt-4 border-t border-gray-100" onClick={closeMobileMenu}>
                 {children}
               </div>
             )}
           </div>
-        </div>
-      </div>
+        )}
+      </nav>
     </>
   );
 }

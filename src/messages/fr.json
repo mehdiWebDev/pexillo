@@ -10,7 +10,13 @@
         "wishlist": "Liste de Souhaits",
         "user": "Utilisateur",
         "toggleMenu": "Basculer le menu mobile",
-        "closeMenu": "Fermer le menu"
+        "closeMenu": "Fermer le menu",
+        "shopAll": "Tout acheter",
+        "tees": "T-shirts",
+        "hoodies": "Sweats à capuche",
+        "sale": "Soldes",
+        "searchProducts": "Rechercher des produits...",
+        "search": "Rechercher..."
     },
     "common": {
         "welcome": "Bienvenue",
@@ -43,16 +49,17 @@
         "description": "La façon la plus rapide de créer des applications avec Next.js et Supabase"
     },
     "hero": {
-        "badge": "Offre de Lancement - 20% de Réduction",
+        "badge": "Collection Automne Disponible",
         "title": {
-            "line1": "Portez Votre ",
-            "highlight": "Imagination",
-            "line2": " sur des Vêtements Premium"
+            "line1": "Portez ce que",
+            "line1part2": "vous ",
+            "highlight": "RESSENTEZ.",
+            "line2": ""
         },
-        "description": "Transformez vos idées créatives en impressions personnalisées de haute qualité. Créez des t-shirts, hoodies et sweats d'hiver uniques qui expriment votre style.",
+        "description": "Essentiels streetwear premium et accessoires pour les audacieux. Conçu à Montréal.",
         "cta": {
-            "primary": "Explorer les Designs",
-            "secondary": "Commencer à Créer"
+            "primary": "Voir la Collection",
+            "secondary": "Voir le Lookbook"
         },
         "features": {
             "quality": "Matériaux de Qualité Premium",
@@ -63,13 +70,14 @@
             "featured": "Nouveauté"
         },
         "process": {
-            "title": "Comment ça Marche",
+            "title": "De l'Écran à la Rue",
+            "subtitle": "La façon la plus simple d'obtenir des vêtements tendance.",
             "design": "Choisir ou Créer",
-            "designDesc": "Choisissez dans notre collection ou téléchargez votre design",
-            "print": "Nous Imprimons",
-            "printDesc": "Impression haute qualité avec des encres écologiques",
+            "designDesc": "Choisissez parmi nos collections ou téléchargez votre propre design.",
+            "print": "Impression Premium",
+            "printDesc": "Encres de qualité musée sur coton épais. Chaque pixel parfait.",
             "deliver": "Livraison Rapide",
-            "deliverDesc": "Expédié sous 3-5 jours ouvrables"
+            "deliverDesc": "Expédié de Montréal en 3-5 jours. Lien de suivi envoyé directement."
         }
     },
     "home": {
@@ -82,9 +90,8 @@
         "poweredBy": "Propulsé par"
     },
     "featuredProducts": {
-        "title": "En Vedette",
-        "titleAccent": "Meilleures Ventes",
-        "viewAll": "Voir Tous les Produits",
+        "title": "Produits en Vedette",
+        "viewAll": "Voir Tout",
         "quickView": "Vue Rapide",
         "addToCart": "Ajouter au Panier",
         "moreProducts": "Envie de voir plus de designs géniaux?",
@@ -97,34 +104,23 @@
         "noProducts": "Aucun produit en vedette disponible pour le moment."
     },
     "categories": {
-        "title": {
-            "line1": "ACHETER PAR ",
-            "highlight": "CATÉGORIE"
-        },
-        "subtitle": "Trouvez exactement ce que vous cherchez",
+        "title": "Acheter par Catégorie",
+        "viewAll": "Voir Tout",
         "products": "Produits",
         "shopNow": "MAGASINER",
         "tshirts": {
             "name": "T-Shirts",
-            "description": "Confort classique et designs audacieux. T-shirts de qualité supérieure pour tous les jours."
+            "badge": "Essentiel"
         },
         "hoodies": {
-            "name": "Chandails à Capuchon",
-            "description": "Restez au chaud avec style. Hoodies confortables avec impressions personnalisées."
+            "name": "Chandails"
         },
-        "sweatshirts": {
-            "name": "Chandails",
-            "description": "Parfait pour toute saison. Chandails polyvalents avec vos designs uniques."
+        "headwear": {
+            "name": "Couvre-Chefs"
         },
-        "custom": {
-            "name": "Designs Personnalisés",
-            "description": "Créez quelque chose d'unique. Concevez votre propre chef-d'œuvre de A à Z.",
-            "badge": "CRÉEZ LE VÔTRE",
-            "cta": "COMMENCER À DESIGNER"
-        },
-        "bottomCta": {
-            "text": "VOUS NE TROUVEZ PAS CE QUE VOUS CHERCHEZ?",
-            "button": "VOIR TOUS LES PRODUITS"
+        "accessories": {
+            "name": "Accessoires",
+            "badge": "Nouveau Stock"
         }
     },
     "productCard": {
@@ -153,63 +149,53 @@
         "inCart": "En panier"
     },
     "valueProps": {
-        "quality": "Qualité Premium",
-        "qualityDesc": "Matériaux soigneusement sélectionnés",
-        "design": "Designs Uniques",
-        "designDesc": "Démarquez-vous",
-        "shipping": "Traitement Rapide",
-        "shippingDesc": "Gestion rapide des commandes",
+        "freeShipping": "Livraison Gratuite",
+        "freeShippingDesc": "Sur toutes les commandes de plus de 100$",
         "secure": "Paiement Sécurisé",
-        "secureDesc": "Vos données sont protégées"
+        "secureDesc": "Paiement 100% protégé",
+        "returns": "Retours Gratuits",
+        "returnsDesc": "Politique de retour de 30 jours",
+        "fastDrops": "Nouveautés Rapides",
+        "fastDropsDesc": "Nouveaux articles chaque vendredi"
     },
     "about": {
-        "title": "Notre",
-        "titleAccent": "Histoire",
+        "badge": "Est. 2024 • Montréal",
+        "title": "Notre Histoire",
         "whyTitle": "Pourquoi Nous Avons Commencé",
         "whyText": "Nous croyons que chacun mérite de s'exprimer à travers des vêtements de qualité abordables. Chaque pièce est conçue avec passion et souci du détail.",
         "qualityTitle": "Nos Standards",
         "qualityText": "Nous testons personnellement chaque produit. Si nous ne le porterions pas nous-mêmes, nous ne vous le vendrons pas. La qualité est notre promesse.",
         "missionTitle": "Notre Mission",
         "missionText": "Construire une communauté d'individus qui valorisent la qualité, la créativité et l'expression authentique à travers la mode.",
-        "ctaText": "Rejoignez-nous dans cette aventure. Chaque achat soutient une petite entreprise avec de grands rêves."
+        "ctaTitle": "Rejoignez-nous dans cette aventure.",
+        "ctaText": "Chaque achat soutient une petite entreprise avec de grands rêves."
     },
     "newsletter": {
-        "title": "Rejoignez Notre",
-        "titleAccent": "Communauté",
-        "description": "Soyez les premiers informés des nouveautés et offres exclusives. Rejoignez notre communauté de lancement pour des réductions spéciales!",
+        "title": "Ne Manquez Pas Les Nouveautés.",
+        "description": "Rejoignez le cercle privé. Accès anticipé, réductions exclusives, et aucun spam.",
         "placeholder": "Entrez votre email",
-        "subscribe": "S'abonner",
+        "subscribe": "REJOINDRE",
         "subscribing": "Inscription...",
         "subscribed": "Inscrit!",
-        "success": "Bienvenue dans la communauté! Vérifiez votre email pour une offre spéciale.",
+        "success": "Bienvenue dans le cercle privé! Vérifiez votre email.",
         "errorInvalid": "Veuillez entrer un email valide",
-        "errorGeneral": "Une erreur s'est produite. Veuillez réessayer.",
-        "disclaimer": "Nous respectons votre vie privée. Désinscription possible à tout moment.",
-        "benefit1": "Accès anticipé aux ventes",
-        "benefit2": "Réductions exclusives",
-        "benefit3": "Alertes nouveautés"
+        "errorGeneral": "Une erreur s'est produite. Veuillez réessayer."
     },
     "footer": {
-        "tagline": "Vêtements de qualité pour une expression authentique",
+        "tagline": "Streetwear pour le créatif moderne. Vêtements de qualité, designs uniques.",
         "shop": "Boutique",
-        "allProducts": "Tous les Produits",
         "newArrivals": "Nouveautés",
+        "bestSellers": "Meilleures Ventes",
+        "accessories": "Accessoires",
         "sale": "Soldes",
-        "categories": "Catégories",
-        "help": "Aide",
+        "support": "Support",
+        "trackOrder": "Suivi de Commande",
+        "returns": "Retours",
+        "shipping": "Info Livraison",
         "contact": "Nous Contacter",
-        "sizeGuide": "Guide des Tailles",
-        "careInstructions": "Instructions d'Entretien",
-        "faq": "FAQ",
-        "info": "Info",
-        "about": "À Propos",
+        "legal": "Légal",
         "privacy": "Politique de Confidentialité",
-        "terms": "Conditions d'Utilisation",
-        "securePayments": "Paiements Sécurisés",
-        "fastShipping": "Livraison Rapide",
-        "newWeekly": "Nouveautés Hebdomadaires",
-        "rights": "Tous droits réservés.",
-        "poweredBy": "Propulsé par"
+        "terms": "Conditions d'Utilisation"
     },
     "signUp": {
         "title": "S'inscrire",
@@ -609,16 +595,96 @@
         "items": "Articles",
         "total": "Total",
         "trackOrder": "Suivre la commande",
+        "placedOn": "Passée le",
+        "order": "Commande",
+        "otherItems": "autre article",
+        "otherItems_other": "autres articles",
+        "viewDetails": "Voir les détails",
         "orderStatus": {
-            "pending": "En attente",
+            "pending": "Commande reçue",
             "confirmed": "Confirmée",
             "processing": "En traitement",
-            "shipped": "Expédiée",
+            "shipped": "En transit",
             "delivered": "Livrée",
             "cancelled": "Annulée",
             "refunded": "Remboursée",
             "failed": "Échouée"
-        }
+        },
+        "hqTitle": "LE QG",
+        "welcomeBack": "Bienvenue",
+        "friend": "Ami",
+        "signOut": "Déconnexion",
+        "orders": "Commandes",
+        "addresses": "Adresses",
+        "paymentMethods": "Méthodes de Paiement",
+        "settings": "Paramètres",
+        "savedAddresses": "Adresses enregistrées",
+        "noAddresses": "Aucune adresse",
+        "noAddressesDescription": "Ajoutez votre première adresse pour accélérer le paiement",
+        "addNewAddress": "Ajouter une nouvelle adresse",
+        "editAddress": "Modifier l'adresse",
+        "addressType": "Type d'adresse",
+        "shipping": "Livraison",
+        "billing": "Facturation",
+        "firstName": "Prénom",
+        "firstNamePlaceholder": "Jean",
+        "lastName": "Nom",
+        "lastNamePlaceholder": "Dupont",
+        "company": "Entreprise (Optionnel)",
+        "companyPlaceholder": "Nom de l'entreprise",
+        "streetAddress": "Adresse",
+        "streetAddressPlaceholder": "123 rue Principale",
+        "apartmentSuite": "Appartement, Bureau, etc.",
+        "apartmentSuitePlaceholder": "App 4B (optionnel)",
+        "city": "Ville",
+        "cityPlaceholder": "Montréal",
+        "province": "Province",
+        "selectProvince": "Sélectionner la province",
+        "postalCode": "Code postal",
+        "postalCodePlaceholder": "H3A 1A1",
+        "country": "Pays",
+        "setAsDefault": "Définir comme adresse par défaut",
+        "setDefault": "Définir par défaut",
+        "defaultAddress": "Par défaut",
+        "delete": "Supprimer",
+        "edit": "Modifier",
+        "cancel": "Annuler",
+        "saveAddress": "Enregistrer l'adresse",
+        "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cette adresse?",
+        "confirmDeleteAddress": "Êtes-vous sûr de vouloir supprimer cette adresse?",
+        "addressSaved": "Adresse enregistrée avec succès",
+        "addressAdded": "Adresse ajoutée avec succès",
+        "addressUpdated": "Adresse mise à jour avec succès",
+        "addressDeleted": "Adresse supprimée avec succès",
+        "defaultAddressUpdated": "Adresse par défaut mise à jour",
+        "errorSavingAddress": "Échec de l'enregistrement de l'adresse",
+        "errorDeletingAddress": "Échec de la suppression de l'adresse",
+        "errorLoadingAddresses": "Échec du chargement des adresses",
+        "errorUpdatingDefaultAddress": "Échec de la mise à jour de l'adresse par défaut",
+        "validationError": "Erreur de validation",
+        "fillRequiredFields": "Veuillez remplir tous les champs obligatoires",
+        "savedPaymentMethods": "Méthodes de Paiement",
+        "noPaymentMethods": "Aucune méthode de paiement",
+        "noPaymentMethodsDescription": "Ajoutez une méthode de paiement pour accélérer le paiement",
+        "addNewPaymentMethod": "Ajouter une nouvelle méthode de paiement",
+        "addCard": "Ajouter une carte",
+        "cardholderName": "Nom du titulaire",
+        "cardholderNamePlaceholder": "Jean Dupont",
+        "cardDetails": "Détails de la carte",
+        "securityNotice": "Les informations de votre carte sont traitées de manière sécurisée par Stripe. Nous ne stockons jamais les détails complets de votre carte.",
+        "adding": "Ajout en cours...",
+        "cardholder": "Titulaire",
+        "expires": "Expire",
+        "enterCardholderName": "Veuillez entrer le nom du titulaire de la carte",
+        "paymentMethodAdded": "Méthode de paiement ajoutée avec succès",
+        "paymentMethodDeleted": "Méthode de paiement supprimée avec succès",
+        "defaultPaymentMethodUpdated": "Méthode de paiement par défaut mise à jour",
+        "errorAddingPaymentMethod": "Échec de l'ajout de la méthode de paiement",
+        "errorDeletingPaymentMethod": "Échec de la suppression de la méthode de paiement",
+        "errorLoadingPaymentMethods": "Échec du chargement des méthodes de paiement",
+        "errorUpdatingDefaultPaymentMethod": "Échec de la mise à jour de la méthode de paiement par défaut",
+        "confirmDeletePaymentMethod": "Êtes-vous sûr de vouloir supprimer cette méthode de paiement?",
+        "profilePicture": "Photo de profil"
     },
     "cart": {
         "cart": "Panier",
@@ -747,7 +813,12 @@
         "selectProvince": "Sélectionner une province",
         "deliveryAvailable": "Livraison disponible",
         "canadaOnly": "Canada seulement",
-        "billingAddressSearch": "Rechercher votre adresse de facturation"
+        "billingAddressSearch": "Rechercher votre adresse de facturation",
+        "shippingMethod": "Méthode de livraison",
+        "standardShipping": "Livraison standard",
+        "expressShipping": "Livraison express",
+        "creditCard": "Carte de crédit",
+        "payNow": "Payer maintenant"
     },
     "checkoutSuccess": {
         "loadingOrder": "Chargement des détails de la commande...",
@@ -903,7 +974,10 @@
     "wishlist": {
         "title": "Ma Liste de Souhaits",
         "subtitle": "Vos produits préférés",
-        "itemCount": "{count, plural, =1 {1 article} other {# articles}}",
+        "headerBadge": "Sauvegardé pour Plus Tard",
+        "headerTitle": "LA RÉSERVE",
+        "headerDescription": "Ne manquez pas ces styles. Les stocks sont limités et partent vite.",
+        "itemCount": "{count, plural, =1 {1 article sauvegardé} other {# articles sauvegardés}}",
         "emptyTitle": "Votre liste de souhaits est vide",
         "emptyDescription": "Commencez à ajouter les produits que vous aimez à votre liste de souhaits",
         "startShopping": "Commencer à Magasiner",
@@ -912,7 +986,14 @@
         "errorLoading": "Échec du chargement de la liste de souhaits",
         "removeFromWishlist": "Retirer de la liste de souhaits",
         "addToCart": "Ajouter au Panier",
-        "outOfStock": "Épuisé"
+        "outOfStock": "Épuisé",
+        "inStock": "En Stock",
+        "color": "Couleur",
+        "colors": "Couleurs",
+        "size": "Taille",
+        "sizes": "Tailles",
+        "added": "Ajouté",
+        "remove": "Retirer"
     },
     "tracking": {
         "title": "Suivre votre commande",

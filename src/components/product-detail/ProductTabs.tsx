@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Package, Heart, Ruler, Truck } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 
 interface ProductTabsProps {
   description?: string;
@@ -13,223 +13,101 @@ interface ProductTabsProps {
 
 export default function ProductTabs({ description, material, careInstructions }: ProductTabsProps) {
   const t = useTranslations('productDetail');
-  const [activeTab, setActiveTab] = useState<'description' | 'materials' | 'sizeGuide' | 'shipping'>('description');
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set(['description']));
 
-  const tabs = [
-    {
-      id: 'description' as const,
-      label: t('tabs.description') || 'Description',
-      icon: Package,
-    },
-    {
-      id: 'materials' as const,
-      label: t('tabs.materials') || 'Materials & Care',
-      icon: Heart,
-    },
-    {
-      id: 'sizeGuide' as const,
-      label: t('tabs.sizeGuide') || 'Size Guide',
-      icon: Ruler,
-    },
-    {
-      id: 'shipping' as const,
-      label: t('tabs.shipping') || 'Shipping Info',
-      icon: Truck,
-    },
-  ];
+  const toggleSection = (section: string) => {
+    const newOpenSections = new Set(openSections);
+    if (newOpenSections.has(section)) {
+      newOpenSections.delete(section);
+    } else {
+      newOpenSections.add(section);
+    }
+    setOpenSections(newOpenSections);
+  };
 
   return (
-    <div className="product-tabs">
-      {/* Tab Headers */}
-      <div className="product-tabs__headers">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`product-tabs__header ${
-                activeTab === tab.id ? 'product-tabs__header--active' : ''
-              }`}
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              aria-controls={`tab-panel-${tab.id}`}
-            >
-              <Icon size={18} />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
+    <div className="border-t border-gray-200 space-y-3 pt-4">
+      {/* Description Section */}
+      <div className="group cursor-pointer">
+        <div
+          className="flex justify-between items-center mb-1.5"
+          onClick={() => toggleSection('description')}
+        >
+          <span className="font-bold text-gray-900 text-sm">{t('tabs.description') || 'Description'}</span>
+          {openSections.has('description') ? (
+            <Minus className="w-3.5 h-3.5 text-gray-400" />
+          ) : (
+            <Plus className="w-3.5 h-3.5 text-gray-400" />
+          )}
+        </div>
+        {openSections.has('description') && description && (
+          <p className="text-xs text-gray-500 leading-relaxed whitespace-pre-line">
+            {description}
+          </p>
+        )}
       </div>
 
-      {/* Tab Content */}
-      <div className="product-tabs__content">
-        {/* Description Tab */}
-        {activeTab === 'description' && (
-          <div
-            className="product-tabs__panel"
-            role="tabpanel"
-            id="tab-panel-description"
-            aria-labelledby="tab-description"
-          >
-            {description ? (
-              <div className="product-tabs__description">
-                <p className="whitespace-pre-line">{description}</p>
+      {/* Shipping & Returns Section */}
+      <div className="border-t border-gray-100 pt-3 group cursor-pointer">
+        <div
+          className="flex justify-between items-center"
+          onClick={() => toggleSection('shipping')}
+        >
+          <span className="font-bold text-gray-900 text-sm">{t('tabs.shipping') || 'Shipping & Returns'}</span>
+          {openSections.has('shipping') ? (
+            <Minus className="w-3.5 h-3.5 text-gray-400" />
+          ) : (
+            <Plus className="w-3.5 h-3.5 text-gray-400" />
+          )}
+        </div>
+        {openSections.has('shipping') && (
+          <div className="mt-2 text-xs text-gray-500 space-y-2">
+            <div>
+              <p className="font-bold text-gray-900 mb-0.5 text-xs">Delivery Times</p>
+              <ul className="list-disc list-inside space-y-0.5">
+                <li>Standard Shipping: 5-7 business days</li>
+                <li>Express Shipping: 2-3 business days</li>
+                <li>Free Shipping on orders over $150</li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-bold text-gray-900 mb-0.5 text-xs">Returns & Exchanges</p>
+              <p>We offer a 30-day return policy on all items. Items must be unworn, unwashed, and in original condition with tags attached.</p>
+            </div>
+          </div>
+        )}
+      </div>
 
-                {/* You can add key features here */}
-                <div className="product-tabs__features">
-                  <h4 className="product-tabs__subtitle">Key Features</h4>
-                  <ul className="product-tabs__list">
-                    <li>Premium quality materials</li>
-                    <li>Modern, comfortable fit</li>
-                    <li>Durable construction</li>
-                    <li>Easy care and maintenance</li>
-                  </ul>
-                </div>
+      {/* Materials & Care Section */}
+      <div className="border-t border-gray-100 pt-3 group cursor-pointer">
+        <div
+          className="flex justify-between items-center"
+          onClick={() => toggleSection('materials')}
+        >
+          <span className="font-bold text-gray-900 text-sm">{t('tabs.materials') || 'Materials & Care'}</span>
+          {openSections.has('materials') ? (
+            <Minus className="w-3.5 h-3.5 text-gray-400" />
+          ) : (
+            <Plus className="w-3.5 h-3.5 text-gray-400" />
+          )}
+        </div>
+        {openSections.has('materials') && (
+          <div className="mt-2 text-xs text-gray-500 space-y-2">
+            {material && (
+              <div>
+                <p className="font-bold text-gray-900 mb-0.5 text-xs">Material Composition</p>
+                <p>{material}</p>
               </div>
-            ) : (
-              <p className="text-muted-foreground">No description available.</p>
             )}
-          </div>
-        )}
-
-        {/* Materials & Care Tab */}
-        {activeTab === 'materials' && (
-          <div
-            className="product-tabs__panel"
-            role="tabpanel"
-            id="tab-panel-materials"
-            aria-labelledby="tab-materials"
-          >
-            <div className="product-tabs__materials">
-              {material && (
-                <div className="product-tabs__section">
-                  <h4 className="product-tabs__subtitle">Material Composition</h4>
-                  <p>{material}</p>
-                </div>
-              )}
-
-              {careInstructions && (
-                <div className="product-tabs__section">
-                  <h4 className="product-tabs__subtitle">Care Instructions</h4>
-                  <p className="whitespace-pre-line">{careInstructions}</p>
-                </div>
-              )}
-
-              {!material && !careInstructions && (
-                <p className="text-muted-foreground">No material information available.</p>
-              )}
-
-              {/* General care tips */}
-              <div className="product-tabs__section">
-                <h4 className="product-tabs__subtitle">Care Tips</h4>
-                <ul className="product-tabs__list">
-                  <li>Machine wash cold with like colors</li>
-                  <li>Tumble dry low or hang to dry</li>
-                  <li>Do not bleach</li>
-                  <li>Iron on low heat if needed</li>
-                  <li>Do not dry clean</li>
-                </ul>
+            {careInstructions && (
+              <div>
+                <p className="font-bold text-gray-900 mb-0.5 text-xs">Care Instructions</p>
+                <p className="whitespace-pre-line">{careInstructions}</p>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Size Guide Tab */}
-        {activeTab === 'sizeGuide' && (
-          <div
-            className="product-tabs__panel"
-            role="tabpanel"
-            id="tab-panel-sizeGuide"
-            aria-labelledby="tab-sizeGuide"
-          >
-            <div className="product-tabs__size-guide">
-              <h4 className="product-tabs__subtitle">Size Chart</h4>
-
-              <div className="product-tabs__table-wrapper">
-                <table className="product-tabs__table">
-                  <thead>
-                    <tr>
-                      <th>Size</th>
-                      <th>Chest (in)</th>
-                      <th>Length (in)</th>
-                      <th>Sleeve (in)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>S</td>
-                      <td>34-36</td>
-                      <td>27-28</td>
-                      <td>33-34</td>
-                    </tr>
-                    <tr>
-                      <td>M</td>
-                      <td>38-40</td>
-                      <td>28-29</td>
-                      <td>34-35</td>
-                    </tr>
-                    <tr>
-                      <td>L</td>
-                      <td>42-44</td>
-                      <td>29-30</td>
-                      <td>35-36</td>
-                    </tr>
-                    <tr>
-                      <td>XL</td>
-                      <td>46-48</td>
-                      <td>30-31</td>
-                      <td>36-37</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="product-tabs__section">
-                <h4 className="product-tabs__subtitle">Fit Information</h4>
-                <ul className="product-tabs__list">
-                  <li><strong>Fit:</strong> Regular fit</li>
-                  <li><strong>Model:</strong> Model is 6&apos;0&quot; and wearing size M</li>
-                  <li><strong>Recommendation:</strong> True to size</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Shipping Tab */}
-        {activeTab === 'shipping' && (
-          <div
-            className="product-tabs__panel"
-            role="tabpanel"
-            id="tab-panel-shipping"
-            aria-labelledby="tab-shipping"
-          >
-            <div className="product-tabs__shipping">
-              <div className="product-tabs__section">
-                <h4 className="product-tabs__subtitle">Delivery Times</h4>
-                <ul className="product-tabs__list">
-                  <li><strong>Standard Shipping:</strong> 5-7 business days</li>
-                  <li><strong>Express Shipping:</strong> 2-3 business days</li>
-                  <li><strong>Free Shipping:</strong> Orders over $150</li>
-                </ul>
-              </div>
-
-              <div className="product-tabs__section">
-                <h4 className="product-tabs__subtitle">Returns & Exchanges</h4>
-                <p>We offer a 30-day return policy on all items. Items must be unworn, unwashed, and in original condition with tags attached.</p>
-                <ul className="product-tabs__list">
-                  <li>Free returns on all orders</li>
-                  <li>Easy return process</li>
-                  <li>Full refund or exchange</li>
-                </ul>
-              </div>
-
-              <div className="product-tabs__section">
-                <h4 className="product-tabs__subtitle">Order Tracking</h4>
-                <p>You&apos;ll receive a tracking number via email once your order ships. Track your package in real-time from our warehouse to your door.</p>
-              </div>
-            </div>
+            )}
+            {!material && !careInstructions && (
+              <p>No material information available.</p>
+            )}
           </div>
         )}
       </div>

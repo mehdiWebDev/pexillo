@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  darkMode: ["class"],
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -11,6 +10,30 @@ export default {
   theme: {
   	extend: {
   		colors: {
+  			brand: {
+  				// UI & BUTTONS (The Core)
+  				dark: 'hsl(var(--brand-dark))',
+  				gray: 'hsl(var(--brand-gray))',
+  				white: 'hsl(var(--brand-white))',
+  				// STICKER BOMB ACCENTS (Vibe only)
+  				red: 'hsl(var(--brand-red))',
+  				yellow: 'hsl(var(--brand-yellow))',
+  				blue: 'hsl(var(--brand-blue))',
+  				purple: 'hsl(var(--brand-purple))',
+  				green: 'hsl(var(--brand-green))',
+  			},
+  			gray: {
+  				50: 'hsl(var(--gray-50))',
+  				100: 'hsl(var(--gray-100))',
+  				200: 'hsl(var(--gray-200))',
+  				300: 'hsl(var(--gray-300))',
+  				400: 'hsl(var(--gray-400))',
+  				500: 'hsl(var(--gray-500))',
+  				600: 'hsl(var(--gray-600))',
+  				700: 'hsl(var(--gray-700))',
+  				800: 'hsl(var(--gray-800))',
+  				900: 'hsl(var(--gray-900))',
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
@@ -52,11 +75,42 @@ export default {
   				'5': 'hsl(var(--chart-5))'
   			}
   		},
+  		fontFamily: {
+  			heading: ['var(--font-outfit)', 'sans-serif'],
+  			marker: ['var(--font-permanent-marker)', 'cursive'],
+  			sans: ['var(--font-outfit)', 'sans-serif'],
+  		},
+  		backgroundImage: {
+  			'doodle': 'radial-gradient(#E5E7EB 1px, transparent 1px)',
+  		},
+  		backgroundSize: {
+  			'doodle': '20px 20px',
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+  		animation: {
+  			'pop-in': 'popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+  			'float': 'float 6s ease-in-out infinite',
+  		},
+  		keyframes: {
+  			popIn: {
+  				'0%': {
+  					transform: 'scale(0.8) rotate(0deg)',
+  					opacity: '0'
+  				},
+  				'100%': {
+  					transform: 'scale(1) rotate(var(--tw-rotate))',
+  					opacity: '1'
+  				},
+  			},
+  			float: {
+  				'0%, 100%': { transform: 'translateY(0) rotate(var(--tw-rotate))' },
+  				'50%': { transform: 'translateY(-10px) rotate(var(--tw-rotate))' },
+  			},
+  		},
   	}
   },
   plugins: [require("tailwindcss-animate")],

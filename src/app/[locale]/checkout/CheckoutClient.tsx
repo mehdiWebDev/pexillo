@@ -12,8 +12,6 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import {
     ArrowLeft,
-    CreditCard,
-    Truck,
     Lock,
 } from 'lucide-react';
 import { RootState } from '@/src/store';
@@ -22,7 +20,6 @@ import { toast } from '@/src/hooks/use-toast';
 import ShippingForm from './components/ShippingForm';
 import PaymentForm from './components/PaymentForm';
 import OrderSummary from './components/OrderSummary';
-import CheckoutSteps from './components/CheckoutSteps';
 import Loader from '@/src/components/ui/Loader';
 
 
@@ -331,29 +328,30 @@ export default function CheckoutClient() {
     }
 
     return (
-        <div className="min-h-screen bg-background">
-            <div className="container mx-auto px-4 py-8">
-                {/* Header */}
-                <div className="mb-8">
+        <div className="min-h-screen bg-white">
+            {/* Simple Checkout Header */}
+            <header className="border-b border-gray-200 py-6 sticky top-0 bg-white/90 backdrop-blur-md z-40">
+                <div className="max-w-7xl mx-auto px-4 md:px-8 flex justify-between items-center">
                     <button
                         onClick={() => router.push('/cart')}
-                        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
+                        className="text-lg font-semibold tracking-tighter group flex items-center gap-2"
                     >
-                        <ArrowLeft size={20} />
+                        <ArrowLeft className="w-5 h-5 text-gray-400 group-hover:text-gray-900 transition-colors" />
                         {t('backToCart')}
                     </button>
-
-                    <h1 className="text-3xl font-bold">{t('checkout')}</h1>
+                    <div className="flex items-center gap-2 text-sm font-bold text-gray-900">
+                        <Lock className="w-4 h-4 text-red-600" />
+                        {t('secureCheckout')}
+                    </div>
                 </div>
+            </header>
 
-                {/* Checkout Steps */}
-                <CheckoutSteps currentStep={currentStep} />
-
-                <div className="grid lg:grid-cols-5 gap-8 mt-8">
-                    {/* Main Content */}
-                    <div className="lg:col-span-3">
+            <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 md:py-8 lg:py-12">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12">
+                    {/* Main Content - Left Column */}
+                    <div className="lg:col-span-7 space-y-6 md:space-y-8">
                         {currentStep === 1 ? (
-                            <div className="space-y-6">
+                            <>
                                 <ShippingForm
                                     form={form}
                                     onAddressChange={handleAddressChange}
@@ -361,32 +359,19 @@ export default function CheckoutClient() {
                                 />
 
                                 {/* Continue to Payment Button */}
-                                <div className="flex justify-between items-center pt-6">
-                                    <button
-                                        type="button"
-                                        onClick={() => router.push('/cart')}
-                                        className="text-primary hover:underline"
-                                    >
-                                        {t('returnToCart')}
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={handleNextStep}
-                                        disabled={isProcessing}
-                                        className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
-                                    >
-                                        {isProcessing ? (
-                                            <span className="loader" />
-                                        ) : (
-                                            <>
-                                                {t('continueToPayment')}
-                                                <CreditCard size={20} />
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
+                                <button
+                                    type="button"
+                                    onClick={handleNextStep}
+                                    disabled={isProcessing}
+                                    className="w-full py-4 md:py-5 bg-gray-900 text-white font-black text-base md:text-lg rounded-xl hover:bg-gray-800 transition-all shadow-lg hover:-translate-y-1 disabled:opacity-50 disabled:transform-none"
+                                >
+                                    {isProcessing ? (
+                                        <span className="loader" />
+                                    ) : (
+                                        `${t('continueToPayment')} $${total.toFixed(2)}`
+                                    )}
+                                </button>
+                            </>
                         ) : (
                             <Elements
                                 stripe={stripePromise}
@@ -414,8 +399,8 @@ export default function CheckoutClient() {
                         )}
                     </div>
 
-                    {/* Order Summary Sidebar */}
-                    <div className="lg:col-span-2">
+                    {/* Order Summary Sidebar - Right Column */}
+                    <div className="lg:col-span-5">
                         <OrderSummary
                             items={translatedItems}
                             subtotal={subtotal}
@@ -424,18 +409,6 @@ export default function CheckoutClient() {
                             taxBreakdown={taxBreakdown}
                             total={total}
                         />
-
-                        {/* Security Badges */}
-                        <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                                <Lock size={16} />
-                                <span>{t('secureCheckout')}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Truck size={16} />
-                                <span>{t('freeShippingOver150')}</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

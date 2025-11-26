@@ -1,7 +1,6 @@
 @use "base/base";
 
 // components
-@use "components/nav-menu";
 @use "components/profile-nav";
 @use "components/theme-toggle";
 @use "components/language-switcher";
@@ -16,6 +15,5 @@
 @use "components/news-letter";
 
 // pages
-@use "pages/products";
 @use "pages/wishlist";
 @use "pages/product-detail";

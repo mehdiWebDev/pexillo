@@ -3,23 +3,30 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/src/i18n/routing';
-import { ThemeProvider } from "next-themes";
 import { ReduxProvider } from "@/src/providers/ReduxProvider";
 import { ReactQueryProvider } from "@/src/providers/ReactQueryProvider";
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ClientNavigationMenu } from "@/src/components/nav-menu";
 import { AuthButton } from "@/src/components/auth-button";
-import { Geist } from "next/font/google";
+import { Outfit, Permanent_Marker } from "next/font/google";
 import Footer from "@/src/components/footer";
 
 const defaultUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000";
 
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    display: "swap",
+const outfit = Outfit({
     subsets: ["latin"],
+    variable: "--font-outfit",
+    weight: ["300", "400", "500", "600", "700", "800", "900"],
+    display: "swap",
+});
+
+const permanentMarker = Permanent_Marker({
+    weight: "400",
+    subsets: ["latin"],
+    variable: "--font-permanent-marker",
+    display: "swap",
 });
 
 // Generate static params for all locales
@@ -63,24 +70,17 @@ export default async function LocaleLayout({
     const messages = await getMessages({ locale });
 
     return (
-        <html lang={locale} suppressHydrationWarning>
-            <body className={`${geistSans.className} antialiased`}>
+        <html lang={locale}>
+            <body className={`${outfit.variable} ${permanentMarker.variable} font-heading antialiased`}>
                 <ReduxProvider>
                     <ReactQueryProvider>
-                        <ThemeProvider
-                            attribute="class"
-                            defaultTheme="system"
-                            enableSystem
-                            disableTransitionOnChange
-                        >
-                            <NextIntlClientProvider messages={messages} locale={locale}>
-                                <ClientNavigationMenu>
-                                    <AuthButton />
-                                </ClientNavigationMenu>
-                                {children}
-                                <Footer />
-                            </NextIntlClientProvider>
-                        </ThemeProvider>
+                        <NextIntlClientProvider messages={messages} locale={locale}>
+                            <ClientNavigationMenu>
+                                <AuthButton />
+                            </ClientNavigationMenu>
+                            {children}
+                            <Footer />
+                        </NextIntlClientProvider>
                         <ReactQueryDevtools />
                     </ReactQueryProvider>
                 </ReduxProvider>

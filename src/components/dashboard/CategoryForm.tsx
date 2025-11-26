@@ -205,6 +205,56 @@ export default function CategoryForm({ categoryId }: CategoryFormProps) {
     setLoading(true);
 
     try {
+      // Check if name already exists (excluding current category when editing)
+      const nameQuery = supabase
+        .from('categories')
+        .select('id')
+        .eq('name', formData.name);
+
+      // When editing, exclude the current category from the check
+      if (isEditing) {
+        nameQuery.neq('id', categoryId);
+      }
+
+      const { data: existingNameCategories, error: nameCheckError } = await nameQuery;
+
+      if (nameCheckError) throw nameCheckError;
+
+      if (existingNameCategories && existingNameCategories.length > 0) {
+        toast({
+          title: 'Duplicate Name',
+          description: 'A category with this name already exists. Please use a different name.',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Check if slug already exists (excluding current category when editing)
+      const slugQuery = supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', formData.slug);
+
+      // When editing, exclude the current category from the check
+      if (isEditing) {
+        slugQuery.neq('id', categoryId);
+      }
+
+      const { data: existingSlugCategories, error: slugCheckError } = await slugQuery;
+
+      if (slugCheckError) throw slugCheckError;
+
+      if (existingSlugCategories && existingSlugCategories.length > 0) {
+        toast({
+          title: 'Duplicate Slug',
+          description: 'A category with this slug already exists. Please use a different slug.',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+
       let finalImageUrl = imageUrl;
 
       // Upload new image if selected
@@ -212,7 +262,7 @@ export default function CategoryForm({ categoryId }: CategoryFormProps) {
         setUploading(true);
         const uploadedUrl = await uploadImage(imageFile);
         setUploading(false);
-        
+
         if (uploadedUrl) {
           finalImageUrl = uploadedUrl;
         }

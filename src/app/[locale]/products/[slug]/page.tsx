@@ -6,20 +6,9 @@ import { use } from 'react';
 import { useRouter } from '@/src/i18n/routing';
 import { Link } from '@/src/i18n/routing';
 import { useTranslations, useLocale } from 'next-intl';
-import { Badge } from '@/src/components/ui/badge';
 import { Button } from '@/src/components/ui/button';
 import {
-  ShoppingCart,
-  Heart,
-  Truck,
-  RotateCcw,
-  Shield,
-  Minus,
-  Plus,
-  ChevronRight,
-  Package2,
-  Sparkles,
-  Headphones
+  Heart
 } from 'lucide-react';
 import { useCart } from '@/src/hooks/useCart';
 import { useFavorites } from '@/src/hooks/useFavorites';
@@ -254,13 +243,6 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
     setIsAddingToCart(false);
   };
 
-  const handleQuantityChange = (delta: number) => {
-    const newQty = quantity + delta;
-    if (newQty >= 1 && (!selectedVariant || newQty <= maxAvailable)) {
-      setQuantity(newQty);
-    }
-  };
-
   const handleToggleFavorite = () => {
     if (product) {
       toggleFavorite(product.id);
@@ -310,29 +292,31 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
   const productIsFavorited = isFavorite(product.id);
 
   return (
-    <div className="product-detail">
-      <div className="product-detail__container">
-        {/* Breadcrumb */}
-        <nav className="product-detail__breadcrumb" aria-label="Breadcrumb">
-          <Link href="/">Home</Link>
-          <ChevronRight size={16} />
-          <Link href="/products">Products</Link>
+    <div className="bg-white min-h-screen">
+      {/* Breadcrumbs */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4">
+        <nav className="text-[10px] font-bold text-gray-400 uppercase tracking-wider" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-gray-900 transition-colors">Home</Link>
+          <span className="mx-1.5">/</span>
+          <Link href="/products" className="hover:text-gray-900 transition-colors">Shop</Link>
           {translatedProduct.categories && (
             <>
-              <ChevronRight size={16} />
-              <Link href={`/products/${translatedProduct.categories.slug}`}>
+              <span className="mx-1.5">/</span>
+              <Link href={`/products/${translatedProduct.categories.slug}`} className="hover:text-gray-900 transition-colors">
                 {translatedProduct.categories.name}
               </Link>
             </>
           )}
-          <ChevronRight size={16} />
-          <span>{translatedProduct.name}</span>
+          <span className="mx-1.5">/</span>
+          <span className="text-gray-900">{translatedProduct.name}</span>
         </nav>
+      </div>
 
-        {/* Main Grid */}
-        <div className="product-detail__grid">
+      {/* Main Grid */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Image Gallery Section */}
-          <div className="product-detail__image-section">
+          <div className="lg:col-span-7">
             <ImageGallery
               images={productImages}
               productName={translatedProduct.name}
@@ -341,54 +325,52 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
           </div>
 
           {/* Product Info Section */}
-          <div className="product-detail__info-section">
-            <div className="space-y-6">
+          <div className="lg:col-span-5">
+            <div className="sticky top-24 space-y-5">
               {/* Header */}
-              <div>
-                {translatedProduct.categories && (
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {translatedProduct.categories.name}
-                  </p>
-                )}
-                <h1 className="text-3xl md:text-4xl font-bold mb-3">
-                  {translatedProduct.name}
-                </h1>
-                {translatedProduct.short_description && (
-                  <p className="text-lg text-muted-foreground leading-relaxed">
-                    {translatedProduct.short_description}
-                  </p>
-                )}
-              </div>
-
-              {/* Price */}
-              <div>
-                <div className="text-3xl font-bold">
-                  ${product.base_price.toFixed(2)}
+              <div className="border-b border-gray-100 pb-6">
+                <div className="flex justify-between items-start gap-3">
+                  <div>
+                    {translatedProduct.badge && (
+                      <span className="bg-gray-900 text-white text-[10px] font-bold px-1.5 py-0.5 rounded inline-block mb-2 transform -rotate-1">
+                        {translatedProduct.badge}
+                      </span>
+                    )}
+                    <h1 className="text-3xl md:text-4xl font-black text-gray-900 leading-none tracking-tight mb-1.5">
+                      {translatedProduct.name}
+                    </h1>
+                    {translatedProduct.short_description && (
+                      <p className="text-gray-500 font-medium text-sm">
+                        {translatedProduct.short_description}
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    onClick={handleToggleFavorite}
+                    variant="outline"
+                    size="lg"
+                    className="p-2.5 rounded-full border-2 border-gray-200 hover:border-red-500 hover:text-red-500 flex-shrink-0"
+                    aria-label={productIsFavorited ? t('removeFromFavorites') : t('addToFavorites')}
+                  >
+                    <Heart
+                      size={20}
+                      className={productIsFavorited ? 'fill-current text-red-500' : ''}
+                    />
+                  </Button>
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {t('features.freeShipping')}
-                </p>
-              </div>
 
-              {/* Stock Status */}
-              {selectedVariant && (
-                <div>
-                  {selectedVariant.inventory_count > 0 ? (
-                    <Badge variant="default" className="bg-green-500">
-                      {t('inStock')}
-                    </Badge>
-                  ) : (
-                    <Badge variant="destructive">
-                      {t('outOfStock')}
-                    </Badge>
-                  )}
-                  {selectedVariant.inventory_count > 0 && selectedVariant.inventory_count <= 5 && (
-                    <span className="text-sm text-orange-600 ml-2">
-                      {t('lowStock', { count: selectedVariant.inventory_count })}
-                    </span>
-                  )}
+                <div className="flex items-end gap-3 mt-4">
+                  <span className="text-2xl font-black text-gray-900">
+                    ${product.base_price.toFixed(2)}
+                  </span>
+                  <div className="flex items-center gap-1 text-xs font-bold text-gray-900 mb-0.5">
+                    <div className="flex text-gray-900 text-sm">
+                      ★★★★★
+                    </div>
+                    <span className="underline decoration-2 decoration-gray-200 ml-1">128 Reviews</span>
+                  </div>
                 </div>
-              )}
+              </div>
 
               {/* Variant Selector */}
               <VariantSelector
@@ -401,105 +383,35 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
                 onSizeGuideClick={() => setIsSizeGuideOpen(true)}
               />
 
-              {/* Quantity Selector */}
-              {selectedVariant && selectedVariant.inventory_count > 0 && (
-                <div>
-                  <label className="block text-sm font-semibold mb-3">
-                    {t('quantity')}
-                  </label>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center border-2 border-border rounded-lg overflow-hidden">
-                      <button
-                        onClick={() => handleQuantityChange(-1)}
-                        disabled={quantity <= 1}
-                        className="p-3 hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        aria-label="Decrease quantity"
-                      >
-                        <Minus size={16} />
-                      </button>
-                      <span className="px-6 font-semibold min-w-[60px] text-center">{quantity}</span>
-                      <button
-                        onClick={() => handleQuantityChange(1)}
-                        disabled={quantity >= maxAvailable}
-                        className="p-3 hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        aria-label="Increase quantity"
-                      >
-                        <Plus size={16} />
-                      </button>
-                    </div>
-                    {currentCartQuantity > 0 && (
-                      <span className="text-sm text-muted-foreground">
-                        {currentCartQuantity} {t('inCart')}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-
               {/* Action Buttons */}
-              <div className="flex gap-3">
-                <Button
+              <div className="flex flex-col gap-3">
+                <button
                   onClick={handleAddToCart}
                   disabled={!selectedVariant || isAddingToCart || maxAvailable === 0}
-                  className="flex-1"
-                  size="lg"
+                  className="w-full py-3.5 bg-gray-900 text-white font-black rounded-xl hover:bg-gray-800 transition-all flex justify-center items-center gap-2.5 shadow-lg hover:-translate-y-1 text-base disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
                 >
-                  <ShoppingCart size={20} className="mr-2" />
-                  {isAddingToCart
-                    ? t('adding') || 'Adding...'
-                    : t('addToCart') || 'Add to Cart'}
-                </Button>
-                <Button
-                  onClick={handleToggleFavorite}
-                  variant="outline"
-                  size="lg"
-                  className="px-4"
-                  aria-label={productIsFavorited ? t('removeFromFavorites') : t('addToFavorites')}
-                >
-                  <Heart
-                    size={20}
-                    className={productIsFavorited ? 'fill-current text-red-500' : ''}
-                  />
-                </Button>
+                  <span>{isAddingToCart ? t('adding') || 'Adding...' : t('addToCart') || 'Add to Bag'}</span>
+                  <span className="w-1 h-1 bg-white rounded-full opacity-50"></span>
+                  <span>${product.base_price.toFixed(2)}</span>
+                </button>
+
+                {selectedVariant && selectedVariant.inventory_count > 0 && selectedVariant.inventory_count <= 12 && (
+                  <div className="bg-red-50 text-red-600 px-3 py-2.5 rounded-lg flex items-center justify-center gap-2 text-xs font-bold border border-red-100">
+                    <span className="animate-pulse">🔥</span>
+                    Selling fast! {selectedVariant.inventory_count} left in stock.
+                  </div>
+                )}
               </div>
 
-              {/* Trust Features */}
-              <div className="grid grid-cols-1 gap-3 p-4 bg-muted/30 rounded-xl border border-border">
-                <div className="flex items-center gap-3 text-sm">
-                  <Truck size={20} className="text-primary flex-shrink-0" />
-                  <span>{t('features.freeShipping')}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <RotateCcw size={20} className="text-primary flex-shrink-0" />
-                  <span>{t('features.returns')}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <Shield size={20} className="text-primary flex-shrink-0" />
-                  <span>{t('features.secure')}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <Sparkles size={20} className="text-primary flex-shrink-0" />
-                  <span>{t('features.quality')}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <Package2 size={20} className="text-primary flex-shrink-0" />
-                  <span>{t('features.production')}</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm">
-                  <Headphones size={20} className="text-primary flex-shrink-0" />
-                  <span>{t('features.support')}</span>
-                </div>
-              </div>
+              {/* Details Accordion */}
+              <ProductTabs
+                description={translatedProduct.description}
+                material={translatedProduct.material}
+                careInstructions={translatedProduct.care_instructions}
+              />
             </div>
           </div>
         </div>
-
-        {/* Product Tabs */}
-        <ProductTabs
-          description={translatedProduct.description}
-          material={translatedProduct.material}
-          careInstructions={translatedProduct.care_instructions}
-        />
       </div>
 
       {/* Size Guide Modal */}

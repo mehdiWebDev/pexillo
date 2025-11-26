@@ -4,204 +4,105 @@
 
 @layer base {
   :root {
+    /* Gen Z Streetwear Theme */
     --background: 0 0% 100%;
-    --foreground: 220 13% 25%;
-    /* Gray 900 */
+    --foreground: 220 13% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 220 13% 25%;
+    --card-foreground: 220 13% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 25%;
+    --popover-foreground: 220 13% 10%;
 
-    /* Bold & Energetic Theme Colors */
-    --primary: 0 84% 60%;
-    /* Red #EF4444 */
+    /* Brand Colors - UI & BUTTONS (The Core) */
+    --brand-dark: 220 26% 14%;
+    /* #111827 */
+    --brand-gray: 220 14% 96%;
+    /* #F3F4F6 */
+    --brand-white: 0 0% 100%;
+    /* #FFFFFF */
+
+    /* Brand Colors - STICKER BOMB ACCENTS (Vibe only) */
+    --brand-red: 345 83% 51%;
+    /* #E11D48 */
+    --brand-yellow: 45 93% 64%;
+    /* #FCD34D */
+    --brand-blue: 217 91% 60%;
+    /* #3B82F6 */
+    --brand-purple: 271 81% 66%;
+    /* #A855F7 */
+    --brand-green: 142 71% 45%;
+    /* #22C55E */
+
+    /* System Colors */
+    --primary: 345 83% 51%;
+    /* Brand Red */
     --primary-foreground: 0 0% 100%;
     --secondary: 217 91% 60%;
-    /* Blue #3B82F6 */
+    /* Brand Blue */
     --secondary-foreground: 0 0% 100%;
-    --accent: 45 93% 58%;
-    /* Yellow #FCD34D */
-    --accent-foreground: 220 13% 25%;
+    --accent: 45 93% 64%;
+    /* Brand Yellow */
+    --accent-foreground: 220 13% 10%;
 
     --muted: 220 14% 96%;
     --muted-foreground: 220 9% 46%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 345 83% 51%;
+    --destructive-foreground: 0 0% 100%;
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 0 84% 60%;
+    --ring: 345 83% 51%;
+
+    /* Gray Scale */
+    --gray-50: 220 14% 98%;
+    --gray-100: 220 13% 95%;
+    --gray-200: 220 13% 91%;
+    --gray-300: 216 12% 84%;
+    --gray-400: 218 11% 65%;
+    --gray-500: 220 9% 46%;
+    --gray-600: 215 14% 34%;
+    --gray-700: 217 19% 27%;
+    --gray-800: 215 28% 17%;
+    --gray-900: 220 26% 14%;
 
     /* Chart colors */
-    --chart-1: 0 84% 60%;
-    /* Primary Red */
+    --chart-1: 345 83% 51%;
+    /* Brand Red */
     --chart-2: 217 91% 60%;
-    /* Secondary Blue */
-    --chart-3: 45 93% 58%;
-    /* Accent Yellow */
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    /* Brand Blue */
+    --chart-3: 45 93% 64%;
+    /* Brand Yellow */
+    --chart-4: 271 81% 66%;
+    /* Brand Purple */
+    --chart-5: 142 71% 45%;
+    /* Brand Green */
 
-    /* Custom color variables for effects */
-    --primary-rgb: 239, 68, 68;
-    /* #EF4444 */
-    --secondary-rgb: 59, 130, 246;
-    /* #3B82F6 */
-    --accent-rgb: 252, 211, 77;
-    /* #FCD34D */
-    --neutral: 217 19% 27%;
-    /* Gray #374151 */
-
-    /* State colors */
-    --color-state-hover-overlay: rgba(239, 68, 68, 0.05);
-
-    /* Black color */
-    --black: 0 0% 0%;
-    --black-100: 0 0% 100%;
-    --black-200: 0 0% 20%;
-    --black-300: 0 0% 30%;
-    --black-400: 0 0% 40%;
-    --black-500: 0 0% 50%;
-    --black-600: 0 0% 60%;
-    --black-700: 0 0% 70%;
-    --black-800: 0 0% 80%;
-    --black-900: 0 0% 90%;
-
-    /* Gray 900 */
-    --gray-900: 0 0% 100%;
+    --radius: 0.75rem;
 
     /* Badge/Tag Colors */
-    --badge-success: 134 61% 41%;
-    /* Green #22C55E */
+    --badge-success: 142 71% 45%;
     --badge-success-bg: 138 76% 97%;
-    /* Light Green #DCFCE7 */
     --badge-success-text: 140 77% 25%;
-    /* Dark Green #15803D */
 
-    --badge-warning: 45 93% 47%;
-    /* Yellow #EAB308 */
+    --badge-warning: 45 93% 64%;
     --badge-warning-bg: 48 96% 89%;
-    /* Light Yellow #FEF3C7 */
     --badge-warning-text: 45 92% 25%;
-    /* Dark Yellow #854D0E */
 
     --badge-info: 217 91% 60%;
-    /* Blue #3B82F6 */
     --badge-info-bg: 214 95% 93%;
-    /* Light Blue #DBEAFE */
     --badge-info-text: 217 91% 25%;
-    /* Dark Blue #1E40AF */
 
-    --badge-purple: 262 83% 58%;
-    /* Purple #A855F7 */
+    --badge-purple: 271 81% 66%;
     --badge-purple-bg: 270 100% 98%;
-    /* Light Purple #FAF5FF */
     --badge-purple-text: 262 83% 25%;
-    /* Dark Purple #6B21A8 */
 
-    --badge-error: 0 84% 60%;
-    /* Red #EF4444 */
+    --badge-error: 345 83% 51%;
     --badge-error-bg: 0 86% 97%;
-    /* Light Red #FEE2E2 */
     --badge-error-text: 0 84% 25%;
-    /* Dark Red #991B1B */
 
     --badge-neutral: 220 9% 46%;
-    /* Gray #6B7280 */
     --badge-neutral-bg: 220 14% 96%;
-    /* Light Gray #F3F4F6 */
     --badge-neutral-text: 220 13% 25%;
-    /* Dark Gray #374151 */
-
   }
 
-  .dark {
-    --background: 220 26% 7%;
-    /* Near black */
-    --foreground: 210 20% 98%;
-    --card: 220 26% 10%;
-    --card-foreground: 210 20% 98%;
-    --popover: 220 26% 10%;
-    --popover-foreground: 210 20% 98%;
-
-    /* Bold & Energetic Theme Colors - Dark Mode */
-    --primary: 0 84% 60%;
-    /* Keep red vibrant */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 217 91% 60%;
-    /* Keep blue bright */
-    --secondary-foreground: 0 0% 100%;
-    --accent: 45 93% 58%;
-    /* Keep yellow punchy */
-    --accent-foreground: 220 26% 10%;
-
-    --muted: 217 19% 17%;
-    --muted-foreground: 215 20% 65%;
-    --destructive: 0 62% 45%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 217 19% 17%;
-    --input: 217 19% 17%;
-    --ring: 0 84% 60%;
-
-    /* Chart colors - Dark Mode */
-    --chart-1: 0 84% 65%;
-    --chart-2: 217 91% 65%;
-    --chart-3: 45 93% 63%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-
-    /* Custom color variables for dark mode */
-    --primary-rgb: 239, 68, 68;
-    --secondary-rgb: 59, 130, 246;
-    --accent-rgb: 252, 211, 77;
-    --neutral: 217 19% 27%;
-
-    /* State colors - Dark Mode */
-    --color-state-hover-overlay: rgba(239, 68, 68, 0.1);
-
-    /* Badge/Tag Colors - Dark Mode */
-    --badge-success: 134 61% 51%;
-    /* Brighter Green for dark mode */
-    --badge-success-bg: 138 76% 15%;
-    /* Dark Green background */
-    --badge-success-text: 138 76% 85%;
-    /* Light Green text */
-
-    --badge-warning: 45 93% 57%;
-    /* Brighter Yellow */
-    --badge-warning-bg: 48 96% 18%;
-    /* Dark Yellow background */
-    --badge-warning-text: 48 96% 88%;
-    /* Light Yellow text */
-
-    --badge-info: 217 91% 70%;
-    /* Brighter Blue */
-    --badge-info-bg: 214 95% 18%;
-    /* Dark Blue background */
-    --badge-info-text: 214 95% 88%;
-    /* Light Blue text */
-
-    --badge-purple: 262 83% 68%;
-    /* Brighter Purple */
-    --badge-purple-bg: 270 100% 18%;
-    /* Dark Purple background */
-    --badge-purple-text: 270 100% 90%;
-    /* Light Purple text */
-
-    --badge-error: 0 84% 70%;
-    /* Brighter Red */
-    --badge-error-bg: 0 86% 18%;
-    /* Dark Red background */
-    --badge-error-text: 0 86% 90%;
-    /* Light Red text */
-
-    --badge-neutral: 220 9% 56%;
-    /* Brighter Gray */
-    --badge-neutral-bg: 220 14% 18%;
-    /* Dark Gray background */
-    --badge-neutral-text: 220 14% 85%;
-    /* Light Gray text */
-  }
 }
 
 @layer base {
@@ -209,46 +110,128 @@
     @apply border-border;
   }
 
+  /* Text Selection - Brand Red */
+  ::selection {
+    background-color: #E11D48;
+    color: white;
+  }
+
+  ::-moz-selection {
+    background-color: #E11D48;
+    color: white;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-white text-gray-900 font-sans;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  /* Doodle Pattern Background */
+  .doodle-pattern {
+    background-image: radial-gradient(#E5E7EB 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading font-bold;
+  }
+
+  /* Flat Buttons - No Shadows */
+  button {
+    box-shadow: none !important;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  button:hover {
+    opacity: 0.95;
+  }
+
+  button:active {
+    transform: translateY(0);
   }
 }
 
 @layer components {
+  /* Reusable Button Classes */
+
+  /* Primary CTA - Dark Background, White Text */
+  .btn-primary {
+    @apply px-8 py-4 bg-brand-dark text-white font-heading font-bold rounded-xl;
+    @apply hover:-translate-y-1 hover:opacity-95 transition-all duration-200;
+    box-shadow: none !important;
+  }
+
+  /* Secondary CTA - White Background, Dark Border */
+  .btn-secondary {
+    @apply px-8 py-4 bg-white text-brand-dark border-2 border-brand-dark font-heading font-bold rounded-xl;
+    @apply hover:-translate-y-1 hover:bg-gray-50 transition-all duration-200;
+    box-shadow: none !important;
+  }
+
+  /* Tertiary/Utility - Gray Background */
+  .btn-tertiary {
+    @apply px-6 py-3 bg-brand-gray text-brand-dark font-heading font-bold rounded-xl;
+    @apply hover:bg-gray-200 transition-all duration-200;
+    box-shadow: none !important;
+  }
+
+  /* Small Button (for product cards, etc.) */
+  .btn-small {
+    @apply px-4 py-2 bg-brand-gray text-brand-dark font-heading font-bold text-sm rounded-lg;
+    @apply hover:bg-brand-dark hover:text-white transition-all duration-200;
+    box-shadow: none !important;
+  }
+
   /* Badge utility classes using CSS variables */
   .badge-success {
     background-color: hsl(var(--badge-success-bg)) !important;
     color: hsl(var(--badge-success-text)) !important;
     border-color: transparent !important;
+    border-radius: 0.75rem !important;
   }
 
   .badge-warning {
     background-color: hsl(var(--badge-warning-bg)) !important;
     color: hsl(var(--badge-warning-text)) !important;
     border-color: transparent !important;
+    border-radius: 0.75rem !important;
   }
 
   .badge-info {
     background-color: hsl(var(--badge-info-bg)) !important;
     color: hsl(var(--badge-info-text)) !important;
     border-color: transparent !important;
+    border-radius: 0.75rem !important;
   }
 
   .badge-purple {
     background-color: hsl(var(--badge-purple-bg)) !important;
     color: hsl(var(--badge-purple-text)) !important;
     border-color: transparent !important;
+    border-radius: 0.75rem !important;
   }
 
   .badge-error {
     background-color: hsl(var(--badge-error-bg)) !important;
     color: hsl(var(--badge-error-text)) !important;
     border-color: transparent !important;
+    border-radius: 0.75rem !important;
   }
 
   .badge-neutral {
     background-color: hsl(var(--badge-neutral-bg)) !important;
     color: hsl(var(--badge-neutral-text)) !important;
     border-color: transparent !important;
+    border-radius: 0.75rem !important;
   }
 }

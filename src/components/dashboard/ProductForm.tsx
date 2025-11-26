@@ -427,9 +427,6 @@ export default function ProductForm({ productId }: ProductFormProps) {
 
         if (error) throw error;
         finalProductId = productId;
-
-        // Delete only product_images, not variants (we'll upsert variants instead)
-        await supabase.from('product_images').delete().eq('product_id', productId);
       } else {
         const { data: newProduct, error } = await supabase
           .from('products')
@@ -445,7 +442,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
 
       // Use upsert to handle both new and existing variants
       for (const variant of variants) {
-        const variantData = {
+        const variantData: Record<string, unknown> = {
           product_id: finalProductId,
           size: variant.size,
           color: variant.color,
@@ -456,33 +453,47 @@ export default function ProductForm({ productId }: ProductFormProps) {
           is_active: variant.is_active,
         };
 
-        // ✅ Use upsert with onConflict to update existing variants
-        const { data: savedVariant, error: variantError } = await supabase
-          .from('product_variants')
-          .upsert(variantData, {
-            onConflict: 'product_id,size,color', // Match on unique constraint
-            ignoreDuplicates: false, // Update if exists
-          })
-          .select()
-          .single();
+        // If variant has an ID, update it. Otherwise, insert new variant
+        if (variant.id) {
+          // Update existing variant by ID
+          variantData.id = variant.id;
+          const { data: savedVariant, error: variantError } = await supabase
+            .from('product_variants')
+            .upsert(variantData, {
+              onConflict: 'id',
+              ignoreDuplicates: false,
+            })
+            .select()
+            .single();
 
-        if (variantError) throw variantError;
-        savedVariantIds.push(savedVariant.id);
+          if (variantError) throw variantError;
+          savedVariantIds.push(savedVariant.id);
+        } else {
+          // Insert new variant
+          const { data: savedVariant, error: variantError } = await supabase
+            .from('product_variants')
+            .insert(variantData)
+            .select()
+            .single();
+
+          if (variantError) throw variantError;
+          savedVariantIds.push(savedVariant.id);
+        }
       }
 
       let primaryImageUrl: string | null = null;
 
       for (const [index, image] of images.entries()) {
         let imageUrl = image.url;
-        
+
         if (image.file) {
           imageUrl = await uploadImageToStorage(image.file, finalProductId);
         }
 
         if (imageUrl) {
           const variantId = image.variantIndex !== undefined ? savedVariantIds[image.variantIndex] : null;
-          
-          const imageData = {
+
+          const imageData: Record<string, unknown> = {
             product_id: finalProductId,
             variant_id: variantId,
             image_url: imageUrl,
@@ -493,13 +504,29 @@ export default function ProductForm({ productId }: ProductFormProps) {
             sort_order: index,
           };
 
-          const { error: imageError } = await supabase
-            .from('product_images')
-            .insert([imageData]);
+          // If image has an ID (existing image), upsert it. Otherwise, insert new image
+          if (image.id) {
+            imageData.id = image.id;
+            const { error: imageError } = await supabase
+              .from('product_images')
+              .upsert(imageData, {
+                onConflict: 'id',
+                ignoreDuplicates: false,
+              });
 
-          if (imageError) {
-            console.error('Error saving image:', imageError);
-            throw imageError;
+            if (imageError) {
+              console.error('Error saving image:', imageError);
+              throw imageError;
+            }
+          } else {
+            const { error: imageError } = await supabase
+              .from('product_images')
+              .insert([imageData]);
+
+            if (imageError) {
+              console.error('Error saving image:', imageError);
+              throw imageError;
+            }
           }
 
           if (image.is_primary) {

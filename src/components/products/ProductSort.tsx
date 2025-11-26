@@ -35,8 +35,8 @@ export default function ProductSort({ sortBy, sortOrder, onSortChange }: Product
   };
 
   return (
-    <div className="product-sort">
-      <label htmlFor="sort-select" className="product-sort__label">
+    <div className="flex items-center gap-2.5">
+      <label htmlFor="sort-select" className="flex items-center gap-1.5 text-sm text-gray-600 font-medium">
         <ArrowUpDown size={16} />
         {t('sortBy')}
       </label>
@@ -44,7 +44,7 @@ export default function ProductSort({ sortBy, sortOrder, onSortChange }: Product
         id="sort-select"
         value={currentValue}
         onChange={(e) => handleChange(e.target.value)}
-        className="product-sort__select"
+        className="px-3.5 py-2 pr-8 border border-gray-300 rounded-md text-sm bg-white cursor-pointer hover:border-black focus:outline-none focus:border-black transition-colors appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiIgdmlld0JveD0iMCAwIDEyIDEyIj48cGF0aCBmaWxsPSIjNmI3MjgwIiBkPSJNNiA5TDEgNGgxMHoiLz48L3N2Zz4=')] bg-no-repeat bg-[right_0.625rem_center]"
       >
         {sortOptions.map((option) => (
           <option key={option.value} value={option.value}>

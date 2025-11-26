@@ -45,11 +45,11 @@ export default function ActiveFilters({
   };
 
   return (
-    <div className="active-filters">
-      <div className="active-filters__chips">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg flex-wrap">
+      <div className="flex flex-wrap gap-2 flex-1">
         {/* Price Range */}
         {(filters.minPrice !== undefined || filters.maxPrice !== undefined) && (
-          <div className="filter-chip">
+          <div className="flex items-center gap-2 px-3 py-1.5 pr-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700">
             <span>
               {t('price')}: ${filters.minPrice || filterOptions?.min_price || 0} - $
               {filters.maxPrice || filterOptions?.max_price || 1000}
@@ -60,37 +60,37 @@ export default function ActiveFilters({
                 onRemoveFilter('maxPrice');
               }}
               aria-label={t('remove')}
+              className="flex items-center justify-center w-4.5 h-4.5 bg-gray-100 rounded text-gray-600 hover:bg-gray-200 hover:text-black transition-all"
             >
               <X size={14} />
             </button>
           </div>
         )}
 
-        {/* NEW: Categories */}
+        {/* Categories */}
         {filters.categories.map((category) => (
-          <div key={category} className="filter-chip">
+          <div key={category} className="flex items-center gap-2 px-3 py-1.5 pr-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700">
             <span>
               {t('category')}: {getCategoryName(category)}
             </span>
-            <button onClick={() => onRemoveFilter('categories', category)} aria-label={t('remove')}>
+            <button onClick={() => onRemoveFilter('categories', category)} aria-label={t('remove')} className="flex items-center justify-center w-4.5 h-4.5 bg-gray-100 rounded text-gray-600 hover:bg-gray-200 hover:text-black transition-all">
               <X size={14} />
             </button>
           </div>
         ))}
 
-        {/* NEW: Badges */}
+        {/* Badges */}
         {filters.badges.map((badge) => (
-          <div 
-            key={badge} 
-            className="filter-chip filter-chip--badge"
+          <div
+            key={badge}
+            className="flex items-center gap-2 px-3 py-1.5 pr-2 rounded-md text-sm font-semibold uppercase tracking-wide text-xs border-2"
             style={{
-              '--badge-color': getBadgeColor(badge),
               borderColor: getBadgeColor(badge),
               backgroundColor: `${getBadgeColor(badge)}15`
-            } as React.CSSProperties}
+            }}
           >
             <span>{badge}</span>
-            <button onClick={() => onRemoveFilter('badges', badge)} aria-label={t('remove')}>
+            <button onClick={() => onRemoveFilter('badges', badge)} aria-label={t('remove')} className="flex items-center justify-center w-4.5 h-4.5 bg-white/50 rounded text-gray-700 hover:bg-white transition-all">
               <X size={14} />
             </button>
           </div>
@@ -98,13 +98,13 @@ export default function ActiveFilters({
 
         {/* Colors */}
         {filters.colors.map((color) => (
-          <div key={color} className="filter-chip filter-chip--color">
+          <div key={color} className="flex items-center gap-2 px-3 py-1.5 pr-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700">
             <span
-              className="filter-chip__color-dot"
+              className="w-3.5 h-3.5 rounded-full border border-gray-200"
               style={{ backgroundColor: getColorHex(color) }}
             />
             <span>{color}</span>
-            <button onClick={() => onRemoveFilter('colors', color)} aria-label={t('remove')}>
+            <button onClick={() => onRemoveFilter('colors', color)} aria-label={t('remove')} className="flex items-center justify-center w-4.5 h-4.5 bg-gray-100 rounded text-gray-600 hover:bg-gray-200 hover:text-black transition-all">
               <X size={14} />
             </button>
           </div>
@@ -112,21 +112,21 @@ export default function ActiveFilters({
 
         {/* Sizes */}
         {filters.sizes.map((size) => (
-          <div key={size} className="filter-chip">
+          <div key={size} className="flex items-center gap-2 px-3 py-1.5 pr-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700">
             <span>
               {t('size')}: {size}
             </span>
-            <button onClick={() => onRemoveFilter('sizes', size)} aria-label={t('remove')}>
+            <button onClick={() => onRemoveFilter('sizes', size)} aria-label={t('remove')} className="flex items-center justify-center w-4.5 h-4.5 bg-gray-100 rounded text-gray-600 hover:bg-gray-200 hover:text-black transition-all">
               <X size={14} />
             </button>
           </div>
         ))}
 
-        {/* NEW: Featured Only */}
+        {/* Featured Only */}
         {filters.featuredOnly && (
-          <div className="filter-chip filter-chip--featured">
+          <div className="flex items-center gap-2 px-3 py-1.5 pr-2 bg-gradient-to-r from-yellow-100 to-amber-100 border border-amber-400 rounded-md text-sm text-amber-900">
             <span>⭐ {t('featuredOnly')}</span>
-            <button onClick={() => onRemoveFilter('featuredOnly')} aria-label={t('remove')}>
+            <button onClick={() => onRemoveFilter('featuredOnly')} aria-label={t('remove')} className="flex items-center justify-center w-4.5 h-4.5 bg-white/70 rounded text-amber-800 hover:bg-white transition-all">
               <X size={14} />
             </button>
           </div>
@@ -134,9 +134,9 @@ export default function ActiveFilters({
 
         {/* In Stock Only */}
         {filters.inStockOnly && (
-          <div className="filter-chip">
+          <div className="flex items-center gap-2 px-3 py-1.5 pr-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700">
             <span>{t('inStockOnly')}</span>
-            <button onClick={() => onRemoveFilter('inStockOnly')} aria-label={t('remove')}>
+            <button onClick={() => onRemoveFilter('inStockOnly')} aria-label={t('remove')} className="flex items-center justify-center w-4.5 h-4.5 bg-gray-100 rounded text-gray-600 hover:bg-gray-200 hover:text-black transition-all">
               <X size={14} />
             </button>
           </div>
@@ -144,9 +144,9 @@ export default function ActiveFilters({
 
         {/* On Sale Only */}
         {filters.onSaleOnly && (
-          <div className="filter-chip">
+          <div className="flex items-center gap-2 px-3 py-1.5 pr-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700">
             <span>{t('onSaleOnly')}</span>
-            <button onClick={() => onRemoveFilter('onSaleOnly')} aria-label={t('remove')}>
+            <button onClick={() => onRemoveFilter('onSaleOnly')} aria-label={t('remove')} className="flex items-center justify-center w-4.5 h-4.5 bg-gray-100 rounded text-gray-600 hover:bg-gray-200 hover:text-black transition-all">
               <X size={14} />
             </button>
           </div>
@@ -154,7 +154,10 @@ export default function ActiveFilters({
       </div>
 
       {/* Clear All Button */}
-      <button className="active-filters__clear-all" onClick={onResetAll}>
+      <button
+        className="text-sm text-gray-600 bg-white border border-gray-300 px-3.5 py-1.5 rounded-md hover:bg-black hover:border-black hover:text-white transition-all whitespace-nowrap w-full sm:w-auto"
+        onClick={onResetAll}
+      >
         {t('clearAll')}
       </button>
     </div>

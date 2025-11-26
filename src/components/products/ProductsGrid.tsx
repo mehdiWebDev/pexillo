@@ -28,17 +28,15 @@ export default function ProductsGrid({
   // Loading skeleton
   if (isLoading) {
     return (
-      <div className="products-grid">
-        <div className="products-grid__list">
+      <div>
+        <div className="grid grid-cols-3 gap-6 mb-12">
           {[...Array(12)].map((_, i) => (
-            <div key={i} className="product-card product-card--loading">
-              <div className="product-card__image-container">
-                <div className="skeleton skeleton--image" />
-              </div>
-              <div className="product-card__info">
-                <div className="skeleton skeleton--text skeleton--text-sm" />
-                <div className="skeleton skeleton--text skeleton--text-lg" />
-                <div className="skeleton skeleton--text skeleton--text-md" />
+            <div key={i} className="flex flex-col">
+              <div className="aspect-[4/5] bg-gray-200 rounded-2xl mb-4 animate-pulse" />
+              <div className="space-y-2">
+                <div className="h-4 w-3/5 bg-gray-200 rounded animate-pulse" />
+                <div className="h-5 w-4/5 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 w-2/5 bg-gray-200 rounded animate-pulse" />
               </div>
             </div>
           ))}
@@ -50,9 +48,9 @@ export default function ProductsGrid({
   // Empty state
   if (products.length === 0) {
     return (
-      <div className="products-grid">
-        <div className="products-grid__empty">
-          <div className="empty-state">
+      <div>
+        <div className="col-span-full py-16">
+          <div className="text-center max-w-md mx-auto">
             <svg
               width="64"
               height="64"
@@ -62,12 +60,13 @@ export default function ProductsGrid({
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              className="mx-auto mb-6 text-gray-300"
             >
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
-            <h3>{t('noProducts')}</h3>
-            <p>{t('tryAdjusting')}</p>
+            <h3 className="text-xl font-semibold text-black mb-2">{t('noProducts')}</h3>
+            <p className="text-sm text-gray-600">{t('tryAdjusting')}</p>
           </div>
         </div>
       </div>
@@ -112,9 +111,9 @@ export default function ProductsGrid({
   };
 
   return (
-    <div className="products-grid">
+    <div>
       {/* Products List */}
-      <div className="products-grid__list">
+      <div className="grid grid-cols-3 gap-6 mb-12">
         {products.map((product) => (
           <ProductCard
             key={product.id}
@@ -125,7 +124,6 @@ export default function ProductsGrid({
             }}
             showColorSwitcher={true}
             showSizePicker={false}
-            showTooltips={true}
             onToggleFavorite={toggleFavorite}
             isFavorite={isFavorite(product.id)}
           />
@@ -134,9 +132,9 @@ export default function ProductsGrid({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="pagination">
+        <div className="flex items-center justify-center gap-2 pt-8 border-t border-gray-200">
           <button
-            className="pagination__btn pagination__btn--prev"
+            className="flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-black disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
             aria-label={t('previousPage')}
@@ -145,11 +143,11 @@ export default function ProductsGrid({
             {t('previous')}
           </button>
 
-          <div className="pagination__numbers">
+          <div className="flex items-center gap-1.5">
             {getPaginationRange().map((page, index) => {
               if (page === '...') {
                 return (
-                  <span key={`ellipsis-${index}`} className="pagination__ellipsis">
+                  <span key={`ellipsis-${index}`} className="w-10 text-center text-gray-400 text-sm">
                     ...
                   </span>
                 );
@@ -158,8 +156,10 @@ export default function ProductsGrid({
               return (
                 <button
                   key={page}
-                  className={`pagination__number ${
-                    currentPage === page ? 'pagination__number--active' : ''
+                  className={`w-10 h-10 flex items-center justify-center bg-white border rounded-md text-sm font-medium transition-all ${
+                    currentPage === page
+                      ? 'bg-black border-black text-white'
+                      : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-black'
                   }`}
                   onClick={() => onPageChange(page as number)}
                 >
@@ -170,7 +170,7 @@ export default function ProductsGrid({
           </div>
 
           <button
-            className="pagination__btn pagination__btn--next"
+            className="flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-black disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
             aria-label={t('nextPage')}

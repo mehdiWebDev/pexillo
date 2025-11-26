@@ -115,36 +115,42 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
   ].filter(Boolean).reduce((a, b) => (a as number) + (b as number), 0);
 
   return (
-    <div className="products-page">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
       <ProductsHero categoryInfo={categoryInfo} categorySlug={categorySlug} />
 
       {/* Main Content */}
-      <div className="products-page__container">
+      <div className="max-w-7xl mx-auto px-8 py-12">
         {/* Mobile Filter Button */}
         <button
-          className="products-page__mobile-filter-btn"
+          className="lg:hidden w-full flex items-center justify-center gap-2 px-4 py-3.5 mb-6 bg-white border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 hover:border-gray-300 transition-all relative"
           onClick={() => setMobileFiltersOpen(true)}
         >
           <Filter size={20} />
           {t('filters')}
           {hasActiveFilters && (
-            <span className="products-page__filter-badge">
+            <span className="absolute -top-1.5 -right-1.5 bg-black text-white text-xs px-2 py-0.5 rounded-full min-w-[20px] text-center">
               {activeFilterCount}
             </span>
           )}
         </button>
 
-        <div className="products-page__content">
+        <div className="grid grid-cols-1 lg:grid-cols-[256px_1fr] gap-12">
           {/* Sidebar Filters */}
           <aside
-            className={`products-page__sidebar ${
-              mobileFiltersOpen ? 'products-page__sidebar--open' : ''
-            }`}
+            className={`
+              fixed lg:sticky top-6 left-0 w-[85%] max-w-[320px] lg:w-auto lg:max-w-none
+              h-screen lg:h-fit max-h-screen lg:max-h-[calc(100vh-6rem)]
+              bg-white lg:bg-transparent z-[1000] lg:z-auto
+              transition-transform duration-300 lg:transition-none
+              overflow-y-auto pr-4 lg:pr-0 scrollbar-none
+              shadow-xl lg:shadow-none
+              ${mobileFiltersOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            `}
           >
             {/* Mobile Close Button */}
             <button
-              className="products-page__sidebar-close"
+              className="lg:hidden absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-gray-100 rounded-md text-gray-600 hover:bg-gray-200 hover:text-black transition-all"
               onClick={() => setMobileFiltersOpen(false)}
             >
               <X size={24} />
@@ -172,17 +178,17 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
           </aside>
 
           {/* Main Products Area */}
-          <main className="products-page__main">
+          <main className="flex-1">
             {/* Toolbar */}
-            <div className="products-page__toolbar">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-200">
               {/* Product Count */}
-              <div className="products-page__count">
+              <div className="text-sm text-gray-600">
                 {productsLoading ? (
-                  <div className="skeleton skeleton--text" style={{ width: '150px' }} />
+                  <div className="h-4 w-[150px] bg-gray-200 rounded animate-pulse" />
                 ) : (
                   <p>
-                    {t('showing')} <strong>{translatedProducts.length}</strong> {t('of')}{' '}
-                    <strong>{totalCount}</strong> {t('products')}
+                    {t('showing')} <strong className="text-black font-semibold">{translatedProducts.length}</strong> {t('of')}{' '}
+                    <strong className="text-black font-semibold">{totalCount}</strong> {t('products')}
                   </p>
                 )}
               </div>
@@ -220,7 +226,7 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
       {/* Mobile Filter Overlay */}
       {mobileFiltersOpen && (
         <div
-          className="products-page__overlay"
+          className="fixed inset-0 bg-black/50 z-[999] lg:hidden"
           onClick={() => setMobileFiltersOpen(false)}
         />
       )}

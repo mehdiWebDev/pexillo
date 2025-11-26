@@ -4,8 +4,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/src/i18n/routing';
-import { ShoppingBag, Package, Truck, CheckCircle, XCircle, Loader2, ExternalLink, LucideIcon } from 'lucide-react';
+import { Truck, CheckCircle, XCircle, Loader2, Package } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import Image from 'next/image';
+
+interface OrderItem {
+  product_name: string;
+  product_images: { image_url: string }[];
+}
 
 interface Order {
   id: string;
@@ -14,71 +20,74 @@ interface Order {
   total_amount: number;
   created_at: string;
   items_count: number;
+  order_items?: OrderItem[];
 }
 
 interface OrdersSectionProps {
   userId: string;
 }
 
-interface SupabaseOrderItem {
-  count: number;
+// Database result types
+interface DbOrderItem {
+  id: string;
+  quantity: number;
+  products: {
+    name: string;
+    product_images?: { image_url: string; is_primary: boolean }[];
+  }[];
 }
 
-interface SupabaseOrder {
+interface DbOrder {
   id: string;
   order_number: string;
   status: string;
   total_amount: number;
   created_at: string;
-  order_items?: SupabaseOrderItem[];
+  order_items?: DbOrderItem[];
 }
 
-const statusConfig: Record<string, {
-  label: string;
-  icon: LucideIcon;
-  className: string;
-}> = {
+const getStatusConfig = (t: (key: string) => string) => ({
   pending: {
-    label: 'Pending',
+    label: t('orderStatus.pending'),
     icon: Package,
-    className: 'bg-red-500 text-white border border-red-500',
+    className: 'bg-yellow-100 text-yellow-700',
   },
   confirmed: {
-    label: 'Confirmed',
+    label: t('orderStatus.confirmed'),
     icon: CheckCircle,
-    className: 'bg-green-500 text-white border border-green-500',
+    className: 'bg-blue-100 text-blue-700',
   },
   processing: {
-    label: 'Processing',
+    label: t('orderStatus.processing'),
     icon: Package,
-    className: 'bg-yellow-500 text-white border border-yellow-500',
+    className: 'bg-purple-100 text-purple-700',
   },
   shipped: {
-    label: 'Shipped',
+    label: t('orderStatus.shipped'),
     icon: Truck,
-    className: 'bg-blue-500 text-white border border-blue-500',
+    className: 'bg-blue-100 text-blue-700',
   },
   delivered: {
-    label: 'Delivered',
+    label: t('orderStatus.delivered'),
     icon: CheckCircle,
-    className: 'bg-green-500 text-white border border-green-500',
+    className: 'bg-green-100 text-green-700',
   },
   cancelled: {
-    label: 'Cancelled',
+    label: t('orderStatus.cancelled'),
     icon: XCircle,
-    className: 'bg-red-500 text-white border border-red-500',
+    className: 'bg-red-100 text-red-700',
   },
   refunded: {
-    label: 'Refunded',
+    label: t('orderStatus.refunded'),
     icon: XCircle,
-    className: 'bg-green-500 text-white border border-green-500',
+    className: 'bg-gray-100 text-gray-700',
   },
   failed: {
-    label: 'Failed',
+    label: t('orderStatus.failed'),
     icon: XCircle,
-    className: 'bg-red-500 text-white border border-red-500',
+    className: 'bg-red-100 text-red-700',
   },
-};
+});
 
 export default function OrdersSection({ userId }: OrdersSectionProps) {
   const t = useTranslations('profile');
@@ -91,7 +100,7 @@ export default function OrdersSection({ userId }: OrdersSectionProps) {
     try {
       const supabase = createClient();
 
-      // Fetch orders with item count
+      // Fetch orders with items and images
       const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
         .select(`
@@ -100,24 +109,58 @@ export default function OrdersSection({ userId }: OrdersSectionProps) {
           status,
           total_amount,
           created_at,
-          order_items (count)
+          order_items (
+            id,
+            quantity,
+            products (
+              name,
+              product_images (
+                image_url,
+                is_primary
+              )
+            )
+          )
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(6);
 
-      if (ordersError) throw ordersError;
+      if (ordersError) {
+        console.error('Error fetching orders:', ordersError);
+        throw ordersError;
+      }
+
+      console.log('Fetched orders:', ordersData);
 
       // Transform data
-      const transformedOrders = ordersData.map((order: SupabaseOrder) => ({
-        id: order.id,
-        order_number: order.order_number,
-        status: order.status,
-        total_amount: order.total_amount,
-        created_at: order.created_at,
-        items_count: order.order_items?.[0]?.count || 0,
-      }));
+      const transformedOrders = ordersData.map((order: DbOrder) => {
+        const items = order.order_items || [];
+        const itemsCount = items.length;
 
+        // Get product details for display (first 2 items)
+        const orderItems = items
+          .filter((item: DbOrderItem) => item.products && item.products.length > 0)
+          .slice(0, 2)
+          .map((item: DbOrderItem) => {
+            const product = item.products[0]; // Get first product (should only be one)
+            return {
+              product_name: product.name,
+              product_images: product.product_images || [],
+            };
+          });
+
+        return {
+          id: order.id,
+          order_number: order.order_number,
+          status: order.status,
+          total_amount: order.total_amount,
+          created_at: order.created_at,
+          items_count: itemsCount,
+          order_items: orderItems,
+        };
+      });
+
+      console.log('Transformed orders:', transformedOrders);
       setOrders(transformedOrders);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
@@ -136,106 +179,112 @@ export default function OrdersSection({ userId }: OrdersSectionProps) {
 
   if (isLoading) {
     return (
-      <div className="bg-card border border-border rounded-lg shadow-sm p-8">
+      <div className="bg-white border border-gray-200 rounded-2xl p-8">
         <div className="flex items-center justify-center h-40">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <Loader2 className="h-12 w-12 animate-spin text-brand-red" />
         </div>
       </div>
     );
   }
 
+  const statusConfig = getStatusConfig(t);
+
   return (
-    <div className="bg-card border border-border rounded-lg shadow-sm p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold text-foreground">
-          {t('recentOrders')}
-        </h2>
-        {orders.length > 0 && (
-          <ShoppingBag className="h-6 w-6 text-muted-foreground" />
-        )}
-      </div>
+    <div className="space-y-6">
+      <h2 className="font-black text-2xl text-brand-dark">{t('recentOrders')}</h2>
 
       {orders.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="bg-muted rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
-            <ShoppingBag className="h-10 w-10 text-muted-foreground" />
-          </div>
-          <p className="text-lg font-medium text-foreground">
+        <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
+          <Package className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+          <p className="text-lg font-bold text-brand-dark mb-2">
             {t('noOrders')}
           </p>
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-sm text-gray-500">
             {t('noOrdersDescription')}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {orders.map((order) => {
-            const config = statusConfig[order.status] || statusConfig.pending;
-            const StatusIcon = config.icon;
+        orders.map((order) => {
+          const config = statusConfig[order.status as keyof typeof statusConfig] || statusConfig.pending;
+          const StatusIcon = config.icon;
 
-            return (
-              <div
-                key={order.id}
-                className="bg-muted/50 border border-border rounded-lg p-5 hover:shadow-md transition-all duration-200"
-              >
-                {/* Order Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground">
-                      {t('orderNumber')}
-                    </p>
-                    <p className="text-lg font-semibold text-foreground">
-                      #{order.order_number}
-                    </p>
+          // Get primary image for first item
+          const firstItem = order.order_items?.[0];
+          const firstItemImage = firstItem?.product_images?.find((img) => img.image_url)?.image_url;
+          const secondItem = order.order_items?.[1];
+          const secondItemImage = secondItem?.product_images?.find((img) => img.image_url)?.image_url;
+
+          return (
+            <div key={order.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+              {/* Order Header */}
+              <div className="px-6 py-4 border-b border-gray-100 bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">
+                    {t('orderNumber')} {order.order_number}
+                  </p>
+                  <p className="font-bold text-brand-dark">
+                    {t('placedOn')} {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className={`px-3 py-1 ${config.className} rounded-full text-xs font-bold flex items-center gap-1`}>
+                    <StatusIcon className="w-3 h-3" />
+                    {config.label}
+                  </span>
+                  <button
+                    onClick={() => handleTrackOrder(order.order_number)}
+                    className="text-sm font-bold text-brand-dark border-b-2 border-brand-dark hover:text-brand-red hover:border-brand-red transition-colors"
+                  >
+                    {t('trackOrder')}
+                  </button>
+                </div>
+              </div>
+
+              {/* Order Body */}
+              <div className="p-6 flex flex-col sm:flex-row gap-6 items-center">
+                {/* Product Images */}
+                {(firstItemImage || secondItemImage) && (
+                  <div className="flex -space-x-4">
+                    {firstItemImage && (
+                      <Image
+                        src={firstItemImage}
+                        alt={firstItem?.product_name || 'Product'}
+                        width={64}
+                        height={64}
+                        className="w-16 h-16 rounded-lg border-2 border-white shadow-md object-cover"
+                      />
+                    )}
+                    {secondItemImage && (
+                      <Image
+                        src={secondItemImage}
+                        alt={secondItem?.product_name || 'Product'}
+                        width={64}
+                        height={64}
+                        className="w-16 h-16 rounded-lg border-2 border-white shadow-md object-cover"
+                      />
+                    )}
                   </div>
-                  <div className={`${config.className} rounded-md px-2.5 py-1 flex items-center gap-1`}>
-                    <StatusIcon className="h-3.5 w-3.5" />
-                    <span className="text-xs font-medium">
-                      {t(`orderStatus.${order.status}`) || config.label}
-                    </span>
-                  </div>
+                )}
+
+                {/* Order Info */}
+                <div className="flex-1">
+                  <p className="font-bold text-brand-dark text-lg">
+                    {firstItem?.product_name || t('order')}
+                    {order.items_count > 1 && ` + ${order.items_count - 1} ${t('otherItems', { count: order.items_count - 1 })}`}
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {t('total')}: <span className="font-black text-brand-dark">${order.total_amount.toFixed(2)}</span>
+                  </p>
                 </div>
 
-                {/* Order Details */}
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {t('orderDate')}
-                    </span>
-                    <span className="font-medium text-foreground">
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {t('items')}
-                    </span>
-                    <span className="font-medium text-foreground">
-                      {order.items_count}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      {t('total')}
-                    </span>
-                    <span className="text-lg font-bold text-foreground">
-                      ${order.total_amount.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Track Button */}
-                <button
-                  onClick={() => handleTrackOrder(order.order_number)}
-                  className="w-full bg-secondary hover:opacity-90 text-white rounded-md py-2 px-4 text-sm font-medium transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  {t('trackOrder')}
+                {/* View Details Button */}
+                <button className="px-6 py-3 border-2 border-gray-200 rounded-xl font-bold text-brand-dark hover:border-brand-dark transition-colors">
+                  {t('viewDetails')}
                 </button>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })
       )}
     </div>
   );

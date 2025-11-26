@@ -9,7 +9,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Loader from '@/src/components/ui/Loader';
 import {
-  Trash2,
   Plus,
   Minus,
   ArrowLeft,
@@ -192,20 +191,29 @@ export default function CartPageClient() {
   // Empty cart state
   if (items.length === 0 && !cartIsLoading) {
     return (
-      <div className="min-h-screen bg-background mt-10">
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-4xl mx-auto text-center">
-            <ShoppingCart className="w-24 h-24 mx-auto text-muted-foreground mb-6" />
-            <h1 className="text-3xl font-bold mb-4">{t('emptyCartTitle')}</h1>
-            <p className="text-muted-foreground mb-8">{t('emptyCartMessage')}</p>
+      <div className="min-h-screen bg-white">
+        <header className="border-b border-gray-200 py-6">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
+              className="text-lg font-semibold tracking-tighter group flex items-center gap-2"
             >
-              <ArrowLeft size={20} />
+              <ArrowLeft className="w-5 h-5 text-gray-400 group-hover:text-gray-900 transition-colors" />
               {t('continueShopping')}
             </Link>
           </div>
+        </header>
+
+        <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+          <ShoppingCart className="w-20 h-20 md:w-24 md:h-24 mx-auto text-gray-400 mb-6" />
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 mb-4">{t('emptyCartTitle')}</h1>
+          <p className="text-gray-500 mb-8 text-sm md:text-base">{t('emptyCartMessage')}</p>
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 px-6 py-3 md:px-8 md:py-4 bg-gray-900 text-white font-black rounded-xl hover:bg-gray-800 transition-all shadow-lg hover:-translate-y-1"
+          >
+            {t('continueShopping')}
+          </Link>
         </div>
       </div>
     );
@@ -214,223 +222,223 @@ export default function CartPageClient() {
 
 
   return (
-    <div className="min-h-screen bg-background mt-10">
-      <div className="container mx-auto px-4 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">
-            {t('pageTitle')} ({itemCount} {itemCount === 1 ? t('item') : t('items')})
-          </h1>
-          <div className="flex items-center justify-between">
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-2 text-primary hover:underline"
-            >
-              <ArrowLeft size={16} />
-              {t('continueShopping')}
-            </Link>
-            <button
-              onClick={handleClearCart}
-              disabled={isClearing}
-              className="text-sm text-destructive hover:underline disabled:opacity-50"
-            >
-              {t('clearCart')}
-            </button>
-          </div>
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="border-b border-gray-200 py-6 sticky top-0 bg-white/90 backdrop-blur-md z-40">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 flex justify-between items-center">
+          <Link
+            href="/products"
+            className="text-lg font-semibold tracking-tighter group flex items-center gap-2"
+          >
+            <ArrowLeft className="w-5 h-5 text-gray-400 group-hover:text-gray-900 transition-colors" />
+            {t('continueShopping')}
+          </Link>
+          <button
+            onClick={handleClearCart}
+            disabled={isClearing}
+            className="text-sm font-medium text-gray-500 hover:text-red-600 disabled:opacity-50 transition-colors"
+          >
+            {t('clearCart')}
+          </button>
         </div>
+      </header>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 md:py-8 lg:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12">
           {/* Cart Items - Left Side */}
-          <div className="lg:col-span-2 space-y-4">
-            {translatedItems.map((item) => {
-              const isUpdating = updatingItems.has(item.id);
-              const isRemoving = removingItems.has(item.id);
-              const isProcessing = isUpdating || isRemoving;
+          <div className="lg:col-span-7 space-y-6 md:space-y-8">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-black text-gray-900 mb-1">
+                {t('pageTitle')}
+              </h1>
+              <p className="text-sm md:text-base text-gray-500">
+                {itemCount} {itemCount === 1 ? t('item') : t('items')} {t('inCart')}
+              </p>
+            </div>
 
-              return (
-                <div
-                  key={item.id}
-                  className={`
-                    bg-card border rounded-lg p-4 transition-opacity
-                    ${isRemoving ? 'opacity-50' : ''}
-                  `}
-                >
-                  <div className="flex gap-4">
-                    {/* Product Image */}
-                    <Link
-                      href={`/products/${item.product_slug}`}
-                      className="flex-shrink-0"
-                    >
-                      <Image
-                        src={item.product_image}
-                        alt={item.product_name}
-                        width={96}
-                        height={112}
-                        className="w-24 h-28 object-cover rounded-md hover:opacity-80 transition-opacity"
-                      />
-                    </Link>
+            <div className="space-y-4 md:space-y-6">
+              {translatedItems.map((item) => {
+                const isUpdating = updatingItems.has(item.id);
+                const isRemoving = removingItems.has(item.id);
+                const isProcessing = isUpdating || isRemoving;
 
-                    {/* Product Details */}
-                    <div className="flex-1">
-                      <div className="flex justify-between">
-                        <div>
-                          <Link
-                            href={`/products/${item.product_slug}`}
-                            className="font-semibold text-lg hover:underline"
+                return (
+                  <div
+                    key={item.id}
+                    className={`
+                      border-b border-gray-200 pb-4 md:pb-6 transition-opacity last:border-0
+                      ${isRemoving ? 'opacity-50' : ''}
+                    `}
+                  >
+                    <div className="flex gap-3 md:gap-4">
+                      {/* Product Image */}
+                      <Link
+                        href={`/products/${item.product_slug}`}
+                        className="flex-shrink-0"
+                      >
+                        <div className="w-20 h-24 sm:w-24 sm:h-28 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                          <Image
+                            src={item.product_image}
+                            alt={item.product_name}
+                            width={96}
+                            height={112}
+                            className="w-full h-full object-cover hover:opacity-80 transition-opacity"
+                          />
+                        </div>
+                      </Link>
+
+                      {/* Product Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <Link
+                              href={`/products/${item.product_slug}`}
+                              className="font-bold text-gray-900 text-sm md:text-base hover:underline line-clamp-2"
+                            >
+                              {item.product_name}
+                            </Link>
+                            <p className="text-xs md:text-sm text-gray-500 mt-1">
+                              {t('size')}: {item.variant_size} • {t('color')}: {item.variant_color}
+                            </p>
+                          </div>
+
+                          {/* Price */}
+                          <div className="text-right flex-shrink-0">
+                            <div className="font-bold text-gray-900 text-sm md:text-base">
+                              ${item.total_price.toFixed(2)}
+                            </div>
+                            <div className="text-xs md:text-sm text-gray-500">
+                              ${item.unit_price.toFixed(2)} {t('each')}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Quantity Controls & Remove */}
+                        <div className="flex items-center justify-between mt-3 md:mt-4">
+                          <div className="flex items-center gap-2">
+                            {/* Quantity Selector */}
+                            <div className="flex items-center border-2 border-gray-200 rounded-lg">
+                              <button
+                                onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                                disabled={isProcessing || item.quantity <= 1}
+                                className="px-2 py-1 md:px-3 md:py-2 hover:bg-gray-50 text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                              >
+                                <Minus size={16} />
+                              </button>
+
+                              <span className="px-3 md:px-4 py-1 md:py-2 min-w-[40px] md:min-w-[50px] text-center font-bold text-sm md:text-base">
+                                {isUpdating ? '...' : item.quantity}
+                              </span>
+
+                              <button
+                                onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                                disabled={isProcessing || item.quantity >= item.max_quantity}
+                                className="px-2 py-1 md:px-3 md:py-2 hover:bg-gray-50 text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                              >
+                                <Plus size={16} />
+                              </button>
+                            </div>
+
+                            {/* Stock Warning */}
+                            {item.quantity === item.max_quantity && (
+                              <span className="text-xs text-amber-600">
+                                {t('maxStock')}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Remove Button */}
+                          <button
+                            onClick={() => handleRemoveItem(item.id)}
+                            disabled={isProcessing}
+                            className="text-xs md:text-sm font-bold text-gray-400 hover:text-red-500 underline disabled:opacity-50"
                           >
-                            {item.product_name}
-                          </Link>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                            <span>{t('size')}: {item.variant_size}</span>
-                            <span>•</span>
-                            <span className="flex items-center gap-1">
-                              {t('color')}:
-                              <span
-                                className="w-4 h-4 rounded-full border"
-                                style={{ backgroundColor: item.variant_color_hex }}
-                              />
-                              {item.variant_color}
-                            </span>
-                          </div>
+                            {t('remove')}
+                          </button>
                         </div>
 
-                        {/* Price */}
-                        <div className="text-right">
-                          <div className="font-semibold text-lg">
-                            ${item.total_price.toFixed(2)}
+                        {/* Out of Stock Warning */}
+                        {!item.in_stock && (
+                          <div className="flex items-center gap-2 mt-2 p-2 bg-red-50 text-red-600 rounded-md">
+                            <AlertCircle size={16} />
+                            <span className="text-xs md:text-sm font-medium">{t('outOfStock')}</span>
                           </div>
-                          <div className="text-sm text-muted-foreground">
-                            ${item.unit_price.toFixed(2)} {t('each')}
-                          </div>
-                        </div>
+                        )}
                       </div>
-
-                      {/* Quantity Controls & Remove */}
-                      <div className="flex items-center justify-between mt-4">
-                        <div className="flex items-center gap-2">
-                          {/* Quantity Selector */}
-                          <div className="flex items-center border rounded-lg">
-                            <button
-                              onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                              disabled={isProcessing || item.quantity <= 1}
-                              className="p-2 hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                            >
-                              <Minus size={16} />
-                            </button>
-
-                            <span className="px-4 py-2 min-w-[60px] text-center font-medium">
-                              {isUpdating ? '...' : item.quantity}
-                            </span>
-
-                            <button
-                              onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                              disabled={isProcessing || item.quantity >= item.max_quantity}
-                              className="p-2 hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                            >
-                              <Plus size={16} />
-                            </button>
-                          </div>
-
-                          {/* Stock Warning */}
-                          {item.quantity === item.max_quantity && (
-                            <span className="text-xs text-amber-600 dark:text-amber-400">
-                              {t('maxStock')}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Remove Button */}
-                        <button
-                          onClick={() => handleRemoveItem(item.id)}
-                          disabled={isProcessing}
-                          className="flex items-center gap-2 text-sm text-destructive hover:underline disabled:opacity-50"
-                        >
-                          <Trash2 size={16} />
-                          {t('remove')}
-                        </button>
-                      </div>
-
-                      {/* Out of Stock Warning */}
-                      {!item.in_stock && (
-                        <div className="flex items-center gap-2 mt-2 p-2 bg-destructive/10 text-destructive rounded-md">
-                          <AlertCircle size={16} />
-                          <span className="text-sm">{t('outOfStock')}</span>
-                        </div>
-                      )}
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
 
           {/* Order Summary - Right Side */}
-          <div className="lg:col-span-1">
-            <div className="bg-card border rounded-lg p-6 sticky top-4">
-              <h2 className="text-xl font-bold mb-4">{t('orderSummary')}</h2>
-
-              <div className="space-y-3 pb-4 border-b">
-                <div className="flex justify-between">
-                  <span>{t('subtotal')}</span>
-                  <span className="font-medium">${subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{t('shipping')}</span>
-                  <span className="font-medium">
-                    {shipping === 0 ? (
-                      <span className="text-green-600">{t('free')}</span>
-                    ) : (
-                      `$${shipping.toFixed(2)}`
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{t('tax')}</span>
-                  <span className="font-medium">${tax.toFixed(2)}</span>
-                </div>
-              </div>
-
-              <div className="flex justify-between py-4 text-lg font-bold">
-                <span>{t('total')}</span>
-                <span>${total.toFixed(2)}</span>
-              </div>
+          <div className="lg:col-span-5">
+            <div className="bg-gray-50 rounded-2xl p-4 md:p-6 lg:sticky lg:top-32 border border-gray-200">
+              <h3 className="font-black text-lg md:text-xl text-gray-900 mb-4 md:mb-6">{t('orderSummary')}</h3>
 
               {/* Free Shipping Progress */}
               {shipping > 0 && (
-                <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg">
-                  <p className="text-sm text-amber-800 dark:text-amber-200">
-                    {t('freeShippingAt', { amount: (75 - subtotal).toFixed(2) })}
-                  </p>
-                  <div className="w-full bg-amber-200 dark:bg-amber-900 rounded-full h-2 mt-2">
+                <div className="mb-4 md:mb-6 bg-white p-3 md:p-4 rounded-xl border border-gray-200">
+                  <div className="flex justify-between text-xs md:text-sm font-bold mb-2">
+                    <span className="text-gray-900">{t('freeShippingAt', { amount: (75 - subtotal).toFixed(2) })}</span>
+                    <span className="text-red-600">{Math.min((subtotal / 75) * 100, 100).toFixed(0)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-amber-600 h-2 rounded-full transition-all"
+                      className="bg-gray-900 h-2 rounded-full transition-all"
                       style={{ width: `${Math.min((subtotal / 75) * 100, 100)}%` }}
                     />
                   </div>
                 </div>
               )}
 
+              {/* Totals */}
+              <div className="space-y-2 md:space-y-3 border-t border-gray-200 pt-4 md:pt-6">
+                <div className="flex justify-between text-xs md:text-sm font-medium text-gray-500">
+                  <span>{t('subtotal')}</span>
+                  <span className="text-gray-900">${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-xs md:text-sm font-medium text-gray-500">
+                  <span>{t('shipping')}</span>
+                  <span className="text-gray-900">
+                    {shipping === 0 ? t('free') : `$${shipping.toFixed(2)}`}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs md:text-sm font-medium text-gray-500">
+                  <span>{t('tax')}</span>
+                  <span className="text-gray-900">${tax.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center border-t border-gray-200 pt-3 md:pt-4 mt-3 md:mt-4">
+                  <span className="font-black text-base md:text-xl text-gray-900">{t('total')}</span>
+                  <div className="text-right">
+                    <span className="text-[10px] md:text-xs text-gray-400 font-medium mr-1 md:mr-2">CAD</span>
+                    <span className="font-black text-lg md:text-2xl text-gray-900">${total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Checkout Button */}
               <button
                 onClick={handleCheckout}
-                className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                className="w-full mt-4 md:mt-6 py-4 md:py-5 bg-gray-900 text-white font-black text-base md:text-lg rounded-xl hover:bg-gray-800 transition-all shadow-lg hover:-translate-y-1 flex items-center justify-center gap-2"
               >
                 {t('proceedToCheckout')}
-                <ArrowLeft className="rotate-180" size={20} />
+                <ArrowLeft className="rotate-180 w-5 h-5" />
               </button>
 
               {/* Trust Badges */}
-              <div className="mt-6 space-y-3">
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <Shield className="w-5 h-5" />
+              <div className="mt-4 md:mt-6 space-y-2 md:space-y-3">
+                <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-gray-500">
+                  <Shield className="w-4 h-4 md:w-5 md:h-5" />
                   <span>{t('secureCheckout')}</span>
                 </div>
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <Truck className="w-5 h-5" />
+                <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-gray-500">
+                  <Truck className="w-4 h-4 md:w-5 md:h-5" />
                   <span>{t('fastShipping')}</span>
                 </div>
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <CreditCard className="w-5 h-5" />
+                <div className="flex items-center gap-2 md:gap-3 text-xs md:text-sm text-gray-500">
+                  <CreditCard className="w-4 h-4 md:w-5 md:h-5" />
                   <span>{t('paymentMethods')}</span>
                 </div>
               </div>

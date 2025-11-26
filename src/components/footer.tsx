@@ -2,121 +2,135 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
-import { ThemeSwitcher } from '@/src/components/theme-switcher';
-import {
-  Mail,
-  Instagram,
-  Twitter,
-  Clock,
-  Shield,
-  Package
-} from 'lucide-react';
+import { Link } from '@/src/i18n/routing';
+import { Instagram as InstagramIcon, Twitter as TwitterIcon, Youtube as YoutubeIcon } from 'lucide-react';
 
 const Footer = () => {
   const t = useTranslations('footer');
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="footer">
-      <div className="footer__container">
-        {/* Main Footer Content */}
-        <div className="footer__content">
-          {/* Brand Section */}
-          <div className="footer__section footer__section--brand">
-            <h3 className="footer__brand-name">PEXILLO</h3>
-            <p className="footer__brand-tagline">
+    <footer className="bg-brand-dark text-white border-t border-gray-800 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-10 pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-24 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+
+          {/* Brand Column */}
+          <div>
+            <Link href="/" className="text-4xl font-black tracking-tighter mb-6 block hover:text-brand-red transition-colors">
+              Pexillo.
+            </Link>
+            <p className="text-gray-400 font-medium mb-8 max-w-xs">
               {t('tagline')}
             </p>
-            <div className="footer__social">
-              <a href="https://instagram.com/pexillo" className="footer__social-link" aria-label="Instagram">
-                <Instagram size={20} />
+            <div className="flex gap-4">
+              <a
+                href="https://instagram.com/pexillo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-brand-red transition-colors"
+                aria-label="Instagram"
+              >
+                <InstagramIcon className="w-5 h-5" />
               </a>
-              <a href="https://twitter.com/pexillo" className="footer__social-link" aria-label="Twitter">
-                <Twitter size={20} />
+              <a
+                href="https://twitter.com/pexillo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-brand-blue transition-colors"
+                aria-label="Twitter"
+              >
+                <TwitterIcon className="w-5 h-5" />
               </a>
-              <a href="mailto:hello@pexillo.com" className="footer__social-link" aria-label="Email">
-                <Mail size={20} />
+              <a
+                href="https://youtube.com/@pexillo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-brand-purple transition-colors"
+                aria-label="YouTube"
+              >
+                <YoutubeIcon className="w-5 h-5" />
               </a>
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="footer__section">
-            <h4 className="footer__title">{t('shop')}</h4>
-            <ul className="footer__links">
-              <li><Link href="/products">{t('allProducts')}</Link></li>
-              <li><Link href="/products?category=new">{t('newArrivals')}</Link></li>
-              <li><Link href="/products?sale=true">{t('sale')}</Link></li>
-              <li><Link href="/categories">{t('categories')}</Link></li>
+          {/* Shop Column */}
+          <div>
+            <h4 className="font-bold text-lg mb-6 text-white">{t('shop')}</h4>
+            <ul className="space-y-3 text-gray-400 font-medium">
+              <li>
+                <Link href="/products?new=true" className="hover:text-white transition-colors">
+                  {t('newArrivals')}
+                </Link>
+              </li>
+              <li>
+                <Link href="/products?featured=true" className="hover:text-white transition-colors">
+                  {t('bestSellers')}
+                </Link>
+              </li>
+              <li>
+                <Link href="/products/accessories" className="hover:text-white transition-colors">
+                  {t('accessories')}
+                </Link>
+              </li>
+              <li>
+                <Link href="/products?sale=true" className="hover:text-white transition-colors">
+                  {t('sale')}
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Customer Care */}
-          <div className="footer__section">
-            <h4 className="footer__title">{t('help')}</h4>
-            <ul className="footer__links">
-              <li><Link href="/contact">{t('contact')}</Link></li>
-              <li><Link href="/size-guide">{t('sizeGuide')}</Link></li>
-              <li><Link href="/care">{t('careInstructions')}</Link></li>
-              <li><Link href="/faq">{t('faq')}</Link></li>
+          {/* Support Column */}
+          <div>
+            <h4 className="font-bold text-lg mb-6 text-white">{t('support')}</h4>
+            <ul className="space-y-3 text-gray-400 font-medium">
+              <li>
+                <Link href="/track-order" className="hover:text-white transition-colors">
+                  {t('trackOrder')}
+                </Link>
+              </li>
+              <li>
+                <Link href="/returns" className="hover:text-white transition-colors">
+                  {t('returns')}
+                </Link>
+              </li>
+              <li>
+                <Link href="/shipping" className="hover:text-white transition-colors">
+                  {t('shipping')}
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-white transition-colors">
+                  {t('contact')}
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Info */}
-          <div className="footer__section">
-            <h4 className="footer__title">{t('info')}</h4>
-            <ul className="footer__links">
-              <li><Link href="/about">{t('about')}</Link></li>
-              <li><Link href="/privacy">{t('privacy')}</Link></li>
-              <li><Link href="/terms">{t('terms')}</Link></li>
-              <li><ThemeSwitcher /></li>
+          {/* Legal Column */}
+          <div>
+            <h4 className="font-bold text-lg mb-6 text-white">{t('legal')}</h4>
+            <ul className="space-y-3 text-gray-400 font-medium">
+              <li>
+                <Link href="/privacy" className="hover:text-white transition-colors">
+                  {t('privacy')}
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="hover:text-white transition-colors">
+                  {t('terms')}
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
 
-        {/* Footer Bottom Bar */}
-        <div className="footer__bottom">
-          <div className="footer__bottom-content">
-            <div className="footer__badges">
-              <div className="footer__badge">
-                <Shield size={16} />
-                <span>{t('securePayments')}</span>
-              </div>
-              <div className="footer__badge">
-                <Package size={16} />
-                <span>{t('fastShipping')}</span>
-              </div>
-              <div className="footer__badge">
-                <Clock size={16} />
-                <span>{t('newWeekly')}</span>
-              </div>
-            </div>
-
-            <div className="footer__copyright">
-              <p>© {currentYear} PEXILLO. {t('rights')}</p>
-              <p className="footer__powered">
-                {t('poweredBy')}
-                <a
-                  href="https://supabase.com/?utm_source=pexillo"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="footer__powered-link"
-                >
-                  Supabase
-                </a>
-                &
-                <a
-                  href="https://nextjs.org"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="footer__powered-link"
-                >
-                  Next.js
-                </a>
-              </p>
-            </div>
-          </div>
+        <div className="mt-20 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-sm text-gray-500 font-bold">
+            © {currentYear} Pexillo Inc.
+          </p>
         </div>
       </div>
     </footer>

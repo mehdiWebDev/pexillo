@@ -22,6 +22,13 @@ interface ProductImage {
   view_type: string;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  translations: Record<string, unknown>;
+}
+
 interface Product {
   id: string;
   name: string;
@@ -32,6 +39,8 @@ interface Product {
   primary_image_url: string;
   is_active: boolean;
   translations: Record<string, unknown>;
+  category_id: string;
+  categories?: Category[];
   product_variants?: ProductVariant[];
   product_images?: ProductImage[];
 }
@@ -80,7 +89,7 @@ export async function GET() {
       );
     }
 
-    // Fetch wishlist items with full product details
+    // Fetch wishlist items with full product details including category
     const { data: wishlistItems, error: wishlistError } = await supabase
       .from('wishlist')
       .select(`
@@ -97,6 +106,13 @@ export async function GET() {
           primary_image_url,
           is_active,
           translations,
+          category_id,
+          categories (
+            id,
+            name,
+            slug,
+            translations
+          ),
           product_variants!inner (
             id,
             size,
@@ -165,6 +181,7 @@ export async function GET() {
         discount_percentage: discountPercentage,
         discounted_price: discountedPrice,
         available_colors: availableColors,
+        category: product.categories?.[0],
         variants: product.product_variants,
         images: product.product_images,
         translations: product.translations,

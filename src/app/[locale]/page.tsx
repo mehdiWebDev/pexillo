@@ -2,6 +2,7 @@ import HeroBanner from "@/src/components/hero-banner";
 import FeaturedProducts from "@/src/components/featured-products";
 import ProductCategories from "@/src/components/product-categories";
 import ValuePropsBar from "@/src/components/value-props-bar";
+import HowItWorks from "@/src/components/how-it-works";
 import NewsLetter from "@/src/components/news-letter";
 import About from "@/src/components/about";
 
@@ -15,6 +16,7 @@ export default function Home() {
         <main className="w-full">
           <HeroBanner />
           <ValuePropsBar />
+          <HowItWorks />
           <ProductCategories />
           <FeaturedProducts />
           <NewsLetter />

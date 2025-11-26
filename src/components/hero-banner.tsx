@@ -1,172 +1,115 @@
 'use client';
 
-import { useState } from 'react';
+import React from 'react';
 import { Link } from '@/src/i18n/routing';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { ArrowRight, Palette, Truck, Shield, Star, Zap } from 'lucide-react';
-import { Button } from '@/src/components/ui/button';
 import Tshirt from '@/src/img/quebec-city.png';
 import QuebecCity from '@/src/img/quebec-2.png';
 
 const HeroBanner = () => {
     const t = useTranslations('hero');
-    const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
-
-    // Process steps for new business
-    const processSteps = [
-        {
-            icon: Palette,
-            title: t('process.design'),
-            description: t('process.designDesc')
-        },
-        {
-            icon: Zap,
-            title: t('process.print'),
-            description: t('process.printDesc')
-        },
-        {
-            icon: Truck,
-            title: t('process.deliver'),
-            description: t('process.deliverDesc')
-        }
-    ];
 
     return (
-        <section className="hero-banner">
-            {/* Animated Background */}
-            <div className="hero-banner__background">
-                <div className="hero-banner__gradient-orb hero-banner__gradient-orb--1" />
-                <div className="hero-banner__gradient-orb hero-banner__gradient-orb--2" />
-                <div className="hero-banner__pattern" />
-            </div>
+        <header className="relative overflow-hidden bg-doodle bg-[length:20px_20px] pt-12 pb-24 md:py-20 lg:py-32 border-b border-gray-100">
+            <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
-            <div className="container mx-auto relative !py-20">
-                <div className="hero-banner__content">
-                    {/* Main Hero Content */}
-                    <div className="hero-banner__main">
-                        {/* Badge */}
-                        {/* <div className="hero-banner__badge">
-                        <Sparkles className="w-4 h-4" />
-                        <span>{t('badge')}</span>
-                        </div> */}
+                {/* Left: Copy */}
+                <div className="relative z-10 text-center lg:text-left">
+                    <span className="inline-block px-4 py-1.5 rounded-full bg-brand-yellow/30 text-yellow-800 font-bold text-sm mb-6 border border-brand-yellow transform -rotate-2">
+                        {t('badge') || 'Fall Collection Live'}
+                    </span>
 
-                        {/* Main Heading */}
-                        <h1 className="hero-banner__title">
-                            {t('title.line1')}
-                            <span className="hero-banner__title-highlight">
-                                {t('title.highlight')}
-                            </span>
-                            {t('title.line2')}
-                        </h1>
+                    <h1 className="text-5xl md:text-7xl font-black leading-[0.95] mb-6 tracking-tight text-brand-dark">
+                        {t('title.line1') || 'Wear whatever'} <br />
+                        {t('title.line1part2') || 'you '}
+                        <span className="text-brand-red font-marker transform rotate-2 inline-block">
+                            {t('title.highlight') || 'feel.'}
+                        </span>
+                    </h1>
 
-                        {/* Description */}
-                        <p className="hero-banner__description">
-                            {t('description')}
-                        </p>
+                    <p className="text-xl md:text-2xl text-gray-600 font-medium mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                        {t('description') || 'Premium streetwear essentials and accessories for the bold. Designed in Montreal.'}
+                    </p>
 
-                        {/* CTA Buttons */}
-                        <div className="hero-banner__cta-group">
-                            <Link href="/products">
-                                <Button size="lg" className="hero-banner__cta-primary">
-                                    {t('cta.primary')}
-                                    <ArrowRight className="ml-2 h-5 w-5" />
-                                </Button>
-                            </Link>
-                            <Link href="/design-studio">
-                                <Button size="lg" variant="outline" className="hero-banner__cta-secondary">
-                                    <Palette className="mr-2 h-5 w-5" />
-                                    {t('cta.secondary')}
-                                </Button>
-                            </Link>
-                        </div>
-
-                        {/* Trust Features */}
-                        <div className="hero-banner__trust-features">
-                            <div className="hero-banner__trust-item">
-                                <Shield className="w-5 h-5" />
-                                <span>{t('features.quality')}</span>
-                            </div>
-                            <div className="hero-banner__trust-item">
-                                <Truck className="w-5 h-5" />
-                                <span>{t('features.shipping')}</span>
-                            </div>
-                            <div className="hero-banner__trust-item">
-                                <Star className="w-5 h-5" />
-                                <span>{t('features.satisfaction')}</span>
-                            </div>
-                        </div>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <Link href="/products">
+                            <button className="btn-primary text-lg">
+                                {t('cta.primary') || 'Shop Collection'}
+                            </button>
+                        </Link>
+                        <Link href="/products">
+                            <button className="btn-secondary text-lg">
+                                {t('cta.secondary') || 'View Lookbook'}
+                            </button>
+                        </Link>
                     </div>
 
-                    {/* Visual Showcase */}
-                    <div className="hero-banner__visual">
-                        <div className="hero-banner__showcase-grid">
-                            <div className="hero-banner__showcase-item hero-banner__showcase-item--main">
+                </div>
+
+                {/* Right: Sticker Bomb / Visuals */}
+                <div className="relative h-[400px] md:h-[600px] w-full flex items-center justify-center">
+
+                    {/* Centerpiece Product */}
+                    <div
+                        className="relative z-20 w-64 md:w-80 animate-pop-in opacity-0"
+                        style={{ animationDelay: '0.1s', '--tw-rotate': '-2deg' } as React.CSSProperties}
+                    >
+                        <div className="bg-white p-3 rounded-xl shadow-xl border border-gray-100 transform transition-transform hover:scale-105 duration-300">
+                            <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden">
                                 <Image
                                     src={Tshirt}
-                                    alt="Featured Design"
-                                    width={600}
-                                    height={600}
-                                    className="hero-banner__showcase-image"
+                                    alt="Hero Product"
+                                    fill
+                                    sizes="(max-width: 768px) 256px, 320px"
+                                    className="object-cover"
                                     priority
                                 />
-                                <div className="hero-banner__showcase-tag">
-                                    {t('showcase.featured')}
-                                </div>
                             </div>
-                            <div className="hero-banner__showcase-item hero-banner__showcase-item--secondary">
-                                <Image
-                                    src={QuebecCity}
-                                    alt="T-Shirt Design"
-                                    width={400}
-                                    height={400}
-                                    className="hero-banner__showcase-image"
-                                />
-                                <div className="hero-banner__showcase-label">T-Shirts</div>
+                            <div className="mt-3 flex justify-between items-center px-1">
+                                <span className="font-bold text-sm">Vapor Hoodie</span>
+                                <span className="bg-brand-dark text-white text-xs px-2 py-1 rounded-lg font-bold">$65</span>
                             </div>
-                            <div className="hero-banner__showcase-item hero-banner__showcase-item--tertiary">
+                        </div>
+                    </div>
+
+                    {/* Floating Elements */}
+                    <div
+                        className="absolute top-0 right-0 md:right-12 z-10 w-32 md:w-40 animate-pop-in opacity-0 animate-float"
+                        style={{ animationDelay: '0.3s', '--tw-rotate': '6deg' } as React.CSSProperties}
+                    >
+                        <div className="relative w-full aspect-square rounded-full border-4 border-white shadow-lg overflow-hidden">
+                            <Image
+                                src={QuebecCity}
+                                alt="Sticker 1"
+                                fill
+                                sizes="(max-width: 768px) 128px, 160px"
+                                className="object-cover"
+                            />
+                        </div>
+                    </div>
+
+
+
+                    <div
+                        className="absolute top-10 left-4 md:left-20 z-0 w-28 animate-pop-in opacity-0"
+                        style={{ animationDelay: '0.2s', '--tw-rotate': '-10deg' } as React.CSSProperties}
+                    >
+                        <div className="bg-white p-2 rounded-lg shadow-md border border-gray-100">
+                            <div className="relative w-full aspect-square rounded overflow-hidden">
                                 <Image
                                     src={Tshirt}
-                                    alt="Hoodie Design"
-                                    width={400}
-                                    height={400}
-                                    className="hero-banner__showcase-image"
+                                    alt="Tote"
+                                    fill
+                                    sizes="112px"
+                                    className="object-cover"
                                 />
-                                <div className="hero-banner__showcase-label">Hoodies</div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                {/* Process Section - Instead of Stats */}
-                <div className="hero-banner__process">
-                    <h3 className="hero-banner__process-title">{t('process.title')}</h3>
-                    <div className="hero-banner__process-steps">
-                        {processSteps.map((step, index) => (
-                            <div
-                                key={index}
-                                className="hero-banner__process-step"
-                                onMouseEnter={() => setHoveredFeature(index)}
-                                onMouseLeave={() => setHoveredFeature(null)}
-                            >
-
-                                <div className="hero-banner__process-icon">
-                                    <step.icon className="w-6 h-6" />
-                                </div>
-                                <h4 className="hero-banner__process-step-title">{step.title}</h4>
-                                <p className="hero-banner__process-step-desc">{step.description}</p>
-                                <div
-                                    className="hero-banner__process-connector"
-                                    style={{
-                                        opacity: hoveredFeature === index ? 1 : 0.3
-                                    }}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </div>
             </div>
-        </section>
+        </header>
     );
 };
 

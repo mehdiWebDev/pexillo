@@ -4,7 +4,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { UseFormReturn } from 'react-hook-form';
-import { Mail, Home, CreditCard, Search } from 'lucide-react';
 import { CANADIAN_PROVINCES } from '@/src/data/canadianProvinces';
 
 // TypeScript declarations for Google Maps
@@ -501,76 +500,72 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
   }, [isLoading, sameAsShipping, fillInAddress]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Contact Information */}
-      <div className="bg-card border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <Mail size={20} />
-          {t('contactInformation')}
-        </h2>
-
-        <div className="grid gap-4">
+      <div>
+        <h2 className="text-xl font-black text-gray-900 mb-4">{t('contactInformation')}</h2>
+        <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">
-              {t('email')} *
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+              {t('email')}
             </label>
             <input
               type="email"
               {...register('email')}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="john.doe@example.com"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
+              placeholder="you@example.com"
             />
             {errors.email && (
-              <p className="text-sm text-destructive mt-1">
+              <p className="text-sm text-red-500 mt-1">
                 {errors.email.message as string}
               </p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
-              {t('phone')} *
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+              {t('phone')}
             </label>
             <input
               type="tel"
               {...register('phone')}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
               placeholder="+1 (555) 123-4567"
             />
             {errors.phone && (
-              <p className="text-sm text-destructive mt-1">
+              <p className="text-sm text-red-500 mt-1">
                 {errors.phone.message as string}
               </p>
             )}
           </div>
 
           {!isAuth && (
-            <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+            <label className="flex items-center gap-3 cursor-pointer group">
               <input
                 type="checkbox"
                 id="createAccount"
                 {...register('createAccount')}
-                className="rounded"
+                className="w-5 h-5 border-2 border-gray-300 rounded accent-gray-900"
               />
-              <label htmlFor="createAccount" className="text-sm cursor-pointer">
+              <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900">
                 {t('createAccountForFaster')}
-              </label>
-            </div>
+              </span>
+            </label>
           )}
 
           {createAccount && !isAuth && (
             <div>
-              <label className="block text-sm font-medium mb-2">
-                {t('password')} *
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                {t('password')}
               </label>
               <input
                 type="password"
                 {...register('password')}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
                 placeholder="••••••••"
               />
               {errors.password && (
-                <p className="text-sm text-destructive mt-1">
+                <p className="text-sm text-red-500 mt-1">
                   {errors.password.message as string}
                 </p>
               )}
@@ -580,53 +575,58 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
       </div>
 
       {/* Shipping Address */}
-      <div className="bg-card border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <Home size={20} />
-          {t('shippingAddress')}
-        </h2>
-
+      <div>
+        <h2 className="text-xl font-black text-gray-900 mb-4">{t('shippingAddress')}</h2>
         <div className="grid gap-4">
+          {/* Country Select */}
+          <div className="col-span-2">
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+              {t('country')}
+            </label>
+            <select className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium bg-white">
+              <option>Canada</option>
+            </select>
+          </div>
+
           {/* Name Fields */}
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-2">
             <div>
-              <label className="block text-sm font-medium mb-2">
-                {t('firstName')} *
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                {t('firstName')}
               </label>
               <input
                 type="text"
                 {...register('shipping.firstName')}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
               />
               {errors.shipping?.firstName && (
-                <p className="text-sm text-destructive mt-1">
+                <p className="text-sm text-red-500 mt-1">
                   {errors.shipping.firstName.message as string}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
-                {t('lastName')} *
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                {t('lastName')}
               </label>
               <input
                 type="text"
                 {...register('shipping.lastName')}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
               />
               {errors.shipping?.lastName && (
-                <p className="text-sm text-destructive mt-1">
+                <p className="text-sm text-red-500 mt-1">
                   {errors.shipping.lastName.message as string}
                 </p>
               )}
             </div>
           </div>
 
-          {/* Address Search - Canada only */}
-          <div>
-            <label className="text-sm font-medium mb-2 flex items-center gap-2">
-              <Search size={16} />
-              {t('deliverTo')} *
+          {/* Address Search - Canada only - Full Width */}
+          <div className="col-span-2">
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+              {t('deliverTo')}
               {error && <span className="text-red-500 text-xs ml-2">({error})</span>}
             </label>
 
@@ -640,72 +640,76 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
             ) : (
               <input
                 type="text"
-                className="w-full px-3 py-2 border rounded-lg bg-gray-50"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50"
                 placeholder={t('loadingAddressAutocomplete')}
                 disabled
               />
             )}
 
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-gray-400 mt-1">
               {t('searchAddressHelper')}
             </p>
           </div>
 
-          {/* Street Address Display - Visible Input */}
-          <div>
-            <label htmlFor="shipping-address" className="block text-sm font-medium mb-2">
-              {t('streetAddress')} *
+          {/* Street Address Display - Visible Input - Full Width */}
+          <div className="col-span-2">
+            <label htmlFor="shipping-address" className="block text-xs font-bold text-gray-500 uppercase mb-1">
+              {t('streetAddress')}
             </label>
             <input
               id="shipping-address"
               type="text"
               {...register('shipping.address')}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
               placeholder="123 Rue Principale"
             />
             {errors.shipping?.address && (
-              <p className="text-sm text-destructive mt-1">
+              <p className="text-sm text-red-500 mt-1">
                 {errors.shipping.address.message as string}
               </p>
             )}
           </div>
 
-          {/* Apartment/Suite */}
-          <div>
-            <label htmlFor="shipping-apartment" className="block text-sm font-medium mb-2">
-              {t('apartment')}
-            </label>
-            <input
-              id="shipping-apartment"
-              type="text"
-              {...register('shipping.apartment')}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder={t('apartmentPlaceholder')}
-            />
-          </div>
-
-          {/* City, Province, Postal Code */}
-          <div className="grid md:grid-cols-3 gap-4">
+          {/* City, Postal Code, Province - One Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 col-span-2">
             <div>
-              <label htmlFor="shipping-city" className="block text-sm font-medium mb-2">
-                {t('city')} *
+              <label htmlFor="shipping-city" className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                {t('city')}
               </label>
               <input
                 id="shipping-city"
                 type="text"
                 {...register('shipping.city')}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
               />
               {errors.shipping?.city && (
-                <p className="text-sm text-destructive mt-1">
+                <p className="text-sm text-red-500 mt-1">
                   {errors.shipping.city.message as string}
                 </p>
               )}
             </div>
 
             <div>
-              <label htmlFor="shipping-state" className="block text-sm font-medium mb-2">
-                {t('province')} *
+              <label htmlFor="shipping-postal" className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                {t('postalCode')}
+              </label>
+              <input
+                id="shipping-postal"
+                type="text"
+                {...register('shipping.postalCode')}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
+                placeholder="H1A 1A1"
+              />
+              {errors.shipping?.postalCode && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.shipping.postalCode.message as string}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="shipping-state" className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                {t('province')}
               </label>
               <select
                 id="shipping-state"
@@ -720,7 +724,7 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
                     }
                   }
                 })}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium bg-white"
               >
                 <option value="">{t('selectProvince')}</option>
                 {CANADIAN_PROVINCES.map((province) => (
@@ -730,29 +734,24 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
                 ))}
               </select>
               {errors.shipping?.state && (
-                <p className="text-sm text-destructive mt-1">
+                <p className="text-sm text-red-500 mt-1">
                   {errors.shipping.state.message as string}
                 </p>
               )}
             </div>
+          </div>
 
-            <div>
-              <label htmlFor="shipping-postal" className="block text-sm font-medium mb-2">
-                {t('postalCode')} *
-              </label>
-              <input
-                id="shipping-postal"
-                type="text"
-                {...register('shipping.postalCode')}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="H1A 1A1"
-              />
-              {errors.shipping?.postalCode && (
-                <p className="text-sm text-destructive mt-1">
-                  {errors.shipping.postalCode.message as string}
-                </p>
-              )}
-            </div>
+          {/* Phone - Full Width */}
+          <div className="col-span-2">
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+              {t('phone')}
+            </label>
+            <input
+              type="tel"
+              {...register('phone')}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
+              placeholder="+1 (555) 123-4567"
+            />
           </div>
 
           {/* Country - Hidden field, always Canada */}
@@ -761,31 +760,48 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
             {...register('shipping.country')}
             value="CA"
           />
-
-          {/* Display Canada as read-only info */}
-          <div className="bg-muted/30 border border-muted rounded-lg p-3">
-            <p className="text-sm text-muted-foreground">
-              {t('deliveryAvailable')}: <span className="font-medium text-foreground">{t('canadaOnly')}</span>
-            </p>
-          </div>
         </div>
       </div>
 
-      {/* Billing Address */}
-      <div className="bg-card border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <CreditCard size={20} />
-          {t('billingAddress')}
-        </h2>
+      {/* Shipping Method */}
+      <div>
+        <h2 className="text-xl font-black text-gray-900 mb-4">{t('shippingMethod')}</h2>
+        <div className="space-y-3">
+          <label className="flex items-center justify-between p-4 border-2 border-gray-900 bg-gray-900/5 rounded-xl cursor-pointer transition-all">
+            <div className="flex items-center gap-3">
+              <input type="radio" name="shipping" className="w-5 h-5 accent-gray-900" defaultChecked />
+              <div>
+                <span className="block font-bold text-gray-900">{t('standardShipping')}</span>
+                <span className="text-xs text-gray-500 font-medium">3-5 Business Days</span>
+              </div>
+            </div>
+            <span className="font-bold text-gray-900">{t('free')}</span>
+          </label>
+          <label className="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-gray-900 transition-all">
+            <div className="flex items-center gap-3">
+              <input type="radio" name="shipping" className="w-5 h-5 accent-gray-900" />
+              <div>
+                <span className="block font-bold text-gray-700">{t('expressShipping')}</span>
+                <span className="text-xs text-gray-500 font-medium">1-2 Business Days</span>
+              </div>
+            </div>
+            <span className="font-bold text-gray-700">$15.00</span>
+          </label>
+        </div>
+      </div>
 
+      {/* Billing Address Section - Collapsed by default */}
+      <div>
+        <h2 className="text-xl font-black text-gray-900 mb-4">{t('billingAddress')}</h2>
         <div className="flex items-center gap-2 mb-4">
           <input
             type="checkbox"
             id="sameAsShipping"
             {...register('sameAsShipping')}
-            className="rounded"
+            className="w-5 h-5 border-2 border-gray-300 rounded accent-gray-900"
+            defaultChecked
           />
-          <label htmlFor="sameAsShipping" className="text-sm cursor-pointer">
+          <label htmlFor="sameAsShipping" className="text-sm font-medium text-gray-600 cursor-pointer">
             {t('sameAsShippingAddress')}
           </label>
         </div>
@@ -793,44 +809,43 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
         {!sameAsShipping && (
           <div className="grid gap-4 pt-4">
             {/* Billing Name Fields */}
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-2">
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t('firstName')} *
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                  {t('firstName')}
                 </label>
                 <input
                   type="text"
                   {...register('billing.firstName')}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
                 />
                 {errors.billing?.firstName && (
-                  <p className="text-sm text-destructive mt-1">
+                  <p className="text-sm text-red-500 mt-1">
                     {errors.billing.firstName.message as string}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t('lastName')} *
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                  {t('lastName')}
                 </label>
                 <input
                   type="text"
                   {...register('billing.lastName')}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
                 />
                 {errors.billing?.lastName && (
-                  <p className="text-sm text-destructive mt-1">
+                  <p className="text-sm text-red-500 mt-1">
                     {errors.billing.lastName.message as string}
                   </p>
                 )}
               </div>
             </div>
 
-            {/* Billing Address Search */}
-            <div>
-              <label className="text-sm font-medium mb-2 flex items-center gap-2">
-                <Search size={16} />
+            {/* Billing Address Search - Full Width */}
+            <div className="col-span-2">
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
                 {t('billingAddressSearch')}
               </label>
 
@@ -841,71 +856,75 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
                 placeholder={t('startTypingAddress')}
               />
 
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 {t('searchAddressHelper')}
               </p>
             </div>
 
-            {/* Billing Street Address */}
-            <div>
-              <label htmlFor="billing-address" className="block text-sm font-medium mb-2">
-                {t('streetAddress')} *
+            {/* Billing Street Address - Full Width */}
+            <div className="col-span-2">
+              <label htmlFor="billing-address" className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                {t('streetAddress')}
               </label>
               <input
                 id="billing-address"
                 type="text"
                 {...register('billing.address')}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
                 placeholder="123 Rue Principale"
               />
               {errors.billing?.address && (
-                <p className="text-sm text-destructive mt-1">
+                <p className="text-sm text-red-500 mt-1">
                   {errors.billing.address.message as string}
                 </p>
               )}
             </div>
 
-            {/* Billing Apartment/Suite */}
-            <div>
-              <label htmlFor="billing-apartment" className="block text-sm font-medium mb-2">
-                {t('apartment')}
-              </label>
-              <input
-                id="billing-apartment"
-                type="text"
-                {...register('billing.apartment')}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder={t('apartmentPlaceholder')}
-              />
-            </div>
-
-            {/* Billing City, Province, Postal Code */}
-            <div className="grid md:grid-cols-3 gap-4">
+            {/* Billing City, Postal Code, Province - One Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 col-span-2">
               <div>
-                <label htmlFor="billing-city" className="block text-sm font-medium mb-2">
-                  {t('city')} *
+                <label htmlFor="billing-city" className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                  {t('city')}
                 </label>
                 <input
                   id="billing-city"
                   type="text"
                   {...register('billing.city')}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
                 />
                 {errors.billing?.city && (
-                  <p className="text-sm text-destructive mt-1">
+                  <p className="text-sm text-red-500 mt-1">
                     {errors.billing.city.message as string}
                   </p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="billing-state" className="block text-sm font-medium mb-2">
-                  {t('province')} *
+                <label htmlFor="billing-postal" className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                  {t('postalCode')}
+                </label>
+                <input
+                  id="billing-postal"
+                  type="text"
+                  {...register('billing.postalCode')}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
+                  placeholder="H1A 1A1"
+                />
+                {errors.billing?.postalCode && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.billing.postalCode.message as string}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="billing-state" className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                  {t('province')}
                 </label>
                 <select
                   id="billing-state"
                   {...register('billing.state')}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium bg-white"
                 >
                   <option value="">{t('selectProvince')}</option>
                   {CANADIAN_PROVINCES.map((province) => (
@@ -915,26 +934,8 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
                   ))}
                 </select>
                 {errors.billing?.state && (
-                  <p className="text-sm text-destructive mt-1">
+                  <p className="text-sm text-red-500 mt-1">
                     {errors.billing.state.message as string}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="billing-postal" className="block text-sm font-medium mb-2">
-                  {t('postalCode')} *
-                </label>
-                <input
-                  id="billing-postal"
-                  type="text"
-                  {...register('billing.postalCode')}
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="H1A 1A1"
-                />
-                {errors.billing?.postalCode && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.billing.postalCode.message as string}
                   </p>
                 )}
               </div>

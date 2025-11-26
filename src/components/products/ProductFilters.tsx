@@ -3,16 +3,8 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { 
-  DollarSign, 
-  Palette, 
-  Ruler, 
-  Package, 
-  Tag, 
-  RotateCcw,
-  FolderOpen,
-  Award,
-  Star
+import {
+  RotateCcw
 } from 'lucide-react';
 import { useTranslateCategories } from '@/src/hooks/useTranslateCategories';
 import type { FilterOptions } from '@/src/services/productListingService';
@@ -101,14 +93,14 @@ export default function ProductFilters({
 
   if (isLoading) {
     return (
-      <div className="product-filters">
-        <div className="product-filters__header">
-          <div className="skeleton skeleton--text" style={{ width: '100px' }} />
+      <div className="bg-transparent">
+        <div className="flex items-center justify-between mb-8">
+          <div className="h-5 w-24 bg-gray-200 rounded animate-pulse" />
         </div>
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="product-filters__section">
-            <div className="skeleton skeleton--text" style={{ width: '80px', marginBottom: '12px' }} />
-            <div className="skeleton skeleton--text" style={{ width: '100%', height: '40px' }} />
+          <div key={i} className="mb-8 pb-8 border-b border-gray-200">
+            <div className="h-4 w-20 bg-gray-200 rounded animate-pulse mb-3" />
+            <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
           </div>
         ))}
       </div>
@@ -116,12 +108,15 @@ export default function ProductFilters({
   }
 
   return (
-    <div className="product-filters">
+    <div className="bg-transparent">
       {/* Header */}
-      <div className="product-filters__header">
-        <h3 className="product-filters__title">{t('title')}</h3>
+      <div className="flex items-center justify-between mb-8">
+        <h3 className="text-lg font-black text-black uppercase tracking-wide">{t('title')}</h3>
         {hasActiveFilters && (
-          <button className="product-filters__reset" onClick={onReset}>
+          <button
+            className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:bg-gray-100 hover:text-black px-3.5 py-2 rounded-lg transition-all uppercase tracking-wider"
+            onClick={onReset}
+          >
             <RotateCcw size={16} />
             {t('reset')}
           </button>
@@ -130,23 +125,23 @@ export default function ProductFilters({
 
       {/* Categories Filter - Using translated categories */}
       {translatedCategories && translatedCategories.length > 0 && (
-        <div className="product-filters__section">
-          <div className="product-filters__section-header">
-            <FolderOpen size={16} />
-            <h4>{t('categories')}</h4>
+        <div className="mb-8 pb-8 border-b border-gray-200">
+          <div className="flex items-center gap-2 mb-4">
+            <h4 className="text-base font-black text-black uppercase tracking-wider">{t('categories')}</h4>
           </div>
 
-          <div className="category-filter">
+          <div className="flex flex-col gap-2">
             {translatedCategories.map((category) => (
-              <label key={category.slug} className="checkbox-filter">
+              <label key={category.slug} className="flex items-center gap-3 cursor-pointer py-2 font-medium text-gray-700 hover:text-black transition-colors">
                 <input
                   type="checkbox"
                   checked={currentFilters.categories.includes(category.slug)}
                   onChange={() => onCategoryToggle(category.slug)}
+                  className="w-5 h-5 cursor-pointer accent-black border-2 border-gray-300 rounded"
                 />
-                <span className="checkbox-filter__label">
-                  {category.name} 
-                  <span className="checkbox-filter__count">({category.count})</span>
+                <span className="flex-1 select-none font-medium">
+                  {category.name}
+                  <span className="text-gray-400 text-[13px] ml-1">({category.count})</span>
                 </span>
               </label>
             ))}
@@ -156,24 +151,24 @@ export default function ProductFilters({
 
       {/* Badges Filter */}
       {filterOptions && filterOptions.available_badges && filterOptions.available_badges.length > 0 && (
-        <div className="product-filters__section">
-          <div className="product-filters__section-header">
-            <Award size={16} />
-            <h4>{t('badges')}</h4>
+        <div className="mb-8 pb-8 border-b border-gray-200">
+          <div className="flex items-center gap-2 mb-4">
+            <h4 className="text-base font-black text-black uppercase tracking-wider">{t('badges')}</h4>
           </div>
 
-          <div className="badge-filter">
+          <div className="flex flex-wrap gap-2">
             {filterOptions.available_badges.map((badge) => (
               <button
                 key={badge}
-                className={`badge-filter__option ${
-                  currentFilters.badges.includes(badge) ? 'badge-filter__option--active' : ''
+                className={`px-3 py-1.5 text-xs font-semibold uppercase tracking-wide rounded-full border-2 transition-all ${
+                  currentFilters.badges.includes(badge)
+                    ? 'text-white'
+                    : 'border-gray-200 text-gray-700 hover:border-black'
                 }`}
                 style={{
-                  '--badge-color': getBadgeColor(badge),
                   borderColor: currentFilters.badges.includes(badge) ? getBadgeColor(badge) : undefined,
-                  backgroundColor: currentFilters.badges.includes(badge) ? `${getBadgeColor(badge)}15` : undefined
-                } as React.CSSProperties}
+                  backgroundColor: currentFilters.badges.includes(badge) ? getBadgeColor(badge) : undefined
+                }}
                 onClick={() => onBadgeToggle(badge)}
               >
                 {badge}
@@ -185,40 +180,39 @@ export default function ProductFilters({
 
       {/* Featured Filter */}
       {filterOptions && filterOptions.featured_products > 0 && (
-        <div className="product-filters__section">
-          <div className="product-filters__section-header">
-            <Star size={16} />
-            <h4>{t('featured')}</h4>
+        <div className="mb-8 pb-8 border-b border-gray-200">
+          <div className="flex items-center gap-2 mb-4">
+            <h4 className="text-base font-black text-black uppercase tracking-wider">{t('featured')}</h4>
           </div>
 
-          <label className="checkbox-filter">
+          <label className="flex items-center gap-3 cursor-pointer py-2 font-medium text-gray-700 hover:text-black transition-colors">
             <input
               type="checkbox"
               checked={currentFilters.featuredOnly}
               onChange={(e) => onFeaturedToggle(e.target.checked)}
+              className="w-5 h-5 cursor-pointer accent-black border-2 border-gray-300 rounded"
             />
-            <span className="checkbox-filter__label">
-              {t('featuredOnly')} 
-              <span className="checkbox-filter__count">({filterOptions.featured_products})</span>
+            <span className="flex-1 select-none font-medium">
+              {t('featuredOnly')}
+              <span className="text-gray-400 text-[13px] ml-1">({filterOptions.featured_products})</span>
             </span>
           </label>
         </div>
       )}
 
       {/* Price Range Filter */}
-      <div className="product-filters__section">
-        <div className="product-filters__section-header">
-          <DollarSign size={16} />
-          <h4>{t('priceRange')}</h4>
+      <div className="mb-8 pb-8 border-b border-gray-200">
+        <div className="flex items-center gap-2 mb-4">
+          <h4 className="text-base font-black text-black uppercase tracking-wider">{t('priceRange')}</h4>
         </div>
 
-        <div className="price-filter">
-          <div className="price-filter__inputs">
-            <div className="price-filter__input-group">
-              <label htmlFor="min-price">{t('min')}</label>
+        <div>
+          <div className="flex items-end gap-2 mb-4">
+            <div className="flex-1">
               <input
                 id="min-price"
                 type="number"
+                placeholder={t('min')}
                 min={filterOptions?.min_price || 0}
                 max={localMaxPrice}
                 value={localMinPrice}
@@ -228,15 +222,15 @@ export default function ProductFilters({
                     handlePriceChange(value, localMaxPrice);
                   }
                 }}
-                className="price-filter__input"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-bold bg-gray-50 text-black placeholder:text-gray-400 placeholder:font-medium focus:outline-none focus:border-black focus:bg-white transition-all"
               />
             </div>
-            <span className="price-filter__separator">-</span>
-            <div className="price-filter__input-group">
-              <label htmlFor="max-price">{t('max')}</label>
+            <span className="font-bold text-gray-400 pb-2">-</span>
+            <div className="flex-1">
               <input
                 id="max-price"
                 type="number"
+                placeholder={t('max')}
                 min={localMinPrice}
                 max={filterOptions?.max_price || 1000}
                 value={localMaxPrice}
@@ -246,13 +240,13 @@ export default function ProductFilters({
                     handlePriceChange(localMinPrice, value);
                   }
                 }}
-                className="price-filter__input"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-bold bg-gray-50 text-black placeholder:text-gray-400 placeholder:font-medium focus:outline-none focus:border-black focus:bg-white transition-all"
               />
             </div>
           </div>
 
           {/* Price Range Slider */}
-          <div className="price-filter__slider">
+          <div className="relative h-1.5 mt-4">
             <input
               type="range"
               min={filterOptions?.min_price || 0}
@@ -264,7 +258,7 @@ export default function ProductFilters({
                   handlePriceChange(value, localMaxPrice);
                 }
               }}
-              className="price-filter__range price-filter__range--min"
+              className="absolute w-full h-1.5 bg-transparent pointer-events-none appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4.5 [&::-webkit-slider-thumb]:h-4.5 [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md"
             />
             <input
               type="range"
@@ -277,7 +271,7 @@ export default function ProductFilters({
                   handlePriceChange(localMinPrice, value);
                 }
               }}
-              className="price-filter__range price-filter__range--max"
+              className="absolute w-full h-1.5 bg-transparent pointer-events-none appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4.5 [&::-webkit-slider-thumb]:h-4.5 [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md"
             />
           </div>
         </div>
@@ -285,26 +279,29 @@ export default function ProductFilters({
 
       {/* Colors Filter */}
       {filterOptions && filterOptions.available_colors && filterOptions.available_colors.length > 0 && (
-        <div className="product-filters__section">
-          <div className="product-filters__section-header">
-            <Palette size={16} />
-            <h4>{t('colors')}</h4>
+        <div className="mb-8 pb-8 border-b border-gray-200">
+          <div className="flex items-center gap-2 mb-4">
+            <h4 className="text-base font-black text-black uppercase tracking-wider">{t('colors')}</h4>
           </div>
 
-          <div className="color-filter">
+          <div className="grid grid-cols-6 gap-2">
             {filterOptions.available_colors.map(({ color, hex, count }) => (
               <button
                 key={color}
-                className={`color-filter__swatch ${
-                  currentFilters.colors.includes(color) ? 'color-filter__swatch--active' : ''
-                } ${isLightColor(hex) ? 'color-filter__swatch--light' : ''}`}
+                className={`w-8 h-8 rounded-full border transition-all flex items-center justify-center ${
+                  currentFilters.colors.includes(color)
+                    ? 'ring-2 ring-offset-2 ring-black border-transparent shadow-md'
+                    : isLightColor(hex)
+                    ? 'border-gray-300 hover:border-black'
+                    : 'border-gray-200 hover:border-black'
+                } hover:scale-110`}
                 style={{ backgroundColor: hex }}
                 onClick={() => onColorToggle(color)}
                 title={`${color} (${count})`}
                 aria-label={`${color} (${count} products)`}
               >
                 {currentFilters.colors.includes(color) && (
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" className={isLightColor(hex) ? 'text-black' : 'text-white'} style={{ filter: isLightColor(hex) ? 'none' : 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))' }}>
                     <path
                       d="M10 3L4.5 8.5L2 6"
                       stroke="currentColor"
@@ -322,18 +319,19 @@ export default function ProductFilters({
 
       {/* Sizes Filter */}
       {filterOptions && filterOptions.available_sizes && filterOptions.available_sizes.length > 0 && (
-        <div className="product-filters__section">
-          <div className="product-filters__section-header">
-            <Ruler size={16} />
-            <h4>{t('sizes')}</h4>
+        <div className="mb-8 pb-8 border-b border-gray-200">
+          <div className="flex items-center gap-2 mb-4">
+            <h4 className="text-base font-black text-black uppercase tracking-wider">{t('sizes')}</h4>
           </div>
 
-          <div className="size-filter">
+          <div className="grid grid-cols-4 gap-2">
             {filterOptions.available_sizes.map((size) => (
               <button
                 key={size}
-                className={`size-filter__option ${
-                  currentFilters.sizes.includes(size) ? 'size-filter__option--active' : ''
+                className={`h-10 flex items-center justify-center border rounded-lg text-sm font-bold transition-all ${
+                  currentFilters.sizes.includes(size)
+                    ? 'bg-black border-black text-white'
+                    : 'bg-white border-gray-200 text-black hover:border-black hover:bg-black hover:text-white'
                 }`}
                 onClick={() => onSizeToggle(size)}
               >
@@ -345,39 +343,39 @@ export default function ProductFilters({
       )}
 
       {/* Availability Filter */}
-      <div className="product-filters__section">
-        <div className="product-filters__section-header">
-          <Package size={16} />
-          <h4>{t('availability')}</h4>
+      <div className="mb-8 pb-8 border-b border-gray-200">
+        <div className="flex items-center gap-2 mb-4">
+          <h4 className="text-base font-black text-black uppercase tracking-wider">{t('availability')}</h4>
         </div>
 
-        <label className="checkbox-filter">
+        <label className="flex items-center gap-3 cursor-pointer py-2 font-medium text-gray-700 hover:text-black transition-colors">
           <input
             type="checkbox"
             checked={currentFilters.inStockOnly}
             onChange={(e) => onInStockToggle(e.target.checked)}
+            className="w-5 h-5 cursor-pointer accent-black border-2 border-gray-300 rounded"
           />
-          <span className="checkbox-filter__label">{t('inStockOnly')}</span>
+          <span className="flex-1 select-none font-medium">{t('inStockOnly')}</span>
         </label>
       </div>
 
       {/* Sale Filter */}
       {filterOptions && filterOptions.products_on_sale > 0 && (
-        <div className="product-filters__section">
-          <div className="product-filters__section-header">
-            <Tag size={16} />
-            <h4>{t('sale')}</h4>
+        <div className="mb-8 pb-24">
+          <div className="flex items-center gap-2 mb-4">
+            <h4 className="text-base font-black text-black uppercase tracking-wider">{t('sale')}</h4>
           </div>
 
-          <label className="checkbox-filter">
+          <label className="flex items-center gap-3 cursor-pointer py-2 font-medium text-gray-700 hover:text-black transition-colors">
             <input
               type="checkbox"
               checked={currentFilters.onSaleOnly}
               onChange={(e) => onSaleToggle(e.target.checked)}
+              className="w-5 h-5 cursor-pointer accent-black border-2 border-gray-300 rounded"
             />
-            <span className="checkbox-filter__label">
-              {t('onSaleOnly')} 
-              <span className="checkbox-filter__count">({filterOptions.products_on_sale})</span>
+            <span className="flex-1 select-none font-medium">
+              {t('onSaleOnly')}
+              <span className="text-gray-400 text-[13px] ml-1">({filterOptions.products_on_sale})</span>
             </span>
           </label>
         </div>

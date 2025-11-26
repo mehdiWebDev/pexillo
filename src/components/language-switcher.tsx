@@ -38,7 +38,7 @@ export function LanguageSwitcher() {
   );
 }
 
-// Compact version for mobile
+// Compact version for navigation
 export function LanguageSwitcherCompact() {
   const locale = useLocale();
   const router = useRouter();
@@ -49,20 +49,17 @@ export function LanguageSwitcherCompact() {
   }
 
   return (
-    <div className="flex gap-2">
-      {locales.map((loc) => (
-        <button
-          key={loc}
-          onClick={() => onSelectChange(loc)}
-          className={`px-3 py-1 rounded-md text-sm font-medium transition-colors
-            ${locale === loc 
-              ? 'bg-primary text-primary-foreground' 
-              : 'bg-secondary hover:bg-secondary/80'
-            }`}
-        >
-          {loc.toUpperCase()}
-        </button>
-      ))}
-    </div>
+    <Select defaultValue={locale} onValueChange={onSelectChange}>
+      <SelectTrigger className="w-[80px] h-[40px] rounded-xl border-gray-200 focus:ring-brand-dark">
+        <SelectValue placeholder="Lang" />
+      </SelectTrigger>
+      <SelectContent className="rounded-xl">
+        {locales.map((loc) => (
+          <SelectItem key={loc} value={loc} className="rounded-lg">
+            {localeNames[loc]}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

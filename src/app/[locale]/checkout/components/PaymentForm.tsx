@@ -12,7 +12,6 @@ import {
   useStripe,
   useElements,
 } from '@stripe/react-stripe-js';
-import { ArrowLeft, Lock, Check } from 'lucide-react';
 import { toast } from '@/src/hooks/use-toast';
 import { clearCartLocal, clearCartDB } from '@/src/store/slices/cartSlice';
 import { RootState } from '@/src/store';
@@ -285,108 +284,81 @@ export default function PaymentForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Payment Method */}
-      <div className="bg-card border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <Lock size={20} />
-          {t('paymentMethod')}
-        </h2>
+    <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
+      {/* Payment Section */}
+      <div>
+        <h2 className="text-lg md:text-xl font-black text-gray-900 mb-3 md:mb-4">{t('payment')}</h2>
+        <div className="border-2 border-gray-200 rounded-xl overflow-hidden">
+          <div className="p-4 border-b border-gray-200 bg-gray-50">
+            <label className="flex items-center justify-between cursor-pointer">
+              <div className="flex items-center gap-3">
+                <input type="radio" name="payment" className="w-5 h-5 accent-gray-900" defaultChecked />
+                <span className="font-bold text-gray-900">{t('paymentMethod')}</span>
+              </div>
+              <div className="flex gap-1">
+                <div className="w-8 h-5 bg-white border border-gray-200 rounded"></div>
+                <div className="w-8 h-5 bg-white border border-gray-200 rounded"></div>
+              </div>
+            </label>
+          </div>
+          <div className="p-4 md:p-6 bg-white">
+            <PaymentElement
+              options={{
+                layout: 'tabs',
+                fields: {
+                  billingDetails: 'never'
+                }
+              }}
+            />
+          </div>
+        </div>
+      </div>
 
-        <PaymentElement
-          options={{
-            layout: 'tabs',
-            paymentMethodOrder: ['card', 'apple_pay', 'google_pay'],
-          }}
+      {/* Terms Checkbox */}
+      <label className="flex items-center gap-3 cursor-pointer group">
+        <input
+          type="checkbox"
+          id="terms"
+          checked={agreedToTerms}
+          onChange={(e) => setAgreedToTerms(e.target.checked)}
+          className="w-5 h-5 border-2 border-gray-300 rounded accent-gray-900"
         />
-      </div>
+        <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900">
+          {t('agreeToTerms')}{' '}
+          <a href="/terms" target="_blank" className="text-gray-900 hover:underline">
+            {t('termsAndConditions')}
+          </a>
+          {' '}{t('and')}{' '}
+          <a href="/privacy" target="_blank" className="text-gray-900 hover:underline">
+            {t('privacyPolicy')}
+          </a>
+        </span>
+      </label>
 
-      {/* Order Review */}
-      <div className="bg-card border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">
-          {t('reviewOrder')}
-        </h2>
+      {/* Submit Button */}
+      <button
+        type="submit"
+        disabled={!stripe || isProcessing || !agreedToTerms}
+        className="w-full py-4 md:py-5 bg-gray-900 text-white font-black text-base md:text-lg rounded-xl hover:bg-gray-800 transition-all shadow-lg hover:-translate-y-1 disabled:opacity-50 disabled:transform-none"
+      >
+        {isProcessing ? (
+          <>
+            <span className="loader" />
+            {t('processing')}
+          </>
+        ) : (
+          `${t('payNow')} $${total.toFixed(2)}`
+        )}
+      </button>
 
-        <div className="space-y-4">
-          {/* Shipping Address Summary */}
-          <div>
-            <h3 className="font-medium mb-2">{t('shippingTo')}</h3>
-            <div className="text-sm text-muted-foreground">
-              <p>{form.getValues('shipping.firstName')} {form.getValues('shipping.lastName')}</p>
-              <p>{form.getValues('shipping.address')}</p>
-              {form.getValues('shipping.apartment') && (
-                <p>{form.getValues('shipping.apartment')}</p>
-              )}
-              <p>
-                {form.getValues('shipping.city')}, {form.getValues('shipping.state')} {form.getValues('shipping.postalCode')}
-              </p>
-              <p>{form.getValues('shipping.country')}</p>
-            </div>
-          </div>
-
-          {/* Contact Info */}
-          <div>
-            <h3 className="font-medium mb-2">{t('contactInfo')}</h3>
-            <div className="text-sm text-muted-foreground">
-              <p>{form.getValues('email')}</p>
-              <p>{form.getValues('phone')}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Terms and Conditions */}
-      <div className="bg-card border rounded-lg p-6">
-        <div className="flex items-start gap-3">
-          <input
-            type="checkbox"
-            id="terms"
-            checked={agreedToTerms}
-            onChange={(e) => setAgreedToTerms(e.target.checked)}
-            className="mt-1 rounded"
-          />
-          <label htmlFor="terms" className="text-sm">
-            {t('agreeToTerms')}
-            <a href="/terms" target="_blank" className="text-primary hover:underline ml-1">
-              {t('termsAndConditions')}
-            </a>
-            {' '}{t('and')}{' '}
-            <a href="/privacy" target="_blank" className="text-primary hover:underline">
-              {t('privacyPolicy')}
-            </a>
-          </label>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex justify-between items-center">
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft size={20} />
-          {t('backToShipping')}
-        </button>
-
-        <button
-          type="submit"
-          disabled={!stripe || isProcessing || !agreedToTerms}
-          className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
-        >
-          {isProcessing ? (
-            <>
-              <span className="loader" />
-              {t('processing')}
-            </>
-          ) : (
-            <>
-              <Check size={20} />
-              {t('placeOrder')} • ${total.toFixed(2)}
-            </>
-          )}
-        </button>
-      </div>
+      {/* Back Button */}
+      <button
+        type="button"
+        onClick={onBack}
+        className="w-full text-center text-gray-500 hover:text-gray-900 text-xs md:text-sm font-medium"
+      >
+        ← {t('backToShipping')}
+      </button>
     </form>
   );
 }

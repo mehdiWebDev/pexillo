@@ -5,10 +5,11 @@ import { useState, useEffect, useMemo } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/src/store';
-import { Heart, AlertCircle } from 'lucide-react';
-import ProductCard from '@/src/components/product-card';
+import { Heart, AlertCircle, X, Loader2 } from 'lucide-react';
 import { useFavorites } from '@/src/hooks/useFavorites';
 import { Link } from '@/src/i18n/routing';
+import PageHeader from '@/src/components/PageHeader';
+import Image from 'next/image';
 
 interface ProductVariant {
   id: string;
@@ -31,6 +32,15 @@ interface ProductImage {
   view_type?: 'front' | 'back' | 'side' | 'detail';
 }
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  translations?: Record<string, {
+    name?: string;
+  }>;
+}
+
 interface WishlistProduct {
   id: string;
   name: string;
@@ -44,6 +54,7 @@ interface WishlistProduct {
   discount_percentage: number;
   discounted_price: number;
   available_colors: number;
+  category?: Category;
   variants?: ProductVariant[];
   images?: ProductImage[];
   translations?: Record<string, {
@@ -133,26 +144,15 @@ export default function WishlistPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="wishlist-page">
-        <div className="container">
-          <div className="wishlist-page__header">
-            <div className="skeleton skeleton--title" />
-            <div className="skeleton skeleton--text" />
-          </div>
-
-          <div className="products-grid__list">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="product-card product-card--loading">
-                <div className="product-card__image-container">
-                  <div className="skeleton skeleton--image" />
-                </div>
-                <div className="product-card__info">
-                  <div className="skeleton skeleton--text skeleton--text-sm" />
-                  <div className="skeleton skeleton--text skeleton--text-lg" />
-                  <div className="skeleton skeleton--text skeleton--text-md" />
-                </div>
-              </div>
-            ))}
+      <div className="min-h-screen flex flex-col">
+        <PageHeader
+          badge={t('headerBadge')}
+          title={t('headerTitle')}
+          description={t('headerDescription')}
+        />
+        <div className="max-w-7xl mx-auto px-4 py-16 flex-1 w-full">
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="h-12 w-12 animate-spin text-brand-red" />
           </div>
         </div>
       </div>
@@ -162,24 +162,22 @@ export default function WishlistPage() {
   // Not authenticated
   if (!isAuth) {
     return (
-      <div className="wishlist-page">
-        <div className="container">
-          <div className="wishlist-page__header">
-            <h1 className="wishlist-page__title">
-              <Heart size={32} />
-              {t('title')}
-            </h1>
-          </div>
-
-          <div className="empty-state">
-            <Heart size={64} />
-            <h3>{t('loginRequired')}</h3>
-            <p>{t('loginRequiredDescription')}</p>
-            <div className="empty-state__actions">
-              <Link href="/auth/login" className="btn btn--primary">
+      <div className="min-h-screen flex flex-col">
+        <PageHeader
+          badge={t('headerBadge')}
+          title={t('headerTitle')}
+          description={t('headerDescription')}
+        />
+        <div className="max-w-7xl mx-auto px-4 py-16 flex-1 w-full">
+          <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
+            <Heart className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+            <h3 className="font-black text-2xl text-brand-dark mb-2">{t('loginRequired')}</h3>
+            <p className="text-gray-500 mb-6">{t('loginRequiredDescription')}</p>
+            <div className="flex gap-3 justify-center">
+              <Link href="/auth/login" className="px-6 py-3 bg-brand-dark text-white font-bold rounded-xl hover:bg-brand-red transition-colors">
                 {tCommon('login')}
               </Link>
-              <Link href="/auth/sign-up" className="btn btn--secondary">
+              <Link href="/auth/sign-up" className="px-6 py-3 border-2 border-gray-200 text-brand-dark font-bold rounded-xl hover:border-brand-dark transition-colors">
                 {tCommon('signup')}
               </Link>
             </div>
@@ -192,20 +190,18 @@ export default function WishlistPage() {
   // Error state
   if (error) {
     return (
-      <div className="wishlist-page">
-        <div className="container">
-          <div className="wishlist-page__header">
-            <h1 className="wishlist-page__title">
-              <Heart size={32} />
-              {t('title')}
-            </h1>
-          </div>
-
-          <div className="empty-state">
-            <AlertCircle size={64} className="text-red-500" />
-            <h3>{t('errorLoading')}</h3>
-            <p>{error}</p>
-            <button onClick={fetchWishlist} className="btn btn--primary">
+      <div className="min-h-screen flex flex-col">
+        <PageHeader
+          badge={t('headerBadge')}
+          title={t('headerTitle')}
+          description={t('headerDescription')}
+        />
+        <div className="max-w-7xl mx-auto px-4 py-16 flex-1 w-full">
+          <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
+            <AlertCircle className="w-16 h-16 mx-auto text-red-500 mb-4" />
+            <h3 className="font-black text-2xl text-brand-dark mb-2">{t('errorLoading')}</h3>
+            <p className="text-gray-500 mb-6">{error}</p>
+            <button onClick={fetchWishlist} className="px-6 py-3 bg-brand-dark text-white font-bold rounded-xl hover:bg-brand-red transition-colors">
               {tCommon('retry')}
             </button>
           </div>
@@ -217,21 +213,18 @@ export default function WishlistPage() {
   // Empty state
   if (translatedProducts.length === 0) {
     return (
-      <div className="wishlist-page">
-        <div className="container">
-          <div className="wishlist-page__header">
-            <h1 className="wishlist-page__title">
-              <Heart size={32} />
-              {t('title')}
-            </h1>
-            <p className="wishlist-page__subtitle">{t('subtitle')}</p>
-          </div>
-
-          <div className="empty-state">
-            <Heart size={64} />
-            <h3>{t('emptyTitle')}</h3>
-            <p>{t('emptyDescription')}</p>
-            <Link href="/products" className="btn btn--primary">
+      <div className="min-h-screen flex flex-col">
+        <PageHeader
+          badge={t('headerBadge')}
+          title={t('headerTitle')}
+          description={t('headerDescription')}
+        />
+        <div className="max-w-7xl mx-auto px-4 py-16 flex-1 w-full">
+          <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
+            <Heart className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+            <h3 className="font-black text-2xl text-brand-dark mb-2">{t('emptyTitle')}</h3>
+            <p className="text-gray-500 mb-6">{t('emptyDescription')}</p>
+            <Link href="/products" className="px-6 py-3 bg-brand-dark text-white font-bold rounded-xl hover:bg-brand-red transition-colors inline-block">
               {t('startShopping')}
             </Link>
           </div>
@@ -242,36 +235,150 @@ export default function WishlistPage() {
 
   // Wishlist with products
   return (
-    <div className="wishlist-page">
-      <div className="container">
-        <div className="wishlist-page__header">
-          <div>
-            <h1 className="wishlist-page__title">
-              <Heart size={32} />
-              {t('title')}
-            </h1>
-            <p className="wishlist-page__subtitle">
-              {t('itemCount', { count: translatedProducts.length })}
-            </p>
-          </div>
-        </div>
+    <div className="min-h-screen flex flex-col">
+      <PageHeader
+        badge={t('headerBadge')}
+        title={t('headerTitle')}
+        description={t('itemCount', { count: translatedProducts.length })}
+      />
+      <div className="max-w-7xl mx-auto px-4 py-16 flex-1 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {translatedProducts.map((product) => {
+            const primaryImage = product.images?.find((img) => img.is_primary)?.image_url || product.primary_image_url;
+            const translatedName = product.translations?.[locale]?.name || product.name;
+            const translatedShortDesc = product.translations?.[locale]?.short_description || product.short_description;
+            const translatedBadge = product.translations?.[locale]?.badge || product.badge;
+            const displayPrice = product.has_discount ? product.discounted_price : product.base_price;
+            const categoryName = product.category?.translations?.[locale]?.name || product.category?.name;
 
-        <div className="products-grid__list">
-          {translatedProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={{
-                ...product,
-                variants: product.variants || [],
-                images: product.images || [],
-              }}
-              showColorSwitcher={true}
-              showSizePicker={false}
-              showTooltips={true}
-              onToggleFavorite={handleRemoveFavorite}
-              isFavorite={true}
-            />
-          ))}
+            // Count unique sizes and colors
+            const uniqueSizes = [...new Set(product.variants?.map(v => v.size) || [])].length;
+            const uniqueColors = [...new Set(product.variants?.map(v => v.color) || [])].length;
+
+            return (
+              <div key={product.id} className="group cursor-pointer h-full flex flex-col">
+                <div className="relative flex-1 bg-white border-2 border-gray-200 rounded-2xl overflow-hidden flex flex-col hover:border-brand-red transition-colors">
+                  {/* Product Image */}
+                  <Link href={`/products/${product.slug}`} className="relative aspect-[4/5] overflow-hidden bg-gray-100">
+                    <Image
+                      src={primaryImage}
+                      alt={translatedName}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+
+                    {/* Badge */}
+                    {translatedBadge && (
+                      <div className="absolute top-3 left-3 bg-brand-red text-white px-3 py-1 rounded-full text-xs font-black uppercase">
+                        {translatedBadge}
+                      </div>
+                    )}
+
+                    {/* Stock Status Badge */}
+                    {!product.in_stock && (
+                      <div className="absolute bottom-3 left-3 bg-gray-900 text-white px-3 py-1 rounded-full text-xs font-bold">
+                        {t('outOfStock')}
+                      </div>
+                    )}
+
+                    {/* Remove Button */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleRemoveFavorite(product.id);
+                      }}
+                      className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md text-brand-red hover:bg-brand-red hover:text-white transition-colors z-10"
+                      aria-label={t('removeFromWishlist')}
+                      title={t('remove')}
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </Link>
+
+                  {/* Product Info */}
+                  <div className="p-4 flex-1 flex flex-col">
+                    {/* Category */}
+                    {categoryName && (
+                      <Link
+                        href={`/products?category=${product.category?.slug}`}
+                        className="text-xs font-bold text-gray-500 uppercase tracking-wider hover:text-brand-red transition-colors mb-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {categoryName}
+                      </Link>
+                    )}
+
+                    {/* Product Name */}
+                    <Link href={`/products/${product.slug}`}>
+                      <h3 className="font-black text-lg text-brand-dark mb-2 hover:text-brand-red transition-colors">
+                        {translatedName}
+                      </h3>
+                    </Link>
+
+                    {/* Short Description */}
+                    {translatedShortDesc && (
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                        {translatedShortDesc}
+                      </p>
+                    )}
+
+                    {/* Variants Info */}
+                    <div className="flex items-center gap-3 mb-3 text-xs text-gray-500">
+                      {uniqueColors > 0 && (
+                        <span className="flex items-center gap-1">
+                          <span className="w-3 h-3 rounded-full bg-gradient-to-r from-red-500 via-blue-500 to-green-500"></span>
+                          {uniqueColors} {uniqueColors === 1 ? t('color') : t('colors')}
+                        </span>
+                      )}
+                      {uniqueSizes > 0 && (
+                        <span>
+                          {uniqueSizes} {uniqueSizes === 1 ? t('size') : t('sizes')}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Price and Discount */}
+                    <div className="mt-auto">
+                      <div className="flex items-center gap-2 mb-2">
+                        {product.has_discount ? (
+                          <>
+                            <span className="font-black text-xl text-brand-dark">${displayPrice.toFixed(2)}</span>
+                            <span className="text-sm text-gray-400 line-through">${product.base_price.toFixed(2)}</span>
+                            <span className="text-xs font-bold text-white bg-brand-red px-2 py-1 rounded-full">
+                              -{product.discount_percentage}%
+                            </span>
+                          </>
+                        ) : (
+                          <span className="font-black text-xl text-brand-dark">${displayPrice.toFixed(2)}</span>
+                        )}
+                      </div>
+
+                      {/* Stock Status Text */}
+                      <div className="flex items-center justify-between">
+                        {product.in_stock ? (
+                          <span className="text-xs font-bold text-green-600 flex items-center gap-1">
+                            <span className="w-2 h-2 bg-green-600 rounded-full"></span>
+                            {t('inStock')}
+                          </span>
+                        ) : (
+                          <span className="text-xs font-bold text-red-600 flex items-center gap-1">
+                            <span className="w-2 h-2 bg-red-600 rounded-full"></span>
+                            {t('outOfStock')}
+                          </span>
+                        )}
+
+                        {/* Added to Wishlist Date */}
+                        <span className="text-xs text-gray-400">
+                          {t('added')} {new Date(product.added_to_wishlist).toLocaleDateString(locale === 'fr' ? 'fr-CA' : 'en-US', { month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

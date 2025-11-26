@@ -10,7 +10,13 @@
         "wishlist": "Wishlist",
         "user": "User",
         "toggleMenu": "Toggle mobile menu",
-        "closeMenu": "Close menu"
+        "closeMenu": "Close menu",
+        "shopAll": "Shop All",
+        "tees": "Tees",
+        "hoodies": "Hoodies",
+        "sale": "Sale",
+        "searchProducts": "Search products...",
+        "search": "Search..."
     },
     "common": {
         "welcome": "Welcome",
@@ -43,16 +49,17 @@
         "description": "The fastest way to build apps with Next.js and Supabase"
     },
     "hero": {
-        "badge": "Launch Special - 20% Off",
+        "badge": "Fall Collection Live",
         "title": {
-            "line1": "Wear Your ",
-            "highlight": "Imagination",
-            "line2": " on Premium Apparel"
+            "line1": "Wear whatever",
+            "line1part2": "you ",
+            "highlight": "FEEL.",
+            "line2": ""
         },
-        "description": "Transform your creative ideas into high-quality custom prints. Design unique t-shirts, hoodies, and winter sweats that express your style.",
+        "description": "Premium streetwear essentials and accessories for the bold. Designed in Montreal.",
         "cta": {
-            "primary": "Explore Designs",
-            "secondary": "Start Creating"
+            "primary": "Shop Collection",
+            "secondary": "View Lookbook"
         },
         "features": {
             "quality": "Premium Quality Materials",
@@ -63,13 +70,14 @@
             "featured": "New Arrival"
         },
         "process": {
-            "title": "How It Works",
+            "title": "From Screen to Street",
+            "subtitle": "The easiest way to get fresh gear.",
             "design": "Choose or Create",
-            "designDesc": "Pick from our collection or upload your own design",
-            "print": "We Print",
-            "printDesc": "High-quality printing with eco-friendly inks",
+            "designDesc": "Pick from our curated drops or upload your own art to our custom builder.",
+            "print": "We Print It Premium",
+            "printDesc": "Museum-grade inks on heavyweight cotton. Every pixel perfect.",
             "deliver": "Fast Delivery",
-            "deliverDesc": "Shipped within 3-5 business days"
+            "deliverDesc": "Shipped from Montreal in 3-5 days. Tracking link sent straight to you."
         }
     },
     "home": {
@@ -82,9 +90,8 @@
         "poweredBy": "Powered by"
     },
     "featuredProducts": {
-        "title": "Featured",
-        "titleAccent": "Best Sellers",
-        "viewAll": "View All Products",
+        "title": "Featured Products",
+        "viewAll": "View All",
         "quickView": "Quick View",
         "addToCart": "Add to Cart",
         "moreProducts": "Want to see more awesome designs?",
@@ -97,34 +104,23 @@
         "noProducts": "No featured products available at the moment."
     },
     "categories": {
-        "title": {
-            "line1": "SHOP BY ",
-            "highlight": "CATEGORY"
-        },
-        "subtitle": "Find exactly what you're looking for",
+        "title": "Shop By Category",
+        "viewAll": "View All",
         "products": "Products",
         "shopNow": "SHOP NOW",
         "tshirts": {
-            "name": "T-Shirts",
-            "description": "Classic comfort meets bold designs. Premium quality tees for everyday wear."
+            "name": "Tees",
+            "badge": "Essential"
         },
         "hoodies": {
-            "name": "Hoodies",
-            "description": "Stay warm in style. Cozy hoodies with eye-catching custom prints."
+            "name": "Hoodies"
         },
-        "sweatshirts": {
-            "name": "Sweatshirts",
-            "description": "Perfect for any season. Versatile sweatshirts with your unique designs."
+        "headwear": {
+            "name": "Headwear"
         },
-        "custom": {
-            "name": "Custom Designs",
-            "description": "Create something unique. Design your own masterpiece from scratch.",
-            "badge": "CREATE YOUR OWN",
-            "cta": "START DESIGNING"
-        },
-        "bottomCta": {
-            "text": "CAN'T FIND WHAT YOU'RE LOOKING FOR?",
-            "button": "VIEW ALL PRODUCTS"
+        "accessories": {
+            "name": "Accessories",
+            "badge": "New Stock"
         }
     },
     "productCard": {
@@ -153,63 +149,53 @@
         "inCart": "In cart"
     },
     "valueProps": {
-        "quality": "Premium Quality",
-        "qualityDesc": "Carefully crafted materials",
-        "design": "Unique Designs",
-        "designDesc": "Stand out from the crowd",
-        "shipping": "Fast Processing",
-        "shippingDesc": "Quick order handling",
-        "secure": "Secure Checkout",
-        "secureDesc": "Your data is protected"
+        "freeShipping": "Free Shipping",
+        "freeShippingDesc": "On all orders over $100",
+        "secure": "Secure Payment",
+        "secureDesc": "100% protected checkout",
+        "returns": "Free Returns",
+        "returnsDesc": "30-day return policy",
+        "fastDrops": "Fast Drops",
+        "fastDropsDesc": "New items every Friday"
     },
     "about": {
-        "title": "Our",
-        "titleAccent": "Story",
+        "badge": "Est. 2024 • Montreal",
+        "title": "Our Story",
         "whyTitle": "Why We Started",
         "whyText": "We believe everyone deserves to express themselves through quality clothing that doesn't break the bank. Every piece is designed with passion and attention to detail.",
         "qualityTitle": "Our Standards",
         "qualityText": "We personally test every product. If we wouldn't wear it ourselves, we won't sell it to you. Quality is our promise.",
         "missionTitle": "Our Mission",
         "missionText": "Building a community of individuals who value quality, creativity, and authentic self-expression through fashion.",
-        "ctaText": "Join us on this journey. Every purchase supports a small business with big dreams."
+        "ctaTitle": "Join us on this journey.",
+        "ctaText": "Every purchase supports a small business with big dreams."
     },
     "newsletter": {
-        "title": "Join Our",
-        "titleAccent": "Community",
-        "description": "Be the first to know about new arrivals and exclusive offers. Join our launch community for special early-bird discounts!",
+        "title": "Don't Sleep On Drops.",
+        "description": "Join the inner circle. Get early access, exclusive discounts, and no spam.",
         "placeholder": "Enter your email",
-        "subscribe": "Subscribe",
+        "subscribe": "JOIN",
         "subscribing": "Subscribing...",
         "subscribed": "Subscribed!",
-        "success": "Welcome to the community! Check your email for a special offer.",
+        "success": "Welcome to the inner circle! Check your email.",
         "errorInvalid": "Please enter a valid email",
-        "errorGeneral": "Something went wrong. Please try again.",
-        "disclaimer": "We respect your privacy. Unsubscribe at any time.",
-        "benefit1": "Early access to sales",
-        "benefit2": "Exclusive discounts",
-        "benefit3": "New arrival alerts"
+        "errorGeneral": "Something went wrong. Please try again."
     },
     "footer": {
-        "tagline": "Quality clothing for authentic expression",
+        "tagline": "Streetwear for the modern creative. High quality fits, unique designs.",
         "shop": "Shop",
-        "allProducts": "All Products",
         "newArrivals": "New Arrivals",
+        "bestSellers": "Best Sellers",
+        "accessories": "Accessories",
         "sale": "Sale",
-        "categories": "Categories",
-        "help": "Help",
+        "support": "Support",
+        "trackOrder": "Track Order",
+        "returns": "Returns",
+        "shipping": "Shipping Info",
         "contact": "Contact Us",
-        "sizeGuide": "Size Guide",
-        "careInstructions": "Care Instructions",
-        "faq": "FAQ",
-        "info": "Info",
-        "about": "About Us",
+        "legal": "Legal",
         "privacy": "Privacy Policy",
-        "terms": "Terms of Service",
-        "securePayments": "Secure Payments",
-        "fastShipping": "Fast Shipping",
-        "newWeekly": "New Weekly",
-        "rights": "All rights reserved.",
-        "poweredBy": "Powered by"
+        "terms": "Terms of Service"
     },
     "signUp": {
         "title": "Sign up",
@@ -561,6 +547,81 @@
     "profile": {
         "title": "My Profile",
         "description": "Manage your personal information and preferences",
+        "hqTitle": "THE HQ",
+        "welcomeBack": "Welcome back",
+        "friend": "Friend",
+        "signOut": "Sign Out",
+        "orders": "Orders",
+        "addresses": "Addresses",
+        "paymentMethods": "Payment Methods",
+        "settings": "Settings",
+        "savedAddresses": "Saved Addresses",
+        "noAddresses": "No addresses yet",
+        "noAddressesDescription": "Add your first address to make checkout faster",
+        "addNewAddress": "Add New Address",
+        "editAddress": "Edit Address",
+        "addressType": "Address Type",
+        "shipping": "Shipping",
+        "billing": "Billing",
+        "firstName": "First Name",
+        "firstNamePlaceholder": "John",
+        "lastName": "Last Name",
+        "lastNamePlaceholder": "Doe",
+        "company": "Company (Optional)",
+        "companyPlaceholder": "Company name",
+        "streetAddress": "Street Address",
+        "streetAddressPlaceholder": "123 Main Street",
+        "apartmentSuite": "Apartment, Suite, etc.",
+        "apartmentSuitePlaceholder": "Apt 4B (optional)",
+        "city": "City",
+        "cityPlaceholder": "Montreal",
+        "province": "Province",
+        "selectProvince": "Select province",
+        "postalCode": "Postal Code",
+        "postalCodePlaceholder": "H3A 1A1",
+        "country": "Country",
+        "setAsDefault": "Set as default address",
+        "setDefault": "Set Default",
+        "defaultAddress": "Default",
+        "delete": "Delete",
+        "edit": "Edit",
+        "cancel": "Cancel",
+        "saveAddress": "Save Address",
+        "deleteConfirm": "Are you sure you want to delete this address?",
+        "confirmDeleteAddress": "Are you sure you want to delete this address?",
+        "addressSaved": "Address saved successfully",
+        "addressAdded": "Address added successfully",
+        "addressUpdated": "Address updated successfully",
+        "addressDeleted": "Address deleted successfully",
+        "defaultAddressUpdated": "Default address updated",
+        "errorSavingAddress": "Failed to save address",
+        "errorDeletingAddress": "Failed to delete address",
+        "errorLoadingAddresses": "Failed to load addresses",
+        "errorUpdatingDefaultAddress": "Failed to update default address",
+        "validationError": "Validation Error",
+        "fillRequiredFields": "Please fill in all required fields",
+        "savedPaymentMethods": "Payment Methods",
+        "noPaymentMethods": "No saved payment methods",
+        "noPaymentMethodsDescription": "Add a payment method to make checkout faster",
+        "addNewPaymentMethod": "Add New Payment Method",
+        "addCard": "Add Card",
+        "cardholderName": "Cardholder Name",
+        "cardholderNamePlaceholder": "John Doe",
+        "cardDetails": "Card Details",
+        "securityNotice": "Your card information is securely processed by Stripe. We never store your full card details.",
+        "adding": "Adding...",
+        "cardholder": "Cardholder",
+        "expires": "Expires",
+        "enterCardholderName": "Please enter the cardholder name",
+        "paymentMethodAdded": "Payment method added successfully",
+        "paymentMethodDeleted": "Payment method deleted successfully",
+        "defaultPaymentMethodUpdated": "Default payment method updated",
+        "errorAddingPaymentMethod": "Failed to add payment method",
+        "errorDeletingPaymentMethod": "Failed to delete payment method",
+        "errorLoadingPaymentMethods": "Failed to load payment methods",
+        "errorUpdatingDefaultPaymentMethod": "Failed to update default payment method",
+        "confirmDeletePaymentMethod": "Are you sure you want to delete this payment method?",
+        "profilePicture": "Profile Picture",
         "personalInformation": "Personal Information",
         "personalInformationDescription": "Update your personal details",
         "preferences": "Preferences",
@@ -609,11 +670,16 @@
         "items": "Items",
         "total": "Total",
         "trackOrder": "Track Order",
+        "placedOn": "Placed on",
+        "order": "Order",
+        "otherItems": "other item",
+        "otherItems_other": "other items",
+        "viewDetails": "View Details",
         "orderStatus": {
-            "pending": "Pending",
+            "pending": "Order Received",
             "confirmed": "Confirmed",
             "processing": "Processing",
-            "shipped": "Shipped",
+            "shipped": "In Transit",
             "delivered": "Delivered",
             "cancelled": "Cancelled",
             "refunded": "Refunded",
@@ -747,7 +813,12 @@
         "selectProvince": "Select a province",
         "deliveryAvailable": "Delivery available",
         "canadaOnly": "Canada only",
-        "billingAddressSearch": "Search for billing address"
+        "billingAddressSearch": "Search for billing address",
+        "shippingMethod": "Shipping Method",
+        "standardShipping": "Standard Shipping",
+        "expressShipping": "Express Shipping",
+        "creditCard": "Credit Card",
+        "payNow": "Pay Now"
     },
     "checkoutSuccess": {
         "loadingOrder": "Loading order details...",
@@ -903,7 +974,10 @@
     "wishlist": {
         "title": "My Wishlist",
         "subtitle": "Your favorite products",
-        "itemCount": "{count, plural, =1 {1 item} other {# items}}",
+        "headerBadge": "Saved for Later",
+        "headerTitle": "THE STASH",
+        "headerDescription": "Don't sleep on these fits. Stock is limited and moves fast.",
+        "itemCount": "{count, plural, =1 {1 item saved} other {# items saved}}",
         "emptyTitle": "Your wishlist is empty",
         "emptyDescription": "Start adding products you love to your wishlist",
         "startShopping": "Start Shopping",
@@ -912,7 +986,14 @@
         "errorLoading": "Failed to load wishlist",
         "removeFromWishlist": "Remove from wishlist",
         "addToCart": "Add to Cart",
-        "outOfStock": "Out of Stock"
+        "outOfStock": "Out of Stock",
+        "inStock": "In Stock",
+        "color": "Color",
+        "colors": "Colors",
+        "size": "Size",
+        "sizes": "Sizes",
+        "added": "Added",
+        "remove": "Remove"
     },
     "tracking": {
         "title": "Track Your Order",

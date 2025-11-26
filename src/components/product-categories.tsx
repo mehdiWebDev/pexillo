@@ -1,165 +1,137 @@
 'use client';
 
-import { Link } from '@/src//i18n/routing';
-import { useTranslations } from 'next-intl';
+import { useState, useEffect } from 'react';
+import { Link } from '@/src/i18n/routing';
+import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
-import { ArrowRight, Shirt, Wind, Palette, Zap } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 interface Category {
   id: string;
   name: string;
   slug: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-  productCount: number;
-  imageUrl: string;
-  accentColor: 'primary' | 'secondary' | 'accent' | 'neutral';
+  image_url: string | null;
+  is_active: boolean;
+  sort_order: number;
+  translations?: Record<string, {
+    name?: string;
+    description?: string;
+  }>;
 }
+
+// Fallback images for categories without images
+const FALLBACK_IMAGES: Record<string, string> = {
+  'tees': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop',
+  't-shirts': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=800&auto=format&fit=crop',
+  'hoodies': 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop',
+  'headwear': 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=800&auto=format&fit=crop',
+  'accessories': 'https://images.unsplash.com/photo-1627123424574-181ce5171c2f?q=80&w=800&auto=format&fit=crop',
+};
 
 const ProductCategories = () => {
   const t = useTranslations('categories');
+  const locale = useLocale();
+  const supabase = createClient();
 
-  const categories: Category[] = [
-    {
-      id: '1',
-      name: t('tshirts.name'),
-      slug: 't-shirts',
-      description: t('tshirts.description'),
-      icon: Shirt,
-      productCount: 124,
-      imageUrl: '/api/placeholder/600/400',
-      accentColor: 'primary'
-    },
-    {
-      id: '2',
-      name: t('hoodies.name'),
-      slug: 'hoodies',
-      description: t('hoodies.description'),
-      icon: Wind,
-      productCount: 86,
-      imageUrl: '/api/placeholder/600/400',
-      accentColor: 'secondary'
-    },
-    {
-      id: '3',
-      name: t('sweatshirts.name'),
-      slug: 'sweatshirts',
-      description: t('sweatshirts.description'),
-      icon: Wind,
-      productCount: 92,
-      imageUrl: '/api/placeholder/600/400',
-      accentColor: 'accent'
-    },
-    {
-      id: '4',
-      name: t('custom.name'),
-      slug: 'custom-designs',
-      description: t('custom.description'),
-      icon: Palette,
-      productCount: 0,
-      imageUrl: '/api/placeholder/600/400',
-      accentColor: 'neutral'
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('categories')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true });
+
+        if (error) throw error;
+
+        setCategories(data || []);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, [supabase]);
+
+  const getCategoryName = (category: Category) => {
+    // Use translation if available for current locale
+    if (category.translations && category.translations[locale]?.name) {
+      return category.translations[locale].name;
     }
-  ];
+    return category.name;
+  };
+
+  const getCategoryImage = (category: Category) => {
+    // Use database image if available
+    if (category.image_url) {
+      return category.image_url;
+    }
+
+    // Fallback to predefined images based on slug
+    const slugLower = category.slug.toLowerCase();
+    return FALLBACK_IMAGES[slugLower] || FALLBACK_IMAGES['tees'];
+  };
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-brand-gray border-y border-gray-200">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-center items-center min-h-[400px]">
+            <Loader2 className="w-8 h-8 animate-spin text-brand-dark" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (categories.length === 0) {
+    return null;
+  }
 
   return (
-    <section className="product-categories">
-      <div className="product-categories__container">
-        {/* Header */}
-        <div className="product-categories__header">
-          <div className="product-categories__title-wrapper">
-            <h2 className="product-categories__title">
-              {t('title.line1')}
-              <span className="product-categories__title-accent">
-                {t('title.highlight')}
-              </span>
-            </h2>
-            <div className="product-categories__title-underline" />
-          </div>
-          <p className="product-categories__subtitle">
-            {t('subtitle')}
-          </p>
+    <section className="py-16 bg-brand-gray border-y border-gray-200">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex justify-between items-end mb-12">
+          <h2 className="text-3xl md:text-5xl font-black text-brand-dark">
+            {t('title')}
+          </h2>
+          <Link
+            href="/products"
+            className="hidden md:flex items-center gap-2 font-bold hover:text-brand-red transition-colors group"
+          >
+            {t('viewAll')}
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
 
-        {/* Categories Grid */}
-        <div className="product-categories__grid">
-          {categories.map((category, index) => {
-            const Icon = category.icon;
-            return (
-              <Link
-                key={category.id}
-                href={`/products/${category.slug}`}
-                className={`category-card category-card--${category.accentColor}`}
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                {/* Icon Badge */}
-                <div className="category-card__icon-badge">
-                  <Icon className="w-6 h-6" />
-                </div>
-
-                {/* Image Container */}
-                <div className="category-card__image-container">
-                  <Image
-                    src={category.imageUrl}
-                    alt={category.name}
-                    width={600}
-                    height={400}
-                    className="category-card__image"
-                  />
-                  <div className="category-card__overlay" />
-                  
-                  {/* Product Count Badge */}
-                  {category.productCount > 0 && (
-                    <div className="category-card__count">
-                      {category.productCount}+ {t('products')}
-                    </div>
-                  )}
-                  
-                  {/* Special Badge for Custom */}
-                  {category.slug === 'custom-designs' && (
-                    <div className="category-card__special-badge">
-                      <Zap className="w-4 h-4" />
-                      <span>{t('custom.badge')}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Content */}
-                <div className="category-card__content">
-                  <h3 className="category-card__name">{category.name}</h3>
-                  <p className="category-card__description">
-                    {category.description}
-                  </p>
-                  
-                  {/* CTA */}
-                  <div className="category-card__cta">
-                    <span className="category-card__cta-text">
-                      {category.slug === 'custom-designs' 
-                        ? t('custom.cta') 
-                        : t('shopNow')}
-                    </span>
-                    <ArrowRight className="category-card__cta-icon" />
-                  </div>
-                </div>
-
-                {/* Decorative Corner */}
-                <div className="category-card__corner" />
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="product-categories__bottom-cta">
-          <div className="product-categories__cta-content">
-            <p className="product-categories__cta-text">
-              {t('bottomCta.text')}
-            </p>
-            <Link href="/products" className="btn btn--brutalist btn--lg">
-              {t('bottomCta.button')}
-              <ArrowRight className="ml-2 h-5 w-5" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {categories.map((category) => (
+            <Link
+              key={category.id}
+              href={`/products/${category.slug}`}
+              className="group relative aspect-[3/4] overflow-hidden rounded-2xl border-2 border-transparent hover:border-brand-dark transition-all"
+            >
+              <Image
+                src={getCategoryImage(category)}
+                alt={getCategoryName(category)}
+                fill
+                sizes="(max-width: 768px) 50vw, 25vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+              <div className="absolute bottom-6 left-6">
+                <span className="text-white font-black text-2xl uppercase tracking-wider">
+                  {getCategoryName(category)}
+                </span>
+              </div>
             </Link>
-          </div>
+          ))}
         </div>
       </div>
     </section>
