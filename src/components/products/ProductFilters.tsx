@@ -109,8 +109,8 @@ export default function ProductFilters({
 
   return (
     <div className="bg-transparent">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      {/* Header - Hidden on mobile (shown in drawer header) */}
+      <div className="hidden lg:flex items-center justify-between mb-8">
         <h3 className="text-lg font-black text-black uppercase tracking-wide">{t('title')}</h3>
         {hasActiveFilters && (
           <button
@@ -122,6 +122,19 @@ export default function ProductFilters({
           </button>
         )}
       </div>
+
+      {/* Mobile Reset Button */}
+      {hasActiveFilters && (
+        <div className="lg:hidden mb-4 pt-4">
+          <button
+            className="w-full flex items-center justify-center gap-2 text-sm font-bold text-gray-600 hover:bg-gray-100 hover:text-black px-4 py-2.5 rounded-lg transition-all uppercase tracking-wider"
+            onClick={onReset}
+          >
+            <RotateCcw size={16} />
+            {t('reset')}
+          </button>
+        </div>
+      )}
 
       {/* Categories Filter - Using translated categories */}
       {translatedCategories && translatedCategories.length > 0 && (

@@ -139,42 +139,47 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
           {/* Sidebar Filters */}
           <aside
             className={`
-              fixed lg:sticky top-6 left-0 w-[85%] max-w-[320px] lg:w-auto lg:max-w-none
+              fixed lg:sticky top-0 lg:top-6 left-0 w-[85%] max-w-[320px] lg:w-auto lg:max-w-none
               h-screen lg:h-fit max-h-screen lg:max-h-[calc(100vh-6rem)]
               bg-white lg:bg-transparent z-[1000] lg:z-auto
               transition-transform duration-300 lg:transition-none
-              overflow-y-auto pr-4 lg:pr-0 scrollbar-none
+              overflow-y-auto scrollbar-none
               shadow-xl lg:shadow-none
               ${mobileFiltersOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
             `}
           >
             {/* Mobile Close Button */}
-            <button
-              className="lg:hidden absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-gray-100 rounded-md text-gray-600 hover:bg-gray-200 hover:text-black transition-all"
-              onClick={() => setMobileFiltersOpen(false)}
-            >
-              <X size={24} />
-            </button>
+            <div className="lg:hidden sticky top-0 bg-white z-10 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h3 className="text-lg font-black text-black uppercase tracking-wide">{t('filters')}</h3>
+              <button
+                className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-md text-gray-600 hover:bg-gray-200 hover:text-black transition-all"
+                onClick={() => setMobileFiltersOpen(false)}
+              >
+                <X size={20} />
+              </button>
+            </div>
 
-            <ProductFilters
-              filterOptions={filterOptions}
-              isLoading={filtersLoading}
-              currentFilters={filters}
-              // Price callbacks
-              onPriceChange={(min, max) => updateFilters({ minPrice: min, maxPrice: max })}
-              // Multi-select callbacks
-              onSizeToggle={toggleSize}
-              onColorToggle={toggleColor}
-              onCategoryToggle={toggleCategory}
-              onBadgeToggle={toggleBadge}
-              // Toggle callbacks
-              onFeaturedToggle={(checked) => updateFilters({ featuredOnly: checked })}
-              onInStockToggle={(checked) => updateFilters({ inStockOnly: checked })}
-              onSaleToggle={(checked) => updateFilters({ onSaleOnly: checked })}
-              // Reset
-              onReset={resetFilters}
-              hasActiveFilters={hasActiveFilters}
-            />
+            <div className="px-6 lg:px-0">
+              <ProductFilters
+                filterOptions={filterOptions}
+                isLoading={filtersLoading}
+                currentFilters={filters}
+                // Price callbacks
+                onPriceChange={(min, max) => updateFilters({ minPrice: min, maxPrice: max })}
+                // Multi-select callbacks
+                onSizeToggle={toggleSize}
+                onColorToggle={toggleColor}
+                onCategoryToggle={toggleCategory}
+                onBadgeToggle={toggleBadge}
+                // Toggle callbacks
+                onFeaturedToggle={(checked) => updateFilters({ featuredOnly: checked })}
+                onInStockToggle={(checked) => updateFilters({ inStockOnly: checked })}
+                onSaleToggle={(checked) => updateFilters({ onSaleOnly: checked })}
+                // Reset
+                onReset={resetFilters}
+                hasActiveFilters={hasActiveFilters}
+              />
+            </div>
           </aside>
 
           {/* Main Products Area */}
