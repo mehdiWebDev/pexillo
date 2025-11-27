@@ -12,6 +12,12 @@ interface OrderItem {
   production_status: string | null;
   product_id: string;
   variant_id: string;
+  // Stored product details (new columns)
+  product_name?: string | null;
+  variant_size?: string | null;
+  variant_color?: string | null;
+  variant_sku?: string | null;
+  // Joined product details (fallback)
   products?: {
     id: string;
     name: string;
@@ -144,7 +150,7 @@ export async function GET(
       };
     }
 
-    // Get order items with product and variant details
+    // Get order items - first try to get stored product details, fallback to joins
     const { data: orderItems, error: itemsError } = await supabaseAdmin
       .from('order_items')
       .select(`
@@ -155,6 +161,10 @@ export async function GET(
         production_status,
         product_id,
         variant_id,
+        product_name,
+        variant_size,
+        variant_color,
+        variant_sku,
         products (
           id,
           name,
@@ -188,9 +198,10 @@ export async function GET(
 
         return {
           id: item.id,
-          product_name: item.products?.[0]?.name || 'Unknown Product',
-          variant_size: item.product_variants?.[0]?.size || '',
-          variant_color: item.product_variants?.[0]?.color || '',
+          // Use stored product details first, fallback to joined data
+          product_name: item.product_name || item.products?.[0]?.name || 'Unknown Product',
+          variant_size: item.variant_size || item.product_variants?.[0]?.size || '',
+          variant_color: item.variant_color || item.product_variants?.[0]?.color || '',
           quantity: item.quantity,
           unit_price: item.unit_price,
           total_price: item.total_price,

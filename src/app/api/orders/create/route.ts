@@ -22,7 +22,9 @@ interface CartItem {
   quantity: number;
   unit_price: number;
   total_price: number;
-  product_name?: string;
+  product_name: string;
+  variant_size: string;
+  variant_color: string;
 }
 
 interface OrderInsertData {
@@ -264,6 +266,10 @@ export async function POST(req: NextRequest) {
       quantity: item.quantity,
       unit_price: item.unit_price,
       total_price: item.total_price,
+      // Store product details at time of purchase
+      product_name: item.product_name,
+      variant_size: item.variant_size,
+      variant_color: item.variant_color,
     }));
 
     const { error: itemsError } = await supabaseAdmin

@@ -432,10 +432,11 @@ export default function OrdersPage() {
               {ordersData.pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4">
                   <div className="text-sm text-muted-foreground">
-                    {t('showing')
-                      .replace('{from}', ((page - 1) * 20 + 1).toString())
-                      .replace('{to}', Math.min(page * 20, ordersData.pagination.total).toString())
-                      .replace('{total}', ordersData.pagination.total.toString())}
+                    {t('showing', {
+                      from: (page - 1) * 20 + 1,
+                      to: Math.min(page * 20, ordersData.pagination.total),
+                      total: ordersData.pagination.total
+                    })}
                   </div>
                   <div className="flex gap-2">
                     <Button

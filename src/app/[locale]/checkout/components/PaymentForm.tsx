@@ -110,12 +110,31 @@ export default function PaymentForm({
     setIsProcessing(true);
 
     try {
+      // Get form data for billing details
+      const formData = form.getValues();
+      const billingAddress = formData.sameAsShipping ? formData.shipping : formData.billing;
+
       // ✅ STEP 1: Confirm payment with Stripe FIRST (before creating order)
       console.log('💳 Step 1: Confirming payment with Stripe...');
       const { error: paymentError, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
           return_url: `${window.location.origin}/checkout/success`,
+          payment_method_data: {
+            billing_details: {
+              name: `${billingAddress?.firstName || formData.shipping.firstName} ${billingAddress?.lastName || formData.shipping.lastName}`,
+              email: formData.email,
+              phone: formData.phone,
+              address: {
+                line1: billingAddress?.address || formData.shipping.address,
+                line2: billingAddress?.apartment || formData.shipping.apartment || undefined,
+                city: billingAddress?.city || formData.shipping.city,
+                state: billingAddress?.state || formData.shipping.state,
+                postal_code: billingAddress?.postalCode || formData.shipping.postalCode,
+                country: billingAddress?.country || formData.shipping.country,
+              }
+            }
+          }
         },
         redirect: 'if_required',
       });
@@ -148,7 +167,6 @@ export default function PaymentForm({
       console.log('✅ Payment succeeded!', paymentIntent.id);
       console.log('📝 Step 2: Creating order in database...');
 
-      const formData = form.getValues();
       const subtotal = items.reduce((sum, item) => sum + item.total_price, 0);
 
       // Determine userId: use authenticated user's ID, or createdUserId from checkout

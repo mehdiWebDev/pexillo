@@ -344,10 +344,11 @@ export default function CustomersPage() {
               {customersData.pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between mt-4">
                   <div className="text-sm text-muted-foreground">
-                    {t('showing')
-                      .replace('{from}', ((page - 1) * 20 + 1).toString())
-                      .replace('{to}', Math.min(page * 20, customersData.pagination.total).toString())
-                      .replace('{total}', customersData.pagination.total.toString())}
+                    {t('showing', {
+                      from: (page - 1) * 20 + 1,
+                      to: Math.min(page * 20, customersData.pagination.total),
+                      total: customersData.pagination.total
+                    })}
                   </div>
                   <div className="flex gap-2">
                     <Button

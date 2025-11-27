@@ -670,6 +670,20 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
             )}
           </div>
 
+          {/* Apartment/Suite (Optional) - Full Width */}
+          <div className="col-span-2">
+            <label htmlFor="shipping-apartment" className="block text-xs font-bold text-gray-500 uppercase mb-1">
+              {t('apartment')} <span className="text-gray-400 font-normal">({t('optional')})</span>
+            </label>
+            <input
+              id="shipping-apartment"
+              type="text"
+              {...register('shipping.apartment')}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
+              placeholder="Apt, Suite, Unit, etc."
+            />
+          </div>
+
           {/* City, Postal Code, Province - One Row */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 col-span-2">
             <div>
@@ -739,19 +753,6 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
                 </p>
               )}
             </div>
-          </div>
-
-          {/* Phone - Full Width */}
-          <div className="col-span-2">
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
-              {t('phone')}
-            </label>
-            <input
-              type="tel"
-              {...register('phone')}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
-              placeholder="+1 (555) 123-4567"
-            />
           </div>
 
           {/* Country - Hidden field, always Canada */}
@@ -878,6 +879,20 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
                   {errors.billing.address.message as string}
                 </p>
               )}
+            </div>
+
+            {/* Billing Apartment/Suite (Optional) - Full Width */}
+            <div className="col-span-2">
+              <label htmlFor="billing-apartment" className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                {t('apartment')} <span className="text-gray-400 font-normal">({t('optional')})</span>
+              </label>
+              <input
+                id="billing-apartment"
+                type="text"
+                {...register('billing.apartment')}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium"
+                placeholder="Apt, Suite, Unit, etc."
+              />
             </div>
 
             {/* Billing City, Postal Code, Province - One Row */}
