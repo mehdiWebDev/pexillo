@@ -1,15 +1,12 @@
-// src/app/[locale]/products/[slug]/page.tsx
+// src/app/[locale]/products/[[...category]]/ProductDetailPageClient.tsx
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { use } from 'react';
 import { useRouter } from '@/src/i18n/routing';
 import { Link } from '@/src/i18n/routing';
 import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/src/components/ui/button';
-import {
-  Heart
-} from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { useCart } from '@/src/hooks/useCart';
 import { useFavorites } from '@/src/hooks/useFavorites';
 import { useToast } from '@/src/hooks/use-toast';
@@ -18,8 +15,8 @@ import VariantSelector from '@/src/components/product-detail/VariantSelector';
 import ProductTabs from '@/src/components/product-detail/ProductTabs';
 import SizeGuideModal from '@/src/components/product-detail/SizeGuideModal';
 
-interface ProductDetailProps {
-  params: Promise<{ slug: string }>;
+interface ProductDetailPageClientProps {
+  productSlug: string;
 }
 
 interface ProductVariant {
@@ -75,8 +72,7 @@ interface Product {
   categories?: Category;
 }
 
-export default function ProductDetailPage({ params }: ProductDetailProps) {
-  const resolvedParams = use(params);
+export default function ProductDetailPageClient({ productSlug }: ProductDetailPageClientProps) {
   const router = useRouter();
   const t = useTranslations('productDetail');
   const locale = useLocale();
@@ -98,7 +94,7 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/products/${resolvedParams.slug}`);
+        const response = await fetch(`/api/products/${productSlug}`);
 
         if (!response.ok) {
           throw new Error('Product not found');
@@ -126,7 +122,7 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
     };
 
     fetchProduct();
-  }, [resolvedParams.slug, router, t, toast]);
+  }, [productSlug, router, t, toast]);
 
   // Translate product details
   const translatedProduct = useMemo(() => {

@@ -210,7 +210,7 @@ export async function getSearchSuggestions(): Promise<{
     const { data: categoriesData } = await supabase
       .from('categories')
       .select('id, name, slug')
-      .eq('status', 'active')
+      .eq('is_active', 'true')
       .order('name')
       .limit(8);
 

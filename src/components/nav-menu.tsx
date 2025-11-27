@@ -68,13 +68,16 @@ export function ClientNavigationMenu({
             <Link href="/products" className="hover:text-brand-red transition-colors">
               {t('shopAll')}
             </Link>
-            <Link href="/products" className="hover:text-brand-red transition-colors">
+            <Link href="/products/t-shirts" className="hover:text-brand-red transition-colors">
               {t('tees')}
             </Link>
-            <Link href="/products" className="hover:text-brand-red transition-colors">
+            <Link href="/products/hoodies" className="hover:text-brand-red transition-colors">
               {t('hoodies')}
             </Link>
-            <Link href="/products" className="text-brand-red hover:text-brand-dark transition-colors">
+            <Link href="/products/caps" className="hover:text-brand-red transition-colors">
+              {t('caps') || 'Caps'}
+            </Link>
+            <Link href="/products?onSale=true" className="text-brand-red hover:text-brand-dark transition-colors">
               {t('sale')}
             </Link>
           </div>
@@ -193,13 +196,16 @@ export function ClientNavigationMenu({
               <Link href="/products" className="hover:text-brand-red" onClick={closeMobileMenu}>
                 {t('shopAll')}
               </Link>
-              <Link href="/products" className="hover:text-brand-red" onClick={closeMobileMenu}>
+              <Link href="/products/t-shirts" className="hover:text-brand-red" onClick={closeMobileMenu}>
                 {t('tees')}
               </Link>
-              <Link href="/products" className="hover:text-brand-red" onClick={closeMobileMenu}>
+              <Link href="/products/hoodies" className="hover:text-brand-red" onClick={closeMobileMenu}>
                 {t('hoodies')}
               </Link>
-              <Link href="/products" className="text-brand-red" onClick={closeMobileMenu}>
+              <Link href="/products/caps" className="hover:text-brand-red" onClick={closeMobileMenu}>
+                {t('caps')}
+              </Link>
+              <Link href="/products?onSale=true" className="text-brand-red" onClick={closeMobileMenu}>
                 {t('sale')}
               </Link>
               {isAuth && (
