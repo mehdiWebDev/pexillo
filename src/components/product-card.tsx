@@ -241,19 +241,20 @@ export default function ProductCard({
             src={getCurrentImage()}
             alt={product.name}
             fill
+            sizes="(max-width: 640px) 50vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 33vw"
             className={`object-cover transition-transform duration-700 ease-out ${isImageChanging ? 'opacity-80 blur-sm' : 'opacity-100'} group-hover:scale-105`}
             onError={() => setImageError(true)}
           />
 
           {/* Badges - Sticker Style */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2 items-start z-10">
+          <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex flex-col gap-1 sm:gap-2 items-start z-10">
             {product.badge && (
-              <div className={`px-3 py-1 text-xs font-black tracking-wider border-2 rounded shadow-sm transform -rotate-2 ${getBadgeStyle(product.badge)}`}>
+              <div className={`px-2 sm:px-3 py-0.5 sm:py-1 text-[9px] sm:text-xs font-black tracking-wider border sm:border-2 rounded shadow-sm transform -rotate-2 ${getBadgeStyle(product.badge)}`}>
                 {product.badge}
               </div>
             )}
             {hasDiscount && (
-              <div className="px-2 py-1 text-xs font-bold bg-white text-brand-red border border-brand-red rounded transform rotate-1">
+              <div className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-xs font-bold bg-white text-brand-red border border-brand-red rounded transform rotate-1">
                 -{product.discount_percentage}%
               </div>
             )}
@@ -261,14 +262,14 @@ export default function ProductCard({
 
           {/* Favorite Button */}
           <button
-            className={`absolute top-3 right-3 p-2.5 rounded-full border-2 transition-all duration-200 z-20
-              ${isFavorite 
-                ? 'bg-brand-red border-brand-red text-white' 
+            className={`absolute top-2 sm:top-3 right-2 sm:right-3 p-1.5 sm:p-2.5 rounded-full border sm:border-2 transition-all duration-200 z-20
+              ${isFavorite
+                ? 'bg-brand-red border-brand-red text-white'
                 : 'bg-white border-gray-200 text-gray-400 hover:border-brand-red hover:text-brand-red'
               }`}
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFavorite?.(product.id); }}
           >
-            <Heart size={18} fill={isFavorite ? "currentColor" : "none"} />
+            <Heart size={14} className="sm:w-[18px] sm:h-[18px]" fill={isFavorite ? "currentColor" : "none"} />
           </button>
 
           {/* Out of Stock Overlay */}
@@ -282,45 +283,45 @@ export default function ProductCard({
         </div>
 
         {/* Info Section */}
-        <div className="p-4 flex flex-col gap-3">
-          
+        <div className="p-2 sm:p-3 md:p-4 flex flex-col gap-2 sm:gap-3">
+
           {/* Title & Price */}
           <div>
-            <div className="flex justify-between items-start gap-2">
-              <h3 className="font-heading font-bold text-lg leading-tight text-brand-dark line-clamp-1 group-hover:text-brand-red transition-colors">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-2">
+              <h3 className="font-heading font-bold text-sm sm:text-base md:text-lg leading-tight text-brand-dark line-clamp-1 group-hover:text-brand-red transition-colors">
                 {product.name}
               </h3>
               {/* Mobile/Compact Price View */}
-              <div className="flex flex-col items-end">
-                <span className={`font-black text-lg ${hasDiscount ? 'text-brand-red' : 'text-brand-dark'}`}>
+              <div className="flex flex-row sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0">
+                <span className={`font-black text-base sm:text-lg ${hasDiscount ? 'text-brand-red' : 'text-brand-dark'}`}>
                   ${displayPrice.toFixed(2)}
                 </span>
                 {hasDiscount && (
-                  <span className="text-xs text-gray-400 line-through font-medium">
+                  <span className="text-[10px] sm:text-xs text-gray-400 line-through font-medium">
                     ${product.base_price.toFixed(2)}
                   </span>
                 )}
               </div>
             </div>
             {product.short_description && (
-              <p className="text-xs text-gray-500 mt-1 line-clamp-1 font-medium">
+              <p className="text-[10px] sm:text-xs text-gray-500 mt-1 line-clamp-1 font-medium">
                 {product.short_description}
               </p>
             )}
           </div>
 
           {/* Variants: Color & Size */}
-          <div className="space-y-3">
-            
+          <div className="space-y-2 sm:space-y-3">
+
             {/* Color Switcher */}
             {showColorSwitcher && availableColors.length > 0 && (
-              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center gap-1.5 sm:gap-2" onClick={(e) => e.stopPropagation()}>
                 {availableColors.map(({ color, hex }) => (
                   <button
                     key={color}
                     className={`
-                      w-6 h-6 rounded-full border shadow-sm flex-shrink-0 transition-all
-                      ${selectedColor === color ? 'ring-2 ring-offset-2 ring-brand-dark scale-110 border-transparent' : 'border-gray-200 hover:scale-110'}
+                      w-5 h-5 sm:w-6 sm:h-6 rounded-full border shadow-sm flex-shrink-0 transition-all
+                      ${selectedColor === color ? 'ring-2 ring-offset-1 sm:ring-offset-2 ring-brand-dark scale-110 border-transparent' : 'border-gray-200 hover:scale-110'}
                     `}
                     style={{ backgroundColor: hex }}
                     onClick={() => handleColorSelect(color)}
@@ -329,7 +330,7 @@ export default function ProductCard({
                 ))}
                 {/* Count of extra colors if many */}
                 {product.available_colors > availableColors.length && (
-                  <span className="text-[10px] text-gray-400 font-bold">+{product.available_colors - availableColors.length}</span>
+                  <span className="text-[9px] sm:text-[10px] text-gray-400 font-bold">+{product.available_colors - availableColors.length}</span>
                 )}
               </div>
             )}
@@ -360,22 +361,22 @@ export default function ProductCard({
           </div>
 
           {/* Stock & Cart Logic Footer */}
-          <div className="pt-3 border-t border-gray-100 flex justify-between items-end">
-            
+          <div className="pt-2 sm:pt-3 border-t border-gray-100 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-2">
+
             {/* Left Side: Status Indicators */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.5 sm:gap-1">
               {/* Low Stock Warning */}
               {stockInfo && canAddMore && (
-                <span className={`text-[10px] font-bold flex items-center gap-1 ${stockInfo.isCritical ? 'text-brand-red' : 'text-orange-500'}`}>
-                  <AlertCircle size={10} />
+                <span className={`text-[9px] sm:text-[10px] font-bold flex items-center gap-0.5 sm:gap-1 ${stockInfo.isCritical ? 'text-brand-red' : 'text-orange-500'}`}>
+                  <AlertCircle size={8} className="sm:w-[10px] sm:h-[10px]" />
                   {stockInfo.count === 1 ? t('lastOne') : t('onlyXLeft', { count: stockInfo.count })}
                 </span>
               )}
-              
+
               {/* In Cart Indicator */}
               {currentCartQuantity > 0 && (
-                <span className="text-[10px] font-bold text-brand-green flex items-center gap-1 bg-green-50 px-1.5 py-0.5 rounded-md w-fit">
-                  <Check size={10} /> {currentCartQuantity} {t('inCart')}
+                <span className="text-[9px] sm:text-[10px] font-bold text-brand-green flex items-center gap-0.5 sm:gap-1 bg-green-50 px-1 sm:px-1.5 py-0.5 rounded-md w-fit">
+                  <Check size={8} className="sm:w-[10px] sm:h-[10px]" /> {currentCartQuantity} {t('inCart')}
                 </span>
               )}
             </div>
@@ -383,23 +384,23 @@ export default function ProductCard({
             {/* Right Side: Action Button */}
             <button
               className={`
-                flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all
-                ${!canAddMore && selectedVariant 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-white border-2 border-brand-dark text-brand-dark hover:bg-brand-dark hover:text-white hover:-translate-y-0.5'
+                flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md sm:rounded-lg font-bold text-xs sm:text-sm transition-all w-full sm:w-auto
+                ${!canAddMore && selectedVariant
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white border sm:border-2 border-brand-dark text-brand-dark hover:bg-brand-dark hover:text-white sm:hover:-translate-y-0.5'
                 }
               `}
               onClick={handleAddToCart}
               disabled={isAddingToCart || isLoading || !selectedVariant || !canAddMore}
             >
               {isAddingToCart ? (
-                <Loader2 size={16} className="animate-spin" />
+                <Loader2 size={14} className="animate-spin sm:w-4 sm:h-4" />
               ) : !selectedVariant ? (
-                <>Select <ArrowRight size={14} /></>
+                <>Select <ArrowRight size={12} className="sm:w-[14px] sm:h-[14px]" /></>
               ) : !canAddMore ? (
-                <span className="text-xs">Max</span>
+                <span className="text-[10px] sm:text-xs">Max</span>
               ) : (
-                <>Add <ShoppingCart size={16} /></>
+                <>Add <ShoppingCart size={14} className="sm:w-4 sm:h-4" /></>
               )}
             </button>
           </div>

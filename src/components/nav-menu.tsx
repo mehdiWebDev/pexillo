@@ -5,7 +5,7 @@ import { usePathname } from '@/src/i18n/routing';
 import { Link } from '@/src/i18n/routing';
 import { cn } from "@/lib/utils";
 import Image from 'next/image';
-import { Heart, Menu, Search } from "lucide-react";
+import { Heart, Menu } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/src/store";
 import { useUserQuery } from "@/src/hooks/useUserQuery";
@@ -14,6 +14,7 @@ import MiniCart from '@/src/components/cart/MiniCart';
 import { useFavorites } from '@/src/hooks/useFavorites';
 import { locales, type Locale } from '@/src/i18n/config';
 import { useRouter } from '@/src/i18n/routing';
+import SearchBar from '@/src/components/search/SearchBar';
 
 const BrandLogo = () => (
   <div className="flex items-center gap-1 group">
@@ -33,7 +34,6 @@ export function ClientNavigationMenu({
   const locale = useLocale();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const { user, isAuth } = useSelector((state: RootState) => state.auth);
   const { data: profile } = useUserQuery(user?.id);
   const { favorites } = useFavorites();
@@ -55,8 +55,8 @@ export function ClientNavigationMenu({
   return (
     <>
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 py-4 px-4 md:px-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 md:gap-8">
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 py-4 px-4 md:px-6 lg:px-8">
+        <div className="w-full justify-between max-w-[1400px] mx-auto flex items-center gap-3 md:gap-4 lg:gap-6">
 
           {/* Logo */}
           <Link href="/" onClick={closeMobileMenu} className="shrink-0">
@@ -64,7 +64,7 @@ export function ClientNavigationMenu({
           </Link>
 
           {/* Primary Navigation (Desktop Only) */}
-          <div className="hidden lg:flex items-center gap-6 font-bold text-sm shrink-0">
+          <div className="hidden xl:flex items-center gap-6 font-bold text-sm shrink-0">
             <Link href="/products" className="hover:text-brand-red transition-colors">
               {t('shopAll')}
             </Link>
@@ -79,22 +79,18 @@ export function ClientNavigationMenu({
             </Link>
           </div>
 
-          {/* Search Bar (Desktop) */}
-          <div className="hidden md:flex flex-1 max-w-md relative group">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+          {/* Search Bar (Desktop & Tablet) - Takes full available width */}
+          <div className="hidden sm:flex flex-1 max-w-3xl mx-2 md:mx-4">
+            <SearchBar
+              className="w-full"
               placeholder={t('searchProducts')}
-              className="w-full pl-12 pr-4 py-3 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:border-brand-dark focus:ring-0 outline-none transition-all font-medium placeholder-gray-400 group-hover:border-gray-300"
             />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-brand-dark transition-colors" />
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-4 md:gap-6 shrink-0">
+          <div className="flex items-center gap-3 md:gap-4 shrink-0">
             {/* Language Switcher (Desktop Only) */}
-            <div className="hidden md:flex items-center gap-1 font-bold text-sm">
+            <div className="hidden lg:flex items-center gap-1 font-bold text-sm">
               {locales.map((loc, idx) => (
                 <span key={loc}>
                   <button
@@ -138,7 +134,7 @@ export function ClientNavigationMenu({
                   )}
                 </Link>
               ) : (
-                <div className="hidden lg:flex items-center gap-2">
+                <div className="hidden xl:flex items-center gap-2">
                   {children}
                 </div>
               )}
@@ -169,7 +165,7 @@ export function ClientNavigationMenu({
 
               {/* Mobile Menu Trigger */}
               <button
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="xl:hidden p-2 hover:bg-gray-100 rounded-full transition-colors"
                 onClick={toggleMobileMenu}
                 aria-label={t('toggleMenu')}
               >
@@ -181,47 +177,16 @@ export function ClientNavigationMenu({
 
         {/* Mobile Menu Dropdown */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden bg-white border-b border-gray-100 p-4 absolute top-full left-0 w-full z-40 shadow-xl">
-            {/* Mobile Search */}
-            <div className="relative mb-6">
-              <input
-                type="text"
+          <div className="xl:hidden bg-white border-b border-gray-100 p-4 absolute top-full left-0 w-full z-40 shadow-xl">
+            {/* Mobile Search - Only show on very small screens where main search is hidden */}
+            <div className="sm:hidden">
+              <SearchBar
+                className="mb-6"
                 placeholder={t('search')}
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:border-brand-dark outline-none"
+                onSearchComplete={closeMobileMenu}
+                inputClassName="rounded-xl"
               />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             </div>
-
-            {/* User Profile Section (Mobile) */}
-            {isAuth && profile && (
-              <div className="mb-6 pb-6 border-b border-gray-100">
-                <div className="flex items-center gap-3">
-                  {profile?.avatar_url ? (
-                    <Image
-                      src={profile.avatar_url}
-                      alt={profile.full_name || 'Profile'}
-                      width={48}
-                      height={48}
-                      className="rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-600 font-bold">
-                        {profile?.full_name?.[0] || profile?.email?.[0] || 'U'}
-                      </span>
-                    </div>
-                  )}
-                  <div>
-                    <div className="font-bold text-gray-900">
-                      {profile?.full_name || profile?.email || 'User'}
-                    </div>
-                    {profile?.email && profile?.full_name && (
-                      <div className="text-sm text-gray-500">{profile.email}</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Mobile Links */}
             <div className="flex flex-col gap-4 font-bold text-lg">

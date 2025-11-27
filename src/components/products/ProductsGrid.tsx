@@ -29,7 +29,7 @@ export default function ProductsGrid({
   if (isLoading) {
     return (
       <div>
-        <div className="grid grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mb-12">
           {[...Array(12)].map((_, i) => (
             <div key={i} className="flex flex-col">
               <div className="aspect-[4/5] bg-gray-200 rounded-2xl mb-4 animate-pulse" />
@@ -113,7 +113,7 @@ export default function ProductsGrid({
   return (
     <div>
       {/* Products List */}
-      <div className="grid grid-cols-3 gap-6 mb-12">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mb-12">
         {products.map((product) => (
           <ProductCard
             key={product.id}
