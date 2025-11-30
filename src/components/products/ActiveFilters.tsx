@@ -27,10 +27,10 @@ export default function ActiveFilters({
     return color?.hex || '#000000';
   };
 
-  // Get category name from slug
-  const getCategoryName = (slug: string): string => {
-    const category = filterOptions?.available_categories?.find((c) => c.slug === slug);
-    return category?.name || slug;
+  // Get category name from ID (optimized to use UUIDs)
+  const getCategoryName = (categoryId: string): string => {
+    const category = filterOptions?.available_categories?.find((c) => c.id === categoryId);
+    return category?.name || 'Unknown';
   };
 
   // Badge color mapping

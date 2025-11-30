@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/src/i18n/routing';
-import { Search, X, ChevronLeft, ChevronRight, Package } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Package, Search } from 'lucide-react';
 import ProductCard from '@/src/components/product-card';
 import { useSearch } from '@/src/hooks/useSearch';
 import { useFavorites } from '@/src/hooks/useFavorites';
@@ -28,8 +28,6 @@ export default function SearchPageClient() {
     searchResults,
     totalCount,
     isLoading,
-    handleSearch,
-    clearSearch,
     page,
     setPage,
     totalPages,
@@ -48,9 +46,15 @@ export default function SearchPageClient() {
   }, [searchParams, query, setQuery]);
 
   // Apply translations to products if needed
-  const translatedResults = locale === 'en' ? searchResults : searchResults.map(product => {
-    // SearchResult type doesn't have translations, so just use the product as is
-    // Translations would be handled at the database level
+  const translatedResults = searchResults.map(product => {
+    if (locale === 'fr' && product.translations?.fr) {
+      return {
+        ...product,
+        name: product.translations.fr.name || product.name,
+        short_description: product.translations.fr.short_description || product.short_description,
+        badge: product.translations.fr.badge || product.badge,
+      };
+    }
     return product;
   });
 
@@ -83,40 +87,26 @@ export default function SearchPageClient() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Search Header */}
+      {/* Filter Header */}
       <div className="bg-white border-b border-gray-200 sticky top-[73px] z-40">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            {/* Search Input */}
-            <div className="flex-1 max-w-2xl">
-              <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="relative">
-                <input
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder={t('searchPlaceholder') || 'Search for products...'}
-                  className="w-full pl-12 pr-24 py-3 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:border-brand-dark focus:ring-0 outline-none transition-all font-medium"
-                />
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                  {query && (
-                    <button
-                      type="button"
-                      onClick={clearSearch}
-                      className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                      aria-label="Clear search"
-                    >
-                      <X size={16} />
-                    </button>
-                  )}
-                  <button
-                    type="submit"
-                    className="px-4 py-2 rounded-full bg-brand-dark text-white hover:bg-brand-red transition-colors text-sm font-bold"
-                  >
-                    {t('search') || 'Search'}
-                  </button>
-                </div>
-              </form>
+            {/* Search Results Info */}
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-bold text-gray-900">
+                {query ? (
+                  <>
+                    {t('resultsFor') || 'Results for'} &ldquo;<span className="text-brand-dark">{query}</span>&rdquo;
+                  </>
+                ) : (
+                  t('allProducts') || 'All Products'
+                )}
+              </h1>
+              {totalCount > 0 && (
+                <span className="text-sm text-gray-500">
+                  ({totalCount} {t('products') || 'products'})
+                </span>
+              )}
             </div>
 
             {/* Quick Filters */}
@@ -213,7 +203,7 @@ export default function SearchPageClient() {
                     slug: product.slug,
                     short_description: product.short_description || undefined,
                     base_price: product.base_price,
-                    badge: product.badge,
+                    badge: product.badge as 'NEW' | 'HOT' | 'SALE' | 'LIMITED' | null | undefined,
                     primary_image_url: product.primary_image_url || '',
                     in_stock: product.in_stock,
                     has_discount: product.has_discount,

@@ -12,6 +12,11 @@ export interface ProductVariant {
   color_hex: string;
   inventory_count: number;
   is_active: boolean;
+  price_adjustment?: number;
+  has_discount?: boolean;
+  discount_percentage?: number;
+  discounted_price?: number;
+  final_price?: number;
   translations?: Record<string, {
     color?: string;
     size_label?: string;
@@ -93,9 +98,9 @@ export interface ProductFilters {
   maxPrice?: number;
   sizeFilter?: string[];
   colorFilter?: string[];
-  categoryFilter?: string[];    // NEW: Multiple categories from filter sidebar
-  badgeFilter?: string[];       // NEW: Filter by badges
-  featuredOnly?: boolean;       // NEW: Show only featured products
+  categoryIdFilter?: string[];  // OPTIMIZED: Using UUIDs for categories
+  badgeFilter?: string[];       // Filter by badges
+  featuredOnly?: boolean;       // Show only featured products
   inStockOnly?: boolean;
   onSaleOnly?: boolean;
   sortBy?: 'created_at' | 'price' | 'rating' | 'popular' | 'name';
@@ -128,9 +133,9 @@ export async function getProducts(
     maxPrice,
     sizeFilter,
     colorFilter,
-    categoryFilter,     // NEW: From filter sidebar
-    badgeFilter,        // NEW
-    featuredOnly = false,  // NEW
+    categoryIdFilter,   // OPTIMIZED: Using UUIDs now
+    badgeFilter,
+    featuredOnly = false,
     inStockOnly = false,
     onSaleOnly = false,
     sortBy = 'created_at',
@@ -141,20 +146,27 @@ export async function getProducts(
 
   const offset = (page - 1) * limit;
 
-  // Call the enhanced SQL function with all parameters
+  // Debug sorting parameters
+  console.log('🔄 Sort parameters:', { sortBy, sortOrder });
+
+  // Ensure sortOrder is uppercase for the database function
+  const normalizedSortOrder = sortOrder.toUpperCase();
+  console.log('📤 Sending to DB:', { sortBy, sortOrder: normalizedSortOrder });
+
+  // Call the enhanced SQL function with optimized parameters
   const { data, error } = await supabase.rpc('get_products_enhanced', {
     category_slug_param: categorySlug || null,  // Main category from URL
     min_price: minPrice || null,
     max_price: maxPrice || null,
     size_filter: sizeFilter && sizeFilter.length > 0 ? sizeFilter : null,
     color_filter: colorFilter && colorFilter.length > 0 ? colorFilter : null,
-    category_filter: categoryFilter && categoryFilter.length > 0 ? categoryFilter : null,  // NEW
-    badge_filter: badgeFilter && badgeFilter.length > 0 ? badgeFilter : null,              // NEW
-    featured_only: featuredOnly,  // NEW
+    category_id_filter: categoryIdFilter && categoryIdFilter.length > 0 ? categoryIdFilter : null,  // OPTIMIZED: UUIDs
+    badge_filter: badgeFilter && badgeFilter.length > 0 ? badgeFilter : null,
+    featured_only: featuredOnly,
     in_stock_only: inStockOnly,
     on_sale_only: onSaleOnly,
-    sort_by: sortBy,
-    sort_order: sortOrder,
+    sort_by_param: sortBy,      // FIXED: Updated to match function parameter name
+    sort_order_param: normalizedSortOrder, // FIXED: Use normalized uppercase version
     limit_count: limit,
     offset_count: offset,
   });

@@ -17,6 +17,11 @@ export interface ProductVariant {
   color: string;
   color_hex: string;
   inventory_count: number;
+  price_adjustment?: number;
+  has_discount?: boolean;
+  discount_percentage?: number;
+  discounted_price?: number;
+  final_price?: number;
   translations?: Record<string, { color?: string; size_label?: string; }>;
 }
 
@@ -158,8 +163,36 @@ export default function ProductCard({
     return frontImage?.image_url || currentImages[0]?.image_url || product.primary_image_url;
   };
 
-  const displayPrice = product.has_discount ? product.discounted_price : product.base_price;
-  const hasDiscount = product.has_discount && product.discount_percentage > 0;
+  // Use variant-specific price and discount if variant is selected
+  const getVariantPrice = () => {
+    if (selectedVariant) {
+      const variantBasePrice = product.base_price + (selectedVariant.price_adjustment || 0);
+      if (selectedVariant.has_discount && selectedVariant.discounted_price) {
+        return selectedVariant.discounted_price;
+      }
+      return selectedVariant.final_price || variantBasePrice;
+    }
+    return product.has_discount ? product.discounted_price : product.base_price;
+  };
+
+  const getOriginalPrice = () => {
+    if (selectedVariant) {
+      return product.base_price + (selectedVariant.price_adjustment || 0);
+    }
+    return product.base_price;
+  };
+
+  const getDiscountPercentage = () => {
+    if (selectedVariant?.has_discount) {
+      return selectedVariant.discount_percentage || 0;
+    }
+    return product.discount_percentage || 0;
+  };
+
+  const displayPrice = getVariantPrice();
+  const originalPrice = getOriginalPrice();
+  const hasDiscount = selectedVariant?.has_discount || (product.has_discount && product.discount_percentage > 0);
+  const discountPercentage = getDiscountPercentage();
 
   const getStockInfo = () => {
     if (!selectedVariant) return null;
@@ -253,9 +286,9 @@ export default function ProductCard({
                 {product.badge}
               </div>
             )}
-            {hasDiscount && (
+            {hasDiscount && discountPercentage > 0 && (
               <div className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-xs font-bold bg-white text-brand-red border border-brand-red rounded transform rotate-1">
-                -{product.discount_percentage}%
+                -{discountPercentage}%
               </div>
             )}
           </div>
@@ -298,7 +331,7 @@ export default function ProductCard({
                 </span>
                 {hasDiscount && (
                   <span className="text-[10px] sm:text-xs text-gray-400 line-through font-medium">
-                    ${product.base_price.toFixed(2)}
+                    ${originalPrice.toFixed(2)}
                   </span>
                 )}
               </div>

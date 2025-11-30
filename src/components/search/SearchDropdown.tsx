@@ -16,7 +16,7 @@ import {
   Sparkles,
   Store
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { SearchResult, QuerySuggestion, BrandSuggestion } from '@/src/services/searchService';
 import { highlightSearchTerms } from '@/src/lib/search-utils';
 import { cn } from '@/lib/utils';
@@ -51,6 +51,7 @@ export default function SearchDropdown({
   onClearHistory
 }: SearchDropdownProps) {
   const t = useTranslations('search');
+  const locale = useLocale();
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -230,7 +231,9 @@ export default function SearchDropdown({
                   {product.primary_image_url ? (
                     <Image
                       src={product.primary_image_url}
-                      alt={product.name}
+                      alt={locale === 'fr' && product.translations?.fr?.name
+                        ? product.translations.fr.name
+                        : product.name}
                       fill
                       className="object-cover"
                       sizes="48px"
@@ -245,7 +248,12 @@ export default function SearchDropdown({
                 {/* Product Info */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate group-hover:text-brand-red transition-colors">
-                    {highlightSearchTerms(product.name, query)}
+                    {highlightSearchTerms(
+                      locale === 'fr' && product.translations?.fr?.name
+                        ? product.translations.fr.name
+                        : product.name,
+                      query
+                    )}
                   </p>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-gray-900">
@@ -258,7 +266,9 @@ export default function SearchDropdown({
                     )}
                     {product.badge && (
                       <span className="text-xs font-bold text-brand-red uppercase">
-                        {product.badge}
+                        {locale === 'fr' && product.translations?.fr?.badge
+                          ? product.translations.fr.badge
+                          : product.badge}
                       </span>
                     )}
                   </div>

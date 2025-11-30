@@ -26,6 +26,11 @@ interface ProductVariant {
   size: string;
   size_label?: string;
   inventory_count: number;
+  price_adjustment?: number;
+  has_discount?: boolean;
+  discount_percentage?: number;
+  discounted_price?: number;
+  final_price?: number;
   translations?: Record<string, {
     color?: string;
     size_label?: string;
@@ -102,12 +107,6 @@ export default function ProductDetailPageClient({ productSlug }: ProductDetailPa
 
         const data = await response.json();
         setProduct(data.product);
-
-        // Set default color (first available)
-        const colors = getAvailableColors(data.product.variants);
-        if (colors.length > 0) {
-          setSelectedColor(colors[0].color);
-        }
       } catch (error) {
         console.error('Error fetching product:', error);
         toast({
@@ -159,11 +158,23 @@ export default function ProductDetailPageClient({ productSlug }: ProductDetailPa
     });
   }, [product, locale]);
 
+  // Set default color when translatedVariants is ready
+  useEffect(() => {
+    if (translatedVariants && translatedVariants.length > 0 && !selectedColor) {
+      const colors = Array.from(new Map(
+        translatedVariants.map(v => [v.color, { color: v.color, hex: v.color_hex }])
+      ).values());
+      if (colors.length > 0) {
+        setSelectedColor(colors[0].color);
+      }
+    }
+  }, [translatedVariants, selectedColor]);
+
   // Helper functions
-  const getAvailableColors = (variants: ProductVariant[]) => {
-    if (!variants) return [];
+  const getAvailableColors = () => {
+    if (!translatedVariants) return [];
     return Array.from(new Map(
-      variants.map(v => [v.color, { color: v.color, hex: v.color_hex }])
+      translatedVariants.map(v => [v.color, { color: v.color, hex: v.color_hex }])
     ).values());
   };
 
@@ -178,6 +189,41 @@ export default function ProductDetailPageClient({ productSlug }: ProductDetailPa
         inventory_count: v.inventory_count
       }));
   };
+
+  // Calculate price based on variant and discount
+  const getDisplayPrice = () => {
+    if (!product) return 0;
+
+    if (selectedVariant) {
+      // Use variant-specific discounted price if available
+      if (selectedVariant.has_discount && selectedVariant.discounted_price) {
+        return selectedVariant.discounted_price;
+      }
+      // Use variant final price (base + adjustment)
+      if (selectedVariant.final_price) {
+        return selectedVariant.final_price;
+      }
+      // Calculate from base + adjustment
+      return product.base_price + (selectedVariant.price_adjustment || 0);
+    }
+
+    return product.base_price;
+  };
+
+  const getOriginalPrice = () => {
+    if (!product) return 0;
+
+    if (selectedVariant) {
+      return product.base_price + (selectedVariant.price_adjustment || 0);
+    }
+
+    return product.base_price;
+  };
+
+  const hasDiscount = selectedVariant?.has_discount || false;
+  const discountPercentage = selectedVariant?.discount_percentage || 0;
+  const displayPrice = getDisplayPrice();
+  const originalPrice = getOriginalPrice();
 
   // Update selected variant when color/size changes
   useEffect(() => {
@@ -222,7 +268,7 @@ export default function ProductDetailPageClient({ productSlug }: ProductDetailPa
         name: translatedProduct!.name,
         slug: product.slug,
         image: product.primary_image_url,
-        unitPrice: product.base_price,
+        unitPrice: displayPrice, // Use the discounted price if available
         variantSize: selectedVariant.size_label || selectedVariant.size,
         variantColor: selectedVariant.color,
         variantColorHex: selectedVariant.color_hex,
@@ -272,8 +318,9 @@ export default function ProductDetailPageClient({ productSlug }: ProductDetailPa
     view_type?: 'front' | 'back' | 'side' | 'detail';
   };
 
-  const availableColors = getAvailableColors(product.variants);
+  const availableColors = getAvailableColors();
   const availableSizes = getAvailableSizes(selectedColor);
+
   const rawImages = (product.images && product.images.length > 0)
     ? product.images
     : [{ image_url: product.primary_image_url, alt_text: translatedProduct.name }];
@@ -356,9 +403,23 @@ export default function ProductDetailPageClient({ productSlug }: ProductDetailPa
                 </div>
 
                 <div className="flex items-end gap-3 mt-4">
-                  <span className="text-2xl font-black text-gray-900">
-                    ${product.base_price.toFixed(2)}
-                  </span>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-baseline gap-3">
+                      <span className={`text-2xl font-black ${hasDiscount ? 'text-red-600' : 'text-gray-900'}`}>
+                        ${displayPrice.toFixed(2)}
+                      </span>
+                      {hasDiscount && (
+                        <span className="text-lg font-medium text-gray-400 line-through">
+                          ${originalPrice.toFixed(2)}
+                        </span>
+                      )}
+                      {hasDiscount && discountPercentage > 0 && (
+                        <span className="bg-red-100 text-red-600 text-xs font-bold px-2 py-1 rounded">
+                          -{discountPercentage}% OFF
+                        </span>
+                      )}
+                    </div>
+                  </div>
                   <div className="flex items-center gap-1 text-xs font-bold text-gray-900 mb-0.5">
                     <div className="flex text-gray-900 text-sm">
                       ★★★★★
@@ -388,7 +449,7 @@ export default function ProductDetailPageClient({ productSlug }: ProductDetailPa
                 >
                   <span>{isAddingToCart ? t('adding') || 'Adding...' : t('addToCart') || 'Add to Bag'}</span>
                   <span className="w-1 h-1 bg-white rounded-full opacity-50"></span>
-                  <span>${product.base_price.toFixed(2)}</span>
+                  <span>${displayPrice.toFixed(2)}</span>
                 </button>
 
                 {selectedVariant && selectedVariant.inventory_count > 0 && selectedVariant.inventory_count <= 12 && (

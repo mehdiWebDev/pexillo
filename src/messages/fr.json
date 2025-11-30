@@ -44,7 +44,10 @@
         "searching": "Recherche en cours...",
         "noResultsFor": "Aucun résultat pour",
         "tryDifferentKeywords": "Essayez différents mots-clés",
-        "viewAllResults": "Voir tous les résultats"
+        "viewAllResults": "Voir tous les résultats",
+        "resultsFor": "Résultats pour",
+        "allProducts": "Tous les produits",
+        "suggestions": "Suggestions"
     },
     "common": {
         "welcome": "Bienvenue",
@@ -315,7 +318,8 @@
         "availability": "Disponibilité",
         "inStockOnly": "En Stock Seulement",
         "sale": "Promotion",
-        "onSaleOnly": "En Promotion Seulement"
+        "onSaleOnly": "En Promotion Seulement",
+        "special": "Spécial"
     },
     "activeFilters": {
         "price": "Prix",

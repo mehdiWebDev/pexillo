@@ -24,6 +24,13 @@ export interface SearchResult {
   relevance_score: number;
   created_at: string;
   updated_at: string;
+  translations?: Record<string, {
+    name?: string;
+    short_description?: string;
+    badge?: string;
+    material?: string;
+    tags?: string[];
+  }>; // Added translations support with proper types
 }
 
 export interface SearchFilters {

@@ -44,7 +44,10 @@
         "searching": "Searching...",
         "noResultsFor": "No results for",
         "tryDifferentKeywords": "Try different keywords",
-        "viewAllResults": "View All Results"
+        "viewAllResults": "View All Results",
+        "resultsFor": "Results for",
+        "allProducts": "All Products",
+        "suggestions": "Suggestions"
     },
     "common": {
         "welcome": "Welcome",
@@ -315,7 +318,8 @@
         "availability": "Availability",
         "inStockOnly": "In Stock Only",
         "sale": "Sale",
-        "onSaleOnly": "On Sale"
+        "onSaleOnly": "On Sale",
+        "special": "Special"
     },
     "activeFilters": {
         "price": "Price",

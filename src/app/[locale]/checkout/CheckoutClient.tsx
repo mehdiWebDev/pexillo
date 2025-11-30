@@ -108,6 +108,14 @@ export default function CheckoutClient() {
     } | null>(null);
     const [isInitialized, setIsInitialized] = useState(false);
     const [createdUserId, setCreatedUserId] = useState<string | null>(null);
+    const [appliedDiscount, setAppliedDiscount] = useState<{
+        discountId: string;
+        code: string;
+        discountType: 'percentage' | 'fixed_amount' | 'free_shipping';
+        discountValue: number;
+        amountOff: number;
+        display: string;
+    } | null>(null);
 
     const form = useForm<CheckoutFormData>({
         resolver: zodResolver(checkoutSchema),
@@ -118,16 +126,18 @@ export default function CheckoutClient() {
         },
     });
 
-    // Apply translations to cart items
-    const translatedItems = locale === 'en' ? items : items.map(item => {
-        const productTrans = item.product_translations?.[locale] || {};
-        const variantTrans = item.variant_translations?.[locale] || {};
+    // Apply translations to cart items and ensure all required fields
+    const translatedItems = items.map(item => {
+        const productTrans = locale === 'en' ? {} : item.product_translations?.[locale] || {};
+        const variantTrans = locale === 'en' ? {} : item.variant_translations?.[locale] || {};
 
         return {
             ...item,
             product_name: productTrans.name || item.product_name,
             variant_size: variantTrans.size || item.variant_size,
             variant_color: variantTrans.color || item.variant_color,
+            product_id: item.product_id, // Ensure product_id is included
+            category_id: (item as { category_id?: string }).category_id, // Include if available
         };
     });
 
@@ -138,7 +148,8 @@ export default function CheckoutClient() {
 
     const tax = subtotal * taxRate;
     const shipping = calculateShipping(subtotal);
-    const total = subtotal + tax + shipping;
+    const discountAmount = appliedDiscount?.amountOff || 0;
+    const total = subtotal + tax + shipping - discountAmount;
 
     // Load cart and check if empty
     useEffect(() => {
@@ -295,6 +306,13 @@ export default function CheckoutClient() {
                     email: form.getValues('email'),
                     items: translatedItems,
                     currency: 'cad',
+                    discount: appliedDiscount ? {
+                        discountId: appliedDiscount.discountId,
+                        code: appliedDiscount.code,
+                        amountOff: appliedDiscount.amountOff,
+                        type: appliedDiscount.discountType,
+                        value: appliedDiscount.discountValue,
+                    } : null,
                 }),
             });
 
@@ -407,7 +425,9 @@ export default function CheckoutClient() {
                             shipping={shipping}
                             tax={tax}
                             taxBreakdown={taxBreakdown}
-                            total={total}
+                            total={subtotal + tax + shipping}
+                            appliedDiscount={appliedDiscount}
+                            onDiscountApplied={setAppliedDiscount}
                         />
                     </div>
                 </div>

@@ -11,15 +11,17 @@ interface CartItem {
   quantity: number;
 }
 
+
 export async function POST(req: NextRequest) {
   try {
-    const { amount, email, items, currency = 'cad' } = await req.json();
+    const { amount, email, items, currency = 'cad', discount } = await req.json();
 
-    console.log('Received payment intent request: !!!!', {
+    console.log('Received payment intent request:', {
       amount,
       email,
-      items,
+      items: items?.length,
       currency,
+      discount: discount ? discount.code : 'none',
     });
 
     if (!amount || !email) {
@@ -32,23 +34,35 @@ export async function POST(req: NextRequest) {
     console.log('💳 Creating Stripe payment intent:', {
       amount: `$${(amount / 100).toFixed(2)}`,
       currency: currency.toUpperCase(),
-      email
+      email,
+      discount: discount ? `${discount.code} (-$${discount.amountOff})` : 'none'
     });
+
+    // Build metadata object including discount info
+    const metadata: Record<string, string> = {
+      email,
+      items: JSON.stringify(items.map((item: CartItem) => ({
+        id: item.id,
+        quantity: item.quantity,
+      }))),
+    };
+
+    // Add discount metadata if applicable
+    if (discount) {
+      metadata.discountCode = discount.code;
+      metadata.discountId = discount.discountId;
+      metadata.discountAmount = discount.amountOff.toString();
+      metadata.discountType = discount.type;
+    }
 
     // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount), // Amount in cents
-      currency: currency.toLowerCase(), // ✅ FIXED: Use CAD
+      amount: Math.round(amount), // Amount in cents (already includes discount)
+      currency: currency.toLowerCase(),
       automatic_payment_methods: {
         enabled: true,
       },
-      metadata: {
-        email,
-        items: JSON.stringify(items.map((item: CartItem) => ({
-          id: item.id,
-          quantity: item.quantity,
-        }))),
-      },
+      metadata,
     });
 
     console.log('✅ Payment intent created:', paymentIntent.id);

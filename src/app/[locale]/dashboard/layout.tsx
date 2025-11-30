@@ -15,7 +15,8 @@ import {
   ChevronRight,
   Menu,
   ShoppingBag,
-  Archive
+  Archive,
+  Tag
 } from 'lucide-react';
 import { Button } from '@/src/components/ui/button';
 import { Sheet, SheetContent } from '@/src/components/ui/sheet';
@@ -50,6 +51,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       label: t('inventory'),
       href: '/dashboard/inventory',
       icon: Archive
+    },
+    {
+      label: 'Discounts',
+      href: '/dashboard/discounts',
+      icon: Tag
     },
     {
       label: t('media'),

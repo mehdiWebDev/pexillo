@@ -80,16 +80,16 @@ export default function ProductFilters({
     return luma > 200;
   };
 
-  // Badge color mapping
-  const getBadgeColor = (badge: string) => {
-    switch(badge) {
-      case 'NEW': return '#10B981'; // green
-      case 'HOT': return '#EF4444'; // red
-      case 'SALE': return '#F59E0B'; // amber
-      case 'LIMITED': return '#8B5CF6'; // purple
-      default: return '#6B7280'; // gray
-    }
-  };
+  // Badge color mapping (commented out - uncomment if needed)
+  // const getBadgeColor = (badge: string) => {
+  //   switch(badge) {
+  //     case 'NEW': return '#10B981'; // green
+  //     case 'HOT': return '#EF4444'; // red
+  //     case 'SALE': return '#F59E0B'; // amber
+  //     case 'LIMITED': return '#8B5CF6'; // purple
+  //     default: return '#6B7280'; // gray
+  //   }
+  // };
 
   if (isLoading) {
     return (
@@ -145,11 +145,11 @@ export default function ProductFilters({
 
           <div className="flex flex-col gap-2">
             {translatedCategories.map((category) => (
-              <label key={category.slug} className="flex items-center gap-3 cursor-pointer py-2 font-medium text-gray-700 hover:text-black transition-colors">
+              <label key={category.id} className="flex items-center gap-3 cursor-pointer py-2 font-medium text-gray-700 hover:text-black transition-colors">
                 <input
                   type="checkbox"
-                  checked={currentFilters.categories.includes(category.slug)}
-                  onChange={() => onCategoryToggle(category.slug)}
+                  checked={currentFilters.categories.includes(category.id)}
+                  onChange={() => onCategoryToggle(category.id)}
                   className="w-5 h-5 cursor-pointer accent-black border-2 border-gray-300 rounded"
                 />
                 <span className="flex-1 select-none font-medium">
@@ -163,25 +163,29 @@ export default function ProductFilters({
       )}
 
       {/* Badges Filter */}
-      {filterOptions && filterOptions.available_badges && filterOptions.available_badges.length > 0 && (
+      {filterOptions?.available_badges && filterOptions.available_badges.length > 0 && (
         <div className="mb-8 pb-8 border-b border-gray-200">
           <div className="flex items-center gap-2 mb-4">
-            <h4 className="text-base font-black text-black uppercase tracking-wider">{t('badges')}</h4>
+            <h4 className="text-base font-black text-black uppercase tracking-wider">{t('badges') || 'COLLECTION'}</h4>
           </div>
 
           <div className="flex flex-wrap gap-2">
             {filterOptions.available_badges.map((badge) => (
               <button
                 key={badge}
-                className={`px-3 py-1.5 text-xs font-semibold uppercase tracking-wide rounded-full border-2 transition-all ${
+                className={`px-3 py-1.5 rounded-md text-xs font-bold uppercase tracking-wide transition-all border-2 ${
                   currentFilters.badges.includes(badge)
-                    ? 'text-white'
-                    : 'border-gray-200 text-gray-700 hover:border-black'
+                    ? badge === 'NEW' ? 'bg-green-500 border-green-500 text-white'
+                      : badge === 'HOT' ? 'bg-red-500 border-red-500 text-white'
+                      : badge === 'SALE' ? 'bg-amber-500 border-amber-500 text-white'
+                      : badge === 'LIMITED' ? 'bg-purple-500 border-purple-500 text-white'
+                      : 'bg-gray-500 border-gray-500 text-white'
+                    : badge === 'NEW' ? 'border-green-500 text-green-600 hover:bg-green-50'
+                      : badge === 'HOT' ? 'border-red-500 text-red-600 hover:bg-red-50'
+                      : badge === 'SALE' ? 'border-amber-500 text-amber-600 hover:bg-amber-50'
+                      : badge === 'LIMITED' ? 'border-purple-500 text-purple-600 hover:bg-purple-50'
+                      : 'border-gray-500 text-gray-600 hover:bg-gray-50'
                 }`}
-                style={{
-                  borderColor: currentFilters.badges.includes(badge) ? getBadgeColor(badge) : undefined,
-                  backgroundColor: currentFilters.badges.includes(badge) ? getBadgeColor(badge) : undefined
-                }}
                 onClick={() => onBadgeToggle(badge)}
               >
                 {badge}
@@ -191,27 +195,6 @@ export default function ProductFilters({
         </div>
       )}
 
-      {/* Featured Filter */}
-      {filterOptions && filterOptions.featured_products > 0 && (
-        <div className="mb-8 pb-8 border-b border-gray-200">
-          <div className="flex items-center gap-2 mb-4">
-            <h4 className="text-base font-black text-black uppercase tracking-wider">{t('featured')}</h4>
-          </div>
-
-          <label className="flex items-center gap-3 cursor-pointer py-2 font-medium text-gray-700 hover:text-black transition-colors">
-            <input
-              type="checkbox"
-              checked={currentFilters.featuredOnly}
-              onChange={(e) => onFeaturedToggle(e.target.checked)}
-              className="w-5 h-5 cursor-pointer accent-black border-2 border-gray-300 rounded"
-            />
-            <span className="flex-1 select-none font-medium">
-              {t('featuredOnly')}
-              <span className="text-gray-400 text-[13px] ml-1">({filterOptions.featured_products})</span>
-            </span>
-          </label>
-        </div>
-      )}
 
       {/* Price Range Filter */}
       <div className="mb-8 pb-8 border-b border-gray-200">
@@ -372,27 +355,44 @@ export default function ProductFilters({
         </label>
       </div>
 
-      {/* Sale Filter */}
-      {filterOptions && filterOptions.products_on_sale > 0 && (
-        <div className="mb-8 pb-24">
-          <div className="flex items-center gap-2 mb-4">
-            <h4 className="text-base font-black text-black uppercase tracking-wider">{t('sale')}</h4>
-          </div>
-
-          <label className="flex items-center gap-3 cursor-pointer py-2 font-medium text-gray-700 hover:text-black transition-colors">
-            <input
-              type="checkbox"
-              checked={currentFilters.onSaleOnly}
-              onChange={(e) => onSaleToggle(e.target.checked)}
-              className="w-5 h-5 cursor-pointer accent-black border-2 border-gray-300 rounded"
-            />
-            <span className="flex-1 select-none font-medium">
-              {t('onSaleOnly')}
-              <span className="text-gray-400 text-[13px] ml-1">({filterOptions.products_on_sale})</span>
-            </span>
-          </label>
+      {/* Special Filters Section */}
+      <div className="mb-8 pb-24">
+        <div className="flex items-center gap-2 mb-4">
+          <h4 className="text-base font-black text-black uppercase tracking-wider">{t('special')}</h4>
         </div>
-      )}
+
+        {/* On Sale Filter */}
+        <label className="flex items-center gap-3 cursor-pointer py-2 font-medium text-gray-700 hover:text-black transition-colors">
+          <input
+            type="checkbox"
+            checked={currentFilters.onSaleOnly}
+            onChange={(e) => onSaleToggle(e.target.checked)}
+            className="w-5 h-5 cursor-pointer accent-black border-2 border-gray-300 rounded"
+          />
+          <span className="flex-1 select-none font-medium">
+            {t('onSaleOnly')}
+            {filterOptions?.products_on_sale ? (
+              <span className="text-gray-400 text-[13px] ml-1">({filterOptions.products_on_sale})</span>
+            ) : null}
+          </span>
+        </label>
+
+        {/* Featured Filter */}
+        <label className="flex items-center gap-3 cursor-pointer py-2 font-medium text-gray-700 hover:text-black transition-colors">
+          <input
+            type="checkbox"
+            checked={currentFilters.featuredOnly}
+            onChange={(e) => onFeaturedToggle(e.target.checked)}
+            className="w-5 h-5 cursor-pointer accent-black border-2 border-gray-300 rounded"
+          />
+          <span className="flex-1 select-none font-medium">
+            {t('featuredOnly') || 'Featured Products'}
+            {filterOptions?.featured_products ? (
+              <span className="text-gray-400 text-[13px] ml-1">({filterOptions.featured_products})</span>
+            ) : null}
+          </span>
+        </label>
+      </div>
     </div>
   );
 }

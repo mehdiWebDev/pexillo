@@ -67,11 +67,42 @@ export async function GET(
       .eq('product_id', product.id)
       .order('display_order', { ascending: true });
 
+    // Get variant discounts
+    const variantsWithDiscounts = await Promise.all(
+      (variants || []).map(async (variant) => {
+        const basePrice = product.base_price + (variant.price_adjustment || 0);
+
+        // Call the discount function
+        const { data: discountData } = await supabaseAdmin.rpc('get_variant_discount', {
+          p_variant_id: variant.id,
+          p_product_id: product.id,
+          p_category_id: product.category_id,
+          p_base_price: basePrice
+        });
+
+        const discount = discountData?.[0] || {
+          has_discount: false,
+          discount_percentage: 0,
+          discounted_price: basePrice,
+          discount_type: null,
+          discount_value: null
+        };
+
+        return {
+          ...variant,
+          has_discount: discount.has_discount,
+          discount_percentage: discount.discount_percentage,
+          discounted_price: discount.discounted_price,
+          final_price: basePrice
+        };
+      })
+    );
+
     // Return product with all related data
     return NextResponse.json({
       product: {
         ...product,
-        variants: variants || [],
+        variants: variantsWithDiscounts || [],
         images: images || [],
       }
     });

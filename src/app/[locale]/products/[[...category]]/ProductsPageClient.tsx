@@ -57,7 +57,7 @@ export default function ProductsPageClient({ categorySlug }: ProductsPageClientP
     // Multi-select filters
     sizeFilter: filters.sizes.length > 0 ? filters.sizes : undefined,
     colorFilter: filters.colors.length > 0 ? filters.colors : undefined,
-    categoryFilter: filters.categories.length > 0 ? filters.categories : undefined,
+    categoryIdFilter: filters.categories.length > 0 ? filters.categories : undefined, // OPTIMIZED: Using UUIDs
     badgeFilter: filters.badges.length > 0 ? filters.badges : undefined,
     // Toggle filters
     featuredOnly: filters.featuredOnly,
