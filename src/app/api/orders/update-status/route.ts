@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { sendConfirmationEmailByOrderId } from '@/src/lib/email/sendOrderConfirmationEmail';
 import { sendAdminOrderNotification } from '@/src/lib/email/sendAdminOrderNotification';
+import { discountService } from '@/src/services/discountService';
 
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
 
@@ -171,6 +172,23 @@ export async function POST(req: NextRequest) {
       } catch (emailError) {
         console.error('⚠️ Failed to send admin notification:', emailError);
         // Don't fail the order update if admin email fails
+      }
+
+      // ✅ Record discount usage when order is completed
+      if (order.discount_code_id && order.user_id) {
+        console.log('💰 Recording discount usage for completed order...');
+        try {
+          await discountService.recordDiscountUsage(
+            order.discount_code_id,
+            order.user_id,
+            order.id,
+            order.discount_amount || 0
+          );
+          console.log('✅ Discount usage recorded successfully');
+        } catch (discountError) {
+          console.error('⚠️ Failed to record discount usage:', discountError);
+          // Don't fail the order update if discount tracking fails
+        }
       }
     }
 

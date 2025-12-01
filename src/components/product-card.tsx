@@ -194,6 +194,9 @@ export default function ProductCard({
   const hasDiscount = selectedVariant?.has_discount || (product.has_discount && product.discount_percentage > 0);
   const discountPercentage = getDiscountPercentage();
 
+  // Debug: Check if there's actually a price difference that indicates a discount
+  const actuallyHasDiscount = hasDiscount || (originalPrice > displayPrice);
+
   const getStockInfo = () => {
     if (!selectedVariant) return null;
     const stockToShow = remainingAvailable;
@@ -232,6 +235,8 @@ export default function ProductCard({
         slug: product.slug,
         image: getCurrentImage(),
         unitPrice: displayPrice,
+        originalPrice: actuallyHasDiscount ? originalPrice : undefined,
+        discountPercentage: actuallyHasDiscount ? (((originalPrice - displayPrice) / originalPrice) * 100) : undefined,
         variantSize: selectedVariant.size,
         variantColor: selectedVariant.color,
         variantColorHex: selectedVariant.color_hex,
@@ -353,13 +358,31 @@ export default function ProductCard({
                   <button
                     key={color}
                     className={`
-                      w-5 h-5 sm:w-6 sm:h-6 rounded-full border shadow-sm flex-shrink-0 transition-all
-                      ${selectedColor === color ? 'ring-2 ring-offset-1 sm:ring-offset-2 ring-brand-dark scale-110 border-transparent' : 'border-gray-200 hover:scale-110'}
+                      relative rounded-full flex-shrink-0 transition-all duration-200
+                      ${selectedColor === color
+                        ? 'w-7 h-7 sm:w-8 sm:h-8 ring-2 ring-black ring-offset-2 shadow-lg scale-110'
+                        : 'w-5 h-5 sm:w-6 sm:h-6 border border-gray-300 hover:scale-110 hover:border-gray-400'
+                      }
                     `}
                     style={{ backgroundColor: hex }}
                     onClick={() => handleColorSelect(color)}
                     title={color}
-                  />
+                  >
+                    {selectedColor === color && (
+                      <span className="absolute inset-0 rounded-full flex items-center justify-center">
+                        <svg
+                          className={`w-3 h-3 sm:w-4 sm:h-4 ${
+                            // Use white check for dark colors, black for light colors
+                            parseInt(hex.replace('#', ''), 16) > 0xffffff/2 ? 'text-gray-800' : 'text-white'
+                          } drop-shadow-md`}
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </span>
+                    )}
+                  </button>
                 ))}
                 {/* Count of extra colors if many */}
                 {product.available_colors > availableColors.length && (

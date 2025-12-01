@@ -77,6 +77,12 @@ export default function CartPageClient() {
   });
 
   // Calculate shipping and totals
+  const totalSavings = items.reduce((sum, item) => {
+    if (item.original_price && item.discount_amount) {
+      return sum + (item.discount_amount * item.quantity);
+    }
+    return sum;
+  }, 0);
   const shipping = subtotal > 75 ? 0 : 9.99;
   const tax = subtotal * 0.15;
   const total = subtotal + shipping + tax;
@@ -307,9 +313,27 @@ export default function CartPageClient() {
                             <div className="font-bold text-gray-900 text-sm md:text-base">
                               ${item.total_price.toFixed(2)}
                             </div>
-                            <div className="text-xs md:text-sm text-gray-500">
-                              ${item.unit_price.toFixed(2)} {t('each')}
-                            </div>
+                            {(item.original_price && item.original_price > item.unit_price) || item.discount_percentage ? (
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2 justify-end">
+                                  <span className="text-xs md:text-sm text-gray-500 line-through">
+                                    ${item.original_price?.toFixed(2) || item.unit_price.toFixed(2)}
+                                  </span>
+                                  <span className="text-xs md:text-sm text-green-600 font-medium">
+                                    ${item.unit_price.toFixed(2)}
+                                  </span>
+                                </div>
+                                {item.discount_percentage && (
+                                  <div className="text-xs text-green-600 font-bold">
+                                    -{item.discount_percentage}% OFF
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="text-xs md:text-sm text-gray-500">
+                                ${item.unit_price.toFixed(2)} {t('each')}
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -399,6 +423,12 @@ export default function CartPageClient() {
                   <span>{t('subtotal')}</span>
                   <span className="text-gray-900">${subtotal.toFixed(2)}</span>
                 </div>
+                {totalSavings > 0 && (
+                  <div className="flex justify-between text-xs md:text-sm font-medium">
+                    <span className="text-green-600 font-bold">{t('savings') || 'You Save'}</span>
+                    <span className="text-green-600 font-bold">-${totalSavings.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-xs md:text-sm font-medium text-gray-500">
                   <span>{t('shipping')}</span>
                   <span className="text-gray-900">

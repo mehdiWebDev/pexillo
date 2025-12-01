@@ -108,23 +108,15 @@ export default function CheckoutClient() {
     } | null>(null);
     const [isInitialized, setIsInitialized] = useState(false);
     const [createdUserId, setCreatedUserId] = useState<string | null>(null);
-    const [appliedDiscount, setAppliedDiscount] = useState<{
+    const [appliedDiscounts, setAppliedDiscounts] = useState<Array<{
         discountId: string;
         code: string;
         discountType: 'percentage' | 'fixed_amount' | 'free_shipping';
         discountValue: number;
         amountOff: number;
         display: string;
-    } | null>(null);
-
-    const form = useForm<CheckoutFormData>({
-        resolver: zodResolver(checkoutSchema),
-        defaultValues: {
-            email: user?.email || '',
-            sameAsShipping: true,
-            createAccount: false,
-        },
-    });
+        stackable?: boolean;
+    }>>([]);
 
     // Apply translations to cart items and ensure all required fields
     const translatedItems = items.map(item => {
@@ -141,6 +133,103 @@ export default function CheckoutClient() {
         };
     });
 
+    // Debug logging for discount state changes
+    useEffect(() => {
+        console.log('🎯 CheckoutClient - appliedDiscounts state:', appliedDiscounts);
+    }, [appliedDiscounts]);
+
+    // Check for saved discounts on mount and when step changes
+    useEffect(() => {
+        console.log('🔍 Checking for saved discounts, currentStep:', currentStep);
+        // First check for saved discounts
+        const savedDiscounts = sessionStorage.getItem('checkout_discounts');
+        console.log('📦 SessionStorage checkout_discounts:', savedDiscounts);
+
+        if (savedDiscounts) {
+            try {
+                const parsed = JSON.parse(savedDiscounts);
+                console.log('🔄 Found saved discounts, re-validating them:', parsed);
+
+                // Re-validate each discount before applying
+                const validateDiscounts = async () => {
+                    const validDiscounts = [];
+
+                    for (const discount of parsed) {
+                        try {
+                            // Re-validate each discount code
+                            const response = await fetch('/api/discounts/validate', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    code: discount.code,
+                                    subtotal,
+                                    items: translatedItems.map(item => ({
+                                        product_id: item.product_id,
+                                        variant_id: item.variant_id || item.id,
+                                        category_id: item.category_id,
+                                        quantity: item.quantity,
+                                        unit_price: item.unit_price,
+                                    })),
+                                }),
+                            });
+
+                            const data = await response.json();
+
+                            if (data.isValid) {
+                                // Discount is still valid, keep it
+                                validDiscounts.push({
+                                    ...discount,
+                                    amountOff: data.amountOff, // Update with fresh amount
+                                });
+                                console.log(`✅ Discount ${discount.code} is still valid`);
+                            } else {
+                                // Discount is no longer valid, show message
+                                console.log(`❌ Discount ${discount.code} is no longer valid: ${data.message}`);
+                                toast({
+                                    title: t('info'),
+                                    description: `${discount.code}: ${data.message}`,
+                                    variant: 'default',
+                                });
+                            }
+                        } catch (error) {
+                            console.error(`Failed to validate discount ${discount.code}:`, error);
+                        }
+                    }
+
+                    // Update with only valid discounts
+                    if (validDiscounts.length > 0) {
+                        setAppliedDiscounts(validDiscounts);
+                        sessionStorage.setItem('checkout_discounts', JSON.stringify(validDiscounts));
+                    } else {
+                        setAppliedDiscounts([]);
+                        sessionStorage.removeItem('checkout_discounts');
+                    }
+                };
+
+                if (parsed && parsed.length > 0 && translatedItems.length > 0) {
+                    validateDiscounts();
+                }
+            } catch (e) {
+                console.error('Failed to parse saved discounts:', e);
+                sessionStorage.removeItem('checkout_discounts');
+            }
+        } else {
+            console.log('❌ No discounts in sessionStorage');
+        }
+    }, [currentStep, translatedItems.length, subtotal, t, translatedItems]); // Re-run when step changes or items load
+
+    // REMOVED: Auto-apply functionality
+    // Product/variant discounts are already applied to item prices
+
+    const form = useForm<CheckoutFormData>({
+        resolver: zodResolver(checkoutSchema),
+        defaultValues: {
+            email: user?.email || '',
+            sameAsShipping: true,
+            createAccount: false,
+        },
+    });
+
     // Calculate totals
     const calculateShipping = (total: number) => {
         return total >= 150 ? 0 : 15.99;
@@ -148,8 +237,9 @@ export default function CheckoutClient() {
 
     const tax = subtotal * taxRate;
     const shipping = calculateShipping(subtotal);
-    const discountAmount = appliedDiscount?.amountOff || 0;
-    const total = subtotal + tax + shipping - discountAmount;
+    // Calculate total discount from all applied discounts
+    const totalDiscountAmount = appliedDiscounts.reduce((sum, discount) => sum + (discount.amountOff || 0), 0);
+    const total = subtotal + tax + shipping - totalDiscountAmount;
 
     // Load cart and check if empty
     useEffect(() => {
@@ -306,13 +396,13 @@ export default function CheckoutClient() {
                     email: form.getValues('email'),
                     items: translatedItems,
                     currency: 'cad',
-                    discount: appliedDiscount ? {
-                        discountId: appliedDiscount.discountId,
-                        code: appliedDiscount.code,
-                        amountOff: appliedDiscount.amountOff,
-                        type: appliedDiscount.discountType,
-                        value: appliedDiscount.discountValue,
-                    } : null,
+                    discounts: appliedDiscounts.length > 0 ? appliedDiscounts.map(d => ({
+                        discountId: d.discountId,
+                        code: d.code,
+                        amountOff: d.amountOff,
+                        type: d.discountType,
+                        value: d.discountValue,
+                    })) : null,
                 }),
             });
 
@@ -412,6 +502,7 @@ export default function CheckoutClient() {
                                     items={translatedItems}
                                     onBack={handlePreviousStep}
                                     createdUserId={createdUserId}
+                                    appliedDiscounts={appliedDiscounts}
                                 />
                             </Elements>
                         )}
@@ -426,8 +517,19 @@ export default function CheckoutClient() {
                             tax={tax}
                             taxBreakdown={taxBreakdown}
                             total={subtotal + tax + shipping}
-                            appliedDiscount={appliedDiscount}
-                            onDiscountApplied={setAppliedDiscount}
+                            appliedDiscounts={appliedDiscounts}
+                            onDiscountApplied={(discounts) => {
+                                console.log('💡 Setting discounts in CheckoutClient:', discounts);
+                                setAppliedDiscounts(discounts);
+                                // Also save immediately to sessionStorage
+                                if (discounts && discounts.length > 0) {
+                                    sessionStorage.setItem('checkout_discounts', JSON.stringify(discounts));
+                                    console.log('💾 Saved discounts to sessionStorage');
+                                } else {
+                                    sessionStorage.removeItem('checkout_discounts');
+                                    console.log('🗑️ Cleared discounts from sessionStorage');
+                                }
+                            }}
                         />
                     </div>
                 </div>

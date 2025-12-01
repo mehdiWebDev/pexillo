@@ -43,6 +43,9 @@ interface OrderInsertData {
   currency: string;
   stripe_payment_intent_id?: string;
   payment_method?: string;
+  discount_code_id?: string;
+  discount_amount?: number;
+  notes?: string;
 }
 
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY;
@@ -91,6 +94,10 @@ export async function POST(req: NextRequest) {
       shipping_amount,
       total_amount,
       currency,
+      // Discount details
+      discount_code_id,
+      discount_amount,
+      discount_codes, // Array of discount codes with details
       // Payment details (if payment confirmed before order creation)
       stripe_payment_intent_id,
       payment_method,
@@ -106,6 +113,8 @@ export async function POST(req: NextRequest) {
       status,
       total_amount,
       itemsCount: items.length,
+      discount_code_id,
+      discount_amount,
     });
 
     // ✅ VALIDATE: Ensure all items have variant_id
@@ -234,6 +243,37 @@ export async function POST(req: NextRequest) {
       currency,
     };
 
+    // Add discount information if provided
+    if (discount_codes && discount_codes.length > 0) {
+      // Store all discount codes in metadata/notes
+      interface DiscountCode {
+        id: string;
+        code: string;
+        amount: number;
+      }
+      const discountNotes = discount_codes.map((d: DiscountCode) => `${d.code}: -$${d.amount}`).join(', ');
+      orderInsertData.notes = `Applied discounts: ${discountNotes}`;
+
+      // For backward compatibility, use the first discount code for the main discount fields
+      orderInsertData.discount_code_id = discount_codes[0].id;
+      orderInsertData.discount_amount = discount_amount || discount_codes.reduce((sum: number, d: DiscountCode) => sum + d.amount, 0);
+
+      console.log('📊 Adding multiple discounts to order:', {
+        discount_codes,
+        total_discount_amount: orderInsertData.discount_amount
+      });
+    } else if (discount_code_id) {
+      // Fallback to single discount for backward compatibility
+      console.log('📊 Adding single discount to order:', {
+        discount_code_id,
+        discount_amount: discount_amount || 0
+      });
+      orderInsertData.discount_code_id = discount_code_id;
+      orderInsertData.discount_amount = discount_amount || 0;
+    } else {
+      console.log('⚠️ No discount_code_id provided');
+    }
+
     // Add payment details if payment was confirmed before order creation
     if (stripe_payment_intent_id) {
       orderInsertData.stripe_payment_intent_id = stripe_payment_intent_id;
@@ -243,6 +283,12 @@ export async function POST(req: NextRequest) {
     if (payment_method) {
       orderInsertData.payment_method = payment_method;
     }
+
+    console.log('📝 Order insert data:', {
+      order_number: orderInsertData.order_number,
+      discount_code_id: orderInsertData.discount_code_id,
+      discount_amount: orderInsertData.discount_amount,
+    });
 
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
@@ -257,6 +303,12 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
+    console.log('✅ Order created with:', {
+      id: order.id,
+      discount_code_id: order.discount_code_id,
+      discount_amount: order.discount_amount,
+    });
 
     // Create order items using admin client
     const orderItems = items.map((item: CartItem) => ({
@@ -284,6 +336,12 @@ export async function POST(req: NextRequest) {
         { error: 'Failed to create order items: ' + itemsError.message },
         { status: 500 }
       );
+    }
+
+    // ✅ Discount code usage is tracked automatically by the database trigger
+    // The track_discount_on_order trigger will increment times_used when discount_code_id is set
+    if (discount_code_id) {
+      console.log('✅ Discount code applied to order (usage will be tracked by database trigger)');
     }
 
     // ✅ IMPORTANT: Confirmation email is sent ONLY when payment is confirmed

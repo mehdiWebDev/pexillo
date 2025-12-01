@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Lock, Tag, X } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from '@/src/hooks/use-toast';
+import { getDiscountErrorKey, formatDiscountMessage } from '@/src/lib/discount-translations';
 
 interface TaxBreakdown {
   gst: number;
@@ -25,6 +26,9 @@ interface CartItem {
   variant_color: string;
   quantity: number;
   unit_price: number;
+  original_price?: number;
+  discount_percentage?: number;
+  discount_amount?: number;
 }
 
 interface DiscountInfo {
@@ -34,6 +38,7 @@ interface DiscountInfo {
   discountValue: number;
   amountOff: number;
   display: string;
+  stackable?: boolean;
 }
 
 interface OrderSummaryProps {
@@ -43,8 +48,8 @@ interface OrderSummaryProps {
   tax: number;
   taxBreakdown?: TaxBreakdown | null;
   total: number;
-  onDiscountApplied?: (discount: DiscountInfo | null) => void;
-  appliedDiscount?: DiscountInfo | null;
+  onDiscountApplied?: (discounts: DiscountInfo[]) => void;
+  appliedDiscounts?: DiscountInfo[];
 }
 
 export default function OrderSummary({
@@ -54,7 +59,7 @@ export default function OrderSummary({
   tax,
   total,
   onDiscountApplied,
-  appliedDiscount
+  appliedDiscounts = []
 }: OrderSummaryProps) {
   const t = useTranslations('checkout');
   const [discountCode, setDiscountCode] = useState('');
@@ -64,7 +69,7 @@ export default function OrderSummary({
     if (!discountCode.trim()) {
       toast({
         title: t('error'),
-        description: 'Please enter a discount code',
+        description: t('discountErrors.enterDiscountCode'),
         variant: 'destructive',
       });
       return;
@@ -90,26 +95,84 @@ export default function OrderSummary({
       });
 
       const data = await response.json();
+      console.log('📥 Discount validation response:', data);
 
       if (data.isValid) {
-        const discount: DiscountInfo = {
+        const newDiscount: DiscountInfo = {
           discountId: data.discountId,
           code: discountCode.trim().toUpperCase(),
           discountType: data.discountType,
           discountValue: data.discountValue,
           amountOff: data.amountOff,
           display: data.display,
+          stackable: data.stackable || false,
         };
 
-        onDiscountApplied?.(discount);
+        // Check if discount already exists
+        if (appliedDiscounts.some(d => d.discountId === newDiscount.discountId)) {
+          toast({
+            title: t('info'),
+            description: t('discountErrors.alreadyApplied'),
+            variant: 'default',
+          });
+          return;
+        }
+
+        // Check if we can add this discount
+        const nonStackableDiscount = appliedDiscounts.find(d => !d.stackable);
+        if (nonStackableDiscount) {
+          toast({
+            title: t('info'),
+            description: t('discountErrors.cannotCombine', { code: nonStackableDiscount.code }),
+            variant: 'default',
+          });
+          return;
+        }
+
+        // If new discount is not stackable but we have existing discounts
+        if (!newDiscount.stackable && appliedDiscounts.length > 0) {
+          toast({
+            title: t('info'),
+            description: t('discountErrors.notStackable'),
+            variant: 'default',
+          });
+          return;
+        }
+
+        // Add the new discount to the array
+        console.log('✅ OrderSummary - Adding discount:', newDiscount);
+        console.log('📞 Calling onDiscountApplied with:', [...appliedDiscounts, newDiscount]);
+        if (onDiscountApplied) {
+          onDiscountApplied([...appliedDiscounts, newDiscount]);
+        } else {
+          console.error('❌ onDiscountApplied callback is not defined!');
+        }
+        setDiscountCode(''); // Clear the input
+
+        // Translate the success message if it's a known message
+        let successMessage = data.message;
+        const errorTranslation = getDiscountErrorKey(data.message);
+        if (errorTranslation) {
+          const translatedTemplate = t(`discountErrors.${errorTranslation.key}` as const);
+          successMessage = formatDiscountMessage(String(translatedTemplate), errorTranslation.params);
+        }
+
         toast({
           title: t('success'),
-          description: `${data.display} applied successfully!`,
+          description: successMessage,
         });
       } else {
+        // Translate error message
+        let errorMessage = data.message || 'Invalid discount code';
+        const errorTranslation = getDiscountErrorKey(data.message);
+        if (errorTranslation) {
+          const translatedTemplate = t(`discountErrors.${errorTranslation.key}` as const);
+          errorMessage = formatDiscountMessage(String(translatedTemplate), errorTranslation.params);
+        }
+
         toast({
           title: t('error'),
-          description: data.message || 'Invalid discount code',
+          description: errorMessage,
           variant: 'destructive',
         });
       }
@@ -117,7 +180,7 @@ export default function OrderSummary({
       console.error('Error applying discount:', error);
       toast({
         title: t('error'),
-        description: 'Failed to apply discount code',
+        description: t('discountErrors.failedToValidate'),
         variant: 'destructive',
       });
     } finally {
@@ -125,18 +188,33 @@ export default function OrderSummary({
     }
   };
 
-  const handleRemoveDiscount = () => {
-    onDiscountApplied?.(null);
+  const handleRemoveDiscount = (discountId: string) => {
+    const updatedDiscounts = appliedDiscounts.filter(d => d.discountId !== discountId);
+    console.log('🗑️ Removing discount, updated list:', updatedDiscounts);
+    if (onDiscountApplied) {
+      onDiscountApplied(updatedDiscounts);
+    } else {
+      console.error('❌ onDiscountApplied callback is not defined for removal!');
+    }
     setDiscountCode('');
     toast({
       title: t('info'),
-      description: 'Discount removed',
+      description: t('discountErrors.discountRemoved'),
     });
   };
 
-  // Calculate total with discount
-  const discountAmount = appliedDiscount?.amountOff || 0;
-  const finalTotal = total - discountAmount;
+  // Calculate total savings from product discounts (already reflected in prices)
+  const totalProductSavings = items.reduce((sum, item) => {
+    if (item.original_price && item.discount_percentage) {
+      const savings = (item.original_price - item.unit_price) * item.quantity;
+      return sum + savings;
+    }
+    return sum;
+  }, 0);
+
+  // Calculate total cumulative discount amount
+  const totalDiscountAmount = appliedDiscounts.reduce((sum, discount) => sum + (discount.amountOff || 0), 0);
+  const finalTotal = total - totalDiscountAmount;
 
   return (
     <div className="bg-gray-50 rounded-2xl p-4 md:p-6 lg:sticky lg:top-32 border border-gray-200">
@@ -163,53 +241,83 @@ export default function OrderSummary({
               <p className="text-[10px] sm:text-xs text-gray-500">
                 {t('size')}: {item.variant_size} • {t('color')}: {item.variant_color}
               </p>
+              {item.discount_percentage && (
+                <p className="text-[10px] sm:text-xs text-green-600 font-bold">
+                  -{item.discount_percentage}% OFF
+                </p>
+              )}
             </div>
-            <span className="font-bold text-xs sm:text-sm whitespace-nowrap">${(item.unit_price * item.quantity).toFixed(2)}</span>
+            <div className="text-right">
+              <span className="font-bold text-xs sm:text-sm whitespace-nowrap block">
+                ${(item.unit_price * item.quantity).toFixed(2)}
+              </span>
+              {item.original_price && item.original_price > item.unit_price && (
+                <span className="text-[10px] sm:text-xs text-gray-500 line-through">
+                  ${(item.original_price * item.quantity).toFixed(2)}
+                </span>
+              )}
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Discount Code */}
-      {!appliedDiscount ? (
-        <div className="flex gap-2 mb-4 md:mb-6">
-          <input
-            type="text"
-            value={discountCode}
-            onChange={(e) => setDiscountCode(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleApplyDiscount()}
-            placeholder={t('discountCode') || 'Gift card or discount code'}
-            className="flex-1 px-3 md:px-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium text-xs md:text-sm bg-white"
-            disabled={isApplyingDiscount}
-          />
-          <button
-            onClick={handleApplyDiscount}
-            disabled={isApplyingDiscount}
-            className="px-3 md:px-4 py-2 md:py-3 bg-gray-900 text-white font-bold rounded-lg hover:bg-gray-800 disabled:bg-gray-400 transition-colors text-xs md:text-sm whitespace-nowrap"
-          >
-            {isApplyingDiscount ? '...' : t('apply')}
-          </button>
-        </div>
-      ) : (
-        <div className="mb-4 md:mb-6 p-3 bg-green-50 border-2 border-green-200 rounded-lg flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Tag className="w-4 h-4 text-green-600" />
-            <div>
-              <span className="font-bold text-xs md:text-sm text-green-800">
-                {appliedDiscount.code}
-              </span>
-              <span className="text-xs text-green-600 ml-2">
-                {appliedDiscount.display}
-              </span>
-            </div>
+      {/* Discount Code Section */}
+      <div className="space-y-3">
+        {/* Show all applied discounts */}
+        {appliedDiscounts.length > 0 && (
+          <div className="space-y-2">
+            {appliedDiscounts.map((discount) => (
+              <div key={discount.discountId} className="p-3 bg-green-50 border-2 border-green-200 rounded-lg flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-green-600" />
+                  <div>
+                    <span className="font-bold text-xs md:text-sm text-green-800">
+                      {discount.code}
+                    </span>
+                    <span className="text-xs text-green-600 ml-2">
+                      {discount.display}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleRemoveDiscount(discount.discountId)}
+                  className="text-red-500 hover:text-red-700 transition-colors"
+                  title={t('removeDiscount') || 'Remove discount'}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
           </div>
-          <button
-            onClick={handleRemoveDiscount}
-            className="text-red-500 hover:text-red-700 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
+        )}
+
+        {/* Show input field if no discounts OR if all current discounts are stackable */}
+        {(appliedDiscounts.length === 0 || appliedDiscounts.every(d => d.stackable)) && (
+          <>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={discountCode}
+                onChange={(e) => setDiscountCode(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleApplyDiscount()}
+                placeholder={appliedDiscounts.some(d => d.stackable)
+                  ? (t('addAnotherCode') || 'Add another stackable discount code')
+                  : (t('discountCode') || 'Gift card or discount code')
+                }
+                className="flex-1 px-3 md:px-4 py-2 md:py-3 border-2 border-gray-200 rounded-lg focus:border-gray-900 focus:outline-none transition-colors font-medium text-xs md:text-sm bg-white"
+                disabled={isApplyingDiscount}
+              />
+              <button
+                onClick={handleApplyDiscount}
+                disabled={isApplyingDiscount}
+                className="px-3 md:px-4 py-2 md:py-3 bg-gray-900 text-white font-bold rounded-lg hover:bg-gray-800 disabled:bg-gray-400 transition-colors text-xs md:text-sm whitespace-nowrap"
+              >
+                {isApplyingDiscount ? '...' : t('apply')}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
 
       {/* Totals */}
       <div className="space-y-2 md:space-y-3 border-t border-gray-200 pt-4 md:pt-6">
@@ -217,6 +325,12 @@ export default function OrderSummary({
           <span>{t('subtotal')}</span>
           <span className="text-gray-900">${subtotal.toFixed(2)}</span>
         </div>
+        {totalProductSavings > 0 && (
+          <div className="flex justify-between text-xs md:text-sm font-medium">
+            <span className="text-green-600 font-bold">{t('productDiscounts') || 'Product Discounts'}</span>
+            <span className="text-green-600 font-bold">-${totalProductSavings.toFixed(2)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-xs md:text-sm font-medium text-gray-500">
           <span>{t('shipping')}</span>
           <span className="text-gray-900">
@@ -227,10 +341,10 @@ export default function OrderSummary({
           <span>{t('tax')}</span>
           <span className="text-gray-900">${tax.toFixed(2)}</span>
         </div>
-        {appliedDiscount && discountAmount > 0 && (
+        {appliedDiscounts.length > 0 && totalDiscountAmount > 0 && (
           <div className="flex justify-between text-xs md:text-sm font-medium text-green-600">
-            <span>{t('discount') || 'Discount'}</span>
-            <span>-${discountAmount.toFixed(2)}</span>
+            <span>{t('discounts') || 'Discounts'} ({appliedDiscounts.length})</span>
+            <span>-${totalDiscountAmount.toFixed(2)}</span>
           </div>
         )}
         <div className="flex justify-between items-center border-t border-gray-200 pt-3 md:pt-4 mt-3 md:mt-4">

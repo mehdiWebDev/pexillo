@@ -269,6 +269,8 @@ export default function ProductDetailPageClient({ productSlug }: ProductDetailPa
         slug: product.slug,
         image: product.primary_image_url,
         unitPrice: displayPrice, // Use the discounted price if available
+        originalPrice: hasDiscount ? originalPrice : undefined,
+        discountPercentage: hasDiscount ? discountPercentage : undefined,
         variantSize: selectedVariant.size_label || selectedVariant.size,
         variantColor: selectedVariant.color,
         variantColorHex: selectedVariant.color_hex,

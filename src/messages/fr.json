@@ -763,7 +763,9 @@
         "close": "Fermer",
         "shippingCalculatedAtCheckout": "Livraison calculée à la caisse",
         "addedToCart": "Ajouté au panier",
-        "inCart": "dans le panier"
+        "inCart": "dans le panier",
+        "savings": "Vous économisez",
+        "productDiscounts": "Réductions sur les produits"
     },
     "checkout": {
         "pageTitle": "Paiement",
@@ -850,7 +852,38 @@
         "standardShipping": "Livraison standard",
         "expressShipping": "Livraison express",
         "creditCard": "Carte de crédit",
-        "payNow": "Payer maintenant"
+        "payNow": "Payer maintenant",
+        "productDiscounts": "Réductions sur les produits",
+        "discount": "Réduction",
+        "optional": "Optionnel",
+        "discounts": "Réductions",
+        "discountApplied": "Réduction appliquée",
+        "addAnotherCode": "Ajouter un autre code",
+        "removeDiscount": "Supprimer la réduction",
+        "info": "Info",
+        "discountErrors": {
+            "invalidCode": "Code de réduction invalide",
+            "notActive": "Le code de réduction n'est pas actif",
+            "expired": "Le code de réduction a expiré ou n'est pas encore valide",
+            "usageLimitReached": "Limite d'utilisation du code de réduction atteinte",
+            "alreadyUsed": "Vous avez déjà utilisé cette réduction {used} fois. Maximum autorisé: {limit}",
+            "loginRequired": "Veuillez vous connecter pour utiliser ce code de réduction",
+            "firstTimeOnly": "Cette réduction est réservée aux nouveaux clients",
+            "minimumPurchase": "Achat minimum de {amount}$ requis",
+            "minimumItems": "Minimum {required} article(s) requis dans le panier. Vous avez {current} article(s)",
+            "notApplicableProducts": "Réduction non applicable à ces produits",
+            "notApplicableVariants": "Réduction non applicable à ces variantes de produits",
+            "notApplicableCategories": "Réduction non applicable à ces catégories",
+            "discountAppliedCapped": "Réduction appliquée avec succès ({percentage}% de rabais, plafonné à {max}$)",
+            "discountAppliedSuccess": "Réduction appliquée avec succès",
+            "enterDiscountCode": "Veuillez entrer un code de réduction",
+            "failedToValidate": "Échec de la validation du code de réduction",
+            "cannotCombine": "Impossible de combiner avec {code}. Retirez-le d'abord pour appliquer une nouvelle réduction.",
+            "notStackable": "Cette réduction ne peut pas être combinée avec d'autres. Retirez d'abord les réductions existantes.",
+            "alreadyApplied": "Cette réduction est déjà appliquée",
+            "discountRemoved": "Réduction supprimée"
+        },
+        "success": "Succès"
     },
     "checkoutSuccess": {
         "loadingOrder": "Chargement des détails de la commande...",

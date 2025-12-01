@@ -68,11 +68,11 @@ export default function DiscountForm({
     applicable_to: 'all' as 'all' | 'product' | 'variant' | 'category' | 'user',
     campaign_name: '',
     discount_category: null as string | null,
-    auto_apply: false,
     stackable: false,
     first_purchase_only: false,
     minimum_items: null as number | null,
     priority: 0,
+    show_on_products: false,
   });
 
   // Load products, variants and categories on component mount
@@ -130,11 +130,11 @@ export default function DiscountForm({
         applicable_to: discount.applicable_to || 'all',
         campaign_name: discount.campaign_name || '',
         discount_category: discount.discount_category || null,
-        auto_apply: discount.auto_apply || false,
         stackable: discount.stackable || false,
         first_purchase_only: discount.first_purchase_only || false,
         minimum_items: discount.minimum_items || null,
         priority: discount.priority || 0,
+        show_on_products: discount.show_on_products || false,
       });
 
       // Set selected products/variants/categories if applicable
@@ -646,17 +646,6 @@ export default function DiscountForm({
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="auto-apply">Auto Apply</Label>
-              <p className="text-sm text-gray-500">Automatically apply at checkout</p>
-            </div>
-            <Switch
-              id="auto-apply"
-              checked={formData.auto_apply}
-              onCheckedChange={(checked) => setFormData({ ...formData, auto_apply: checked })}
-            />
-          </div>
 
           <div className="flex items-center justify-between">
             <div>
@@ -679,6 +668,18 @@ export default function DiscountForm({
               id="first-purchase"
               checked={formData.first_purchase_only}
               onCheckedChange={(checked) => setFormData({ ...formData, first_purchase_only: checked })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="show-on-products">Show on Product Listings</Label>
+              <p className="text-sm text-gray-500">Display as sale price on product cards</p>
+            </div>
+            <Switch
+              id="show-on-products"
+              checked={formData.show_on_products}
+              onCheckedChange={(checked) => setFormData({ ...formData, show_on_products: checked })}
             />
           </div>
         </div>

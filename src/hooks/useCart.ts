@@ -62,6 +62,8 @@ export function useCart() {
             slug: string;
             image: string;
             unitPrice: number;
+            originalPrice?: number;
+            discountPercentage?: number;
             variantSize: string;
             variantColor: string;
             variantColorHex?: string;
@@ -106,6 +108,11 @@ export function useCart() {
                     variantId,
                     quantity,
                     unitPrice: productDetails.unitPrice,
+                    originalPrice: productDetails.originalPrice,
+                    discountPercentage: productDetails.discountPercentage,
+                    discountAmount: productDetails.originalPrice && productDetails.originalPrice > productDetails.unitPrice
+                        ? productDetails.originalPrice - productDetails.unitPrice
+                        : undefined,
                 })).unwrap();
                 
                 toast({
@@ -122,6 +129,10 @@ export function useCart() {
                     }));
                 } else {
                     // Add new item
+                    const discountAmount = productDetails.originalPrice && productDetails.originalPrice > productDetails.unitPrice
+                        ? productDetails.originalPrice - productDetails.unitPrice
+                        : undefined;
+
                     const cartItem = {
                         id: `${Date.now()}-${Math.random()}`,
                         product_id: productId,
@@ -134,6 +145,9 @@ export function useCart() {
                         variant_color_hex: productDetails.variantColorHex,
                         quantity,
                         unit_price: productDetails.unitPrice,
+                        original_price: productDetails.originalPrice,
+                        discount_percentage: productDetails.discountPercentage,
+                        discount_amount: discountAmount,
                         customization_price: 0,
                         total_price: productDetails.unitPrice * quantity,
                         in_stock: true,

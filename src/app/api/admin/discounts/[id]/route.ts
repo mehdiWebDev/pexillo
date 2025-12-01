@@ -67,11 +67,12 @@ export async function PUT(
   try {
     const { id } = await params;
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!user) {
+    if (authError || !user) {
+      console.error('Auth error in PUT /api/admin/discounts/[id]:', authError);
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - Please login again' },
         { status: 401 }
       );
     }

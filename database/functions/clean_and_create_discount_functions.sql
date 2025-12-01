@@ -96,6 +96,7 @@ RETURNS TABLE (
   discount_type TEXT,
   discount_value NUMERIC,
   maximum_discount NUMERIC,
+  stackable BOOLEAN,
   reason TEXT
 )
 LANGUAGE plpgsql
@@ -120,6 +121,7 @@ BEGIN
       NULL::TEXT,
       NULL::NUMERIC,
       NULL::NUMERIC,
+      false,
       'Invalid discount code'::TEXT;
     RETURN;
   END IF;
@@ -132,6 +134,7 @@ BEGIN
       v_discount.discount_type,
       v_discount.discount_value,
       v_discount.maximum_discount,
+      COALESCE(v_discount.stackable, false),
       'Discount code is not active'::TEXT;
     RETURN;
   END IF;
@@ -144,6 +147,7 @@ BEGIN
       v_discount.discount_type,
       v_discount.discount_value,
       v_discount.maximum_discount,
+      COALESCE(v_discount.stackable, false),
       'Discount code is not yet valid'::TEXT;
     RETURN;
   END IF;
@@ -155,6 +159,7 @@ BEGIN
       v_discount.discount_type,
       v_discount.discount_value,
       v_discount.maximum_discount,
+      COALESCE(v_discount.stackable, false),
       'Discount code has expired'::TEXT;
     RETURN;
   END IF;
@@ -167,6 +172,7 @@ BEGIN
       v_discount.discount_type,
       v_discount.discount_value,
       v_discount.maximum_discount,
+      COALESCE(v_discount.stackable, false),
       'Discount code usage limit reached'::TEXT;
     RETURN;
   END IF;
@@ -185,6 +191,7 @@ BEGIN
         v_discount.discount_type,
         v_discount.discount_value,
         v_discount.maximum_discount,
+        COALESCE(v_discount.stackable, false),
         'This discount is only for first-time customers'::TEXT;
       RETURN;
     END IF;
@@ -198,6 +205,7 @@ BEGIN
       v_discount.discount_type,
       v_discount.discount_value,
       v_discount.maximum_discount,
+      COALESCE(v_discount.stackable, false),
       FORMAT('Minimum purchase of $%s required', v_discount.minimum_purchase)::TEXT;
     RETURN;
   END IF;
@@ -211,6 +219,7 @@ BEGIN
         v_discount.discount_type,
         v_discount.discount_value,
         v_discount.maximum_discount,
+        COALESCE(v_discount.stackable, false),
         'Discount not applicable to these products'::TEXT;
       RETURN;
     END IF;
@@ -224,6 +233,7 @@ BEGIN
         v_discount.discount_type,
         v_discount.discount_value,
         v_discount.maximum_discount,
+        COALESCE(v_discount.stackable, false),
         'Discount not applicable to these categories'::TEXT;
       RETURN;
     END IF;
@@ -236,6 +246,7 @@ BEGIN
     v_discount.discount_type,
     v_discount.discount_value,
     v_discount.maximum_discount,
+    COALESCE(v_discount.stackable, false),
     'Discount applied successfully'::TEXT;
 END;
 $$;

@@ -28,8 +28,8 @@ export interface DiscountCode {
   excluded_categories?: string[] | null;
   campaign_name?: string | null;
   discount_category?: string | null;
-  auto_apply?: boolean;
   customer_segments?: string[] | null;
+  show_on_products?: boolean;
 }
 
 type DiscountCodeInsert = Partial<DiscountCode>;
@@ -41,6 +41,7 @@ export interface DiscountValidationResult {
   discountType?: 'percentage' | 'fixed_amount' | 'free_shipping';
   discountValue?: number;
   maximumDiscount?: number | null;
+  stackable?: boolean;
   reason: string;
   amountOff?: number;
 }
@@ -206,6 +207,19 @@ class DiscountService {
     const variantIds = cartItems?.map(item => item.variantId).filter(Boolean) as string[] || [];
     const categoryIds = [...new Set(cartItems?.map(item => item.categoryId).filter(Boolean))] as string[];
 
+    // Calculate total number of items in cart (sum of all quantities)
+    const cartItemsCount = cartItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0;
+
+    console.log('🔐 Calling DB validate_discount_code with:', {
+      p_code: code,
+      p_user_id: userId || 'NULL',
+      p_cart_total: cartTotal,
+      p_cart_items_count: cartItemsCount,
+      hasProductIds: productIds.length > 0,
+      hasVariantIds: variantIds.length > 0,
+      hasCategoryIds: categoryIds.length > 0
+    });
+
     const { data, error } = await this.supabase.rpc('validate_discount_code', {
       p_code: code,
       p_user_id: userId || null,
@@ -213,6 +227,7 @@ class DiscountService {
       p_product_ids: productIds.length > 0 ? productIds : null,
       p_variant_ids: variantIds.length > 0 ? variantIds : null,
       p_category_ids: categoryIds.length > 0 ? categoryIds : null,
+      p_cart_items_count: cartItemsCount,
     });
 
     if (error) {
@@ -222,6 +237,8 @@ class DiscountService {
         reason: 'Failed to validate discount code',
       };
     }
+
+    console.log('🎲 DB validation response:', data);
 
     const result = data?.[0];
 
@@ -234,12 +251,21 @@ class DiscountService {
 
     // Calculate the actual discount amount if valid
     let amountOff = 0;
+    let reason = result.reason;
     if (result.is_valid && result.discount_id) {
       amountOff = await this.calculateDiscountAmount(
         result.discount_id,
         cartTotal,
         cartItems
       );
+
+      // Check if maximum discount cap was applied
+      if (result.maximum_discount && result.discount_type === 'percentage') {
+        const uncappedDiscount = (cartTotal * result.discount_value) / 100;
+        if (uncappedDiscount > result.maximum_discount) {
+          reason = `Discount applied successfully (${result.discount_value}% off, capped at $${result.maximum_discount})`;
+        }
+      }
     }
 
     return {
@@ -248,7 +274,8 @@ class DiscountService {
       discountType: result.discount_type,
       discountValue: result.discount_value,
       maximumDiscount: result.maximum_discount,
-      reason: result.reason,
+      stackable: result.stackable,
+      reason,
       amountOff,
     };
   }
@@ -277,28 +304,9 @@ class DiscountService {
     return data || 0;
   }
 
-  async getAutoApplyDiscounts(
-    userId: string | null,
-    cartTotal: number,
-    cartItems?: CartItem[]
-  ) {
-    const productIds = cartItems?.map(item => item.productId) || [];
-    const categoryIds = [...new Set(cartItems?.map(item => item.categoryId).filter(Boolean))] as string[];
-
-    const { data, error } = await this.supabase.rpc('get_auto_apply_discounts', {
-      p_user_id: userId,
-      p_cart_total: cartTotal,
-      p_product_ids: productIds.length > 0 ? productIds : null,
-      p_category_ids: categoryIds.length > 0 ? categoryIds : null,
-    });
-
-    if (error) {
-      console.error('Auto-apply discount error:', error);
-      return null;
-    }
-
-    return data?.[0] || null;
-  }
+  // REMOVED: Auto-apply functionality
+  // Product/variant discounts are handled through product pricing
+  // to avoid double discounting
 
   async recordDiscountUsage(
     discountId: string,

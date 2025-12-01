@@ -67,17 +67,32 @@ export async function GET(
       .eq('product_id', product.id)
       .order('display_order', { ascending: true });
 
+    // Get product-level discount (only shows if show_on_products = true)
+    const { data: productDiscountData } = await supabaseAdmin.rpc('get_product_best_discount', {
+      p_product_id: product.id,
+      p_category_id: product.category_id,
+      p_base_price: product.base_price
+    });
+
+    const productDiscount = productDiscountData?.[0] || {
+      has_discount: false,
+      discount_percentage: 0,
+      discounted_price: product.base_price,
+      discount_type: null,
+      discount_value: null
+    };
+
     // Get variant discounts
     const variantsWithDiscounts = await Promise.all(
       (variants || []).map(async (variant) => {
         const basePrice = product.base_price + (variant.price_adjustment || 0);
 
-        // Call the discount function
+        // Call the discount function (only shows if show_on_products = true)
         const { data: discountData } = await supabaseAdmin.rpc('get_variant_discount', {
           p_variant_id: variant.id,
           p_product_id: product.id,
           p_category_id: product.category_id,
-          p_base_price: basePrice
+          p_variant_price: basePrice
         });
 
         const discount = discountData?.[0] || {
@@ -104,6 +119,10 @@ export async function GET(
         ...product,
         variants: variantsWithDiscounts || [],
         images: images || [],
+        // Add product-level discount info
+        has_discount: productDiscount.has_discount,
+        discount_percentage: productDiscount.discount_percentage,
+        discounted_price: productDiscount.discounted_price,
       }
     });
   } catch (error) {

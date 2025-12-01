@@ -51,6 +51,14 @@ function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
     };
   });
 
+  // Calculate total savings
+  const totalSavings = items.reduce((sum, item) => {
+    if (item.original_price && item.discount_amount) {
+      return sum + (item.discount_amount * item.quantity);
+    }
+    return sum;
+  }, 0);
+
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
 
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
@@ -178,7 +186,7 @@ function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
 
                 return (
                   <div key={item.id} className="flex gap-4">
-                    <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
+                    <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200 relative">
                       <Image
                         src={item.product_image}
                         alt={item.product_name}
@@ -190,6 +198,11 @@ function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                           router.push(`/products/${item.product_slug}`);
                         }}
                       />
+                      {item.discount_percentage && item.discount_percentage > 0 && (
+                        <span className="absolute top-1 left-1 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                          -{Math.round(item.discount_percentage)}%
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex-1 flex flex-col justify-between">
@@ -204,7 +217,23 @@ function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                           >
                             {item.product_name}
                           </h3>
-                          <span className="font-bold text-gray-900">${item.unit_price.toFixed(2)}</span>
+                          <div className="text-right">
+                            {(item.original_price && item.original_price > item.unit_price) || item.discount_percentage ? (
+                              <div>
+                                <span className="font-bold text-green-600 text-sm">${item.unit_price.toFixed(2)}</span>
+                                <span className="text-xs text-gray-500 line-through ml-1">
+                                  ${item.original_price?.toFixed(2)}
+                                </span>
+                                {item.discount_percentage && (
+                                  <div className="text-[10px] text-green-600 font-bold">
+                                    -{Math.round(item.discount_percentage)}% OFF
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="font-bold text-gray-900">${item.unit_price.toFixed(2)}</span>
+                            )}
+                          </div>
                         </div>
                         <p className="text-xs text-gray-500 mt-1">
                           Size: {item.variant_size} • Color: {item.variant_color}
@@ -253,9 +282,17 @@ function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
 
             {/* Footer */}
             <div className="border-t border-gray-100 p-6 bg-white space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500 font-medium">{t('subtotal')}</span>
-                <span className="font-black text-xl text-gray-900">${subtotal.toFixed(2)}</span>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 font-medium">{t('subtotal')}</span>
+                  <span className="font-black text-xl text-gray-900">${subtotal.toFixed(2)}</span>
+                </div>
+                {totalSavings > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-green-600 font-bold text-sm">{t('savings') || 'You Save'}</span>
+                    <span className="text-green-600 font-bold text-sm">-${totalSavings.toFixed(2)}</span>
+                  </div>
+                )}
               </div>
               <p className="text-xs text-gray-400">{t('shippingCalculatedAtCheckout')}</p>
 

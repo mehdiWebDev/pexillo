@@ -13,7 +13,10 @@ export interface CartItem {
   variant_color: string; // Default color
   variant_color_hex?: string;
   quantity: number;
-  unit_price: number;
+  unit_price: number; // This is the final price after discount
+  original_price?: number; // Original price before discount
+  discount_percentage?: number; // Discount percentage if applicable
+  discount_amount?: number; // Discount amount in dollars
   customization_price?: number;
   total_price: number;
   in_stock: boolean;
@@ -92,6 +95,9 @@ export const fetchCart = createAsyncThunk(
       variant_color_hex: item.product_variants.color_hex,
       quantity: item.quantity,
       unit_price: parseFloat(item.unit_price),
+      original_price: item.original_price ? parseFloat(item.original_price) : undefined,
+      discount_percentage: item.discount_percentage ? parseFloat(item.discount_percentage) : undefined,
+      discount_amount: item.discount_amount ? parseFloat(item.discount_amount) : undefined,
       customization_price: parseFloat(item.customization_price || 0),
       total_price: parseFloat(item.total_price),
       in_stock: item.product_variants.inventory_count > 0,
@@ -105,18 +111,24 @@ export const fetchCart = createAsyncThunk(
 
 export const addToCartDB = createAsyncThunk(
   'cart/addToCartDB',
-  async ({ 
-    userId, 
-    productId, 
-    variantId, 
-    quantity, 
-    unitPrice 
+  async ({
+    userId,
+    productId,
+    variantId,
+    quantity,
+    unitPrice,
+    originalPrice,
+    discountPercentage,
+    discountAmount
   }: {
     userId: string;
     productId: string;
     variantId: string;
     quantity: number;
     unitPrice: number;
+    originalPrice?: number;
+    discountPercentage?: number;
+    discountAmount?: number;
   }) => {
     const supabase = createClient();
     
@@ -129,10 +141,10 @@ export const addToCartDB = createAsyncThunk(
       .single();
 
     if (existing) {
-      // Update quantity
+      // Update quantity (note: we keep existing discount info, don't update it)
       const { data, error } = await supabase
         .from('cart_items')
-        .update({ 
+        .update({
           quantity: existing.quantity + quantity,
           updated_at: new Date().toISOString()
         })
@@ -167,6 +179,9 @@ export const addToCartDB = createAsyncThunk(
           variant_id: variantId,
           quantity,
           unit_price: unitPrice,
+          original_price: originalPrice,
+          discount_percentage: discountPercentage,
+          discount_amount: discountAmount,
         })
         .select(`
           *,
@@ -383,6 +398,9 @@ const cartSlice = createSlice({
           variant_color_hex: action.payload.item.product_variants.color_hex,
           quantity: action.payload.item.quantity,
           unit_price: parseFloat(action.payload.item.unit_price),
+          original_price: action.payload.item.original_price ? parseFloat(action.payload.item.original_price) : undefined,
+          discount_percentage: action.payload.item.discount_percentage ? parseFloat(action.payload.item.discount_percentage) : undefined,
+          discount_amount: action.payload.item.discount_amount ? parseFloat(action.payload.item.discount_amount) : undefined,
           customization_price: parseFloat(action.payload.item.customization_price || 0),
           total_price: parseFloat(action.payload.item.total_price),
           in_stock: action.payload.item.product_variants.inventory_count > 0,

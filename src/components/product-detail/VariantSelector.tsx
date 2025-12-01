@@ -41,15 +41,15 @@ export default function VariantSelector({
 }: VariantSelectorProps) {
   const t = useTranslations('productDetail');
 
-  // Helper function to determine if a color is light (commented out - not currently used)
-  // const isLightColor = (hex: string): boolean => {
-  //   const color = hex.replace('#', '');
-  //   const r = parseInt(color.substr(0, 2), 16);
-  //   const g = parseInt(color.substr(2, 2), 16);
-  //   const b = parseInt(color.substr(4, 2), 16);
-  //   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  //   return luminance > 0.7;
-  // };
+  // Helper function to determine if a color is light
+  const isLightColor = (hex: string): boolean => {
+    const color = hex.replace('#', '');
+    const r = parseInt(color.substr(0, 2), 16);
+    const g = parseInt(color.substr(2, 2), 16);
+    const b = parseInt(color.substr(4, 2), 16);
+    // Check if color is closer to white than black
+    return (r + g + b) > (255 * 3 / 2);
+  };
 
   return (
     <div className="space-y-6">
@@ -65,16 +65,30 @@ export default function VariantSelector({
               <button
                 key={color.color}
                 onClick={() => onColorChange(color.color)}
-                className={`w-10 h-10 rounded-full border-2 transition-all ${
+                className={`relative rounded-full transition-all duration-200 ${
                   selectedColor === color.color
-                    ? 'border-white ring-2 ring-gray-900 scale-110'
-                    : 'border-gray-200 hover:border-gray-900'
+                    ? 'w-12 h-12 ring-2 ring-black ring-offset-2 shadow-lg scale-110'
+                    : 'w-10 h-10 border border-gray-300 hover:border-gray-400 hover:scale-110'
                 }`}
                 style={{ backgroundColor: color.hex }}
                 title={color.color}
                 aria-label={`Select ${color.color} color`}
                 aria-pressed={selectedColor === color.color}
-              />
+              >
+                {selectedColor === color.color && (
+                  <span className="absolute inset-0 rounded-full flex items-center justify-center">
+                    <svg
+                      className={`w-5 h-5 ${
+                        isLightColor(color.hex) ? 'text-gray-800' : 'text-white'
+                      } drop-shadow-md`}
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </span>
+                )}
+              </button>
             ))}
           </div>
         </div>

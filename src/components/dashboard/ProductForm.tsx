@@ -438,6 +438,47 @@ export default function ProductForm({ productId }: ProductFormProps) {
         finalProductId = newProduct.id;
       }
 
+      // If editing, first delete variants that are no longer in the variants array
+      if (isEditing && productId) {
+        // Get all existing variant IDs from the database
+        const { data: existingVariants } = await supabase
+          .from('product_variants')
+          .select('id')
+          .eq('product_id', productId);
+
+        if (existingVariants) {
+          // Get IDs of variants that are being kept
+          const keptVariantIds = variants
+            .filter(v => v.id)
+            .map(v => v.id);
+
+          // Find variants that need to be deleted
+          const variantsToDelete = existingVariants
+            .filter(dbVariant => !keptVariantIds.includes(dbVariant.id))
+            .map(dbVariant => dbVariant.id);
+
+          // Delete variants that are no longer needed
+          if (variantsToDelete.length > 0) {
+            // First delete images associated with these variants
+            await supabase
+              .from('product_images')
+              .delete()
+              .in('variant_id', variantsToDelete);
+
+            // Then delete the variants themselves
+            const { error: deleteError } = await supabase
+              .from('product_variants')
+              .delete()
+              .in('id', variantsToDelete);
+
+            if (deleteError) {
+              console.error('Error deleting variants:', deleteError);
+              throw deleteError;
+            }
+          }
+        }
+      }
+
       const savedVariantIds: string[] = [];
 
       // Use upsert to handle both new and existing variants
@@ -478,6 +519,58 @@ export default function ProductForm({ productId }: ProductFormProps) {
 
           if (variantError) throw variantError;
           savedVariantIds.push(savedVariant.id);
+        }
+      }
+
+      // If editing, first delete all existing images that are no longer in the images array
+      if (isEditing && productId) {
+        // Get all existing images from the database with their URLs
+        const { data: existingImages } = await supabase
+          .from('product_images')
+          .select('id, image_url')
+          .eq('product_id', productId);
+
+        if (existingImages) {
+          // Get IDs of images that are being kept (have an ID in our current images array)
+          const keptImageIds = images
+            .filter(img => img.id)
+            .map(img => img.id);
+
+          // Find images that need to be deleted
+          const imagesToDelete = existingImages.filter(dbImg => !keptImageIds.includes(dbImg.id));
+
+          // Delete images that are no longer needed
+          if (imagesToDelete.length > 0) {
+            // Delete from storage first
+            for (const img of imagesToDelete) {
+              if (img.image_url && img.image_url.includes('product-images')) {
+                try {
+                  // Extract the file path from the URL
+                  const urlParts = img.image_url.split('/product-images/');
+                  if (urlParts.length > 1) {
+                    const filePath = urlParts[1];
+                    await supabase.storage
+                      .from('product-images')
+                      .remove([filePath]);
+                  }
+                } catch (storageError) {
+                  console.error('Error deleting image from storage:', storageError);
+                  // Continue even if storage deletion fails
+                }
+              }
+            }
+
+            // Then delete from database
+            const { error: deleteError } = await supabase
+              .from('product_images')
+              .delete()
+              .in('id', imagesToDelete.map(img => img.id));
+
+            if (deleteError) {
+              console.error('Error deleting images:', deleteError);
+              throw deleteError;
+            }
+          }
         }
       }
 

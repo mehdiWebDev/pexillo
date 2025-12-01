@@ -17,6 +17,10 @@ export function LogoutButton() {
     // Reset cart state on logout
     dispatch(resetCart());
 
+    // Clear discount-related sessionStorage to prevent reuse
+    sessionStorage.removeItem('checkout_discounts');
+    sessionStorage.removeItem('checkout_auto_discounts');
+
     router.push("/auth/login");
   };
 

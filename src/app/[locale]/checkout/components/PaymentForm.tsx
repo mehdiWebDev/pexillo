@@ -61,6 +61,15 @@ interface InventoryError {
   message: string;
 }
 
+interface DiscountInfo {
+  discountId: string;
+  code: string;
+  discountType: 'percentage' | 'fixed_amount' | 'free_shipping';
+  discountValue: number;
+  amountOff: number;
+  display: string;
+}
+
 interface PaymentFormProps {
   form: UseFormReturn<CheckoutFormData>;
   clientSecret: string;
@@ -70,6 +79,7 @@ interface PaymentFormProps {
   items: CartItem[];
   onBack: () => void;
   createdUserId: string | null;
+  appliedDiscounts?: DiscountInfo[];
 }
 
 export default function PaymentForm({
@@ -79,7 +89,8 @@ export default function PaymentForm({
   shipping,
   items,
   onBack,
-  createdUserId
+  createdUserId,
+  appliedDiscounts = []
 }: PaymentFormProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -90,6 +101,9 @@ export default function PaymentForm({
   const { isAuth, user } = useSelector((state: RootState) => state.auth);
   const [isProcessing, setIsProcessing] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  // Debug logging for discounts
+  console.log('🎁 PaymentForm received appliedDiscounts:', appliedDiscounts);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,6 +186,12 @@ export default function PaymentForm({
       // Determine userId: use authenticated user's ID, or createdUserId from checkout
       const userId = user?.id || createdUserId || null;
 
+      // Log discount info for debugging
+      console.log('💰 Applied discounts:', appliedDiscounts);
+
+      // Calculate total discount amount
+      const totalDiscountAmount = appliedDiscounts.reduce((sum, discount) => sum + (discount.amountOff || 0), 0);
+
       const orderData = {
         user_id: userId, // Use the userId directly
         email: formData.email,
@@ -193,6 +213,17 @@ export default function PaymentForm({
         shipping_amount: shipping,
         total_amount: total,
         currency: 'CAD',
+        // Include discount information if applicable
+        // For now, we'll use the first discount for backward compatibility
+        // TODO: Update database to support multiple discount codes per order
+        discount_code_id: appliedDiscounts[0]?.discountId || null,
+        discount_amount: totalDiscountAmount,
+        // Store all discount codes as metadata
+        discount_codes: appliedDiscounts.map(d => ({
+          id: d.discountId,
+          code: d.code,
+          amount: d.amountOff
+        })),
         // Include payment details since payment already succeeded
         stripe_payment_intent_id: paymentIntent.id,
         payment_method: paymentIntent.payment_method,
@@ -201,6 +232,12 @@ export default function PaymentForm({
         payment_status: 'pending',
         status: 'pending',
       };
+
+      console.log('📦 Order data being sent:', {
+        discount_code_id: orderData.discount_code_id,
+        discount_amount: orderData.discount_amount,
+        discount_codes: orderData.discount_codes
+      });
 
       const orderResponse = await fetch('/api/orders/create', {
         method: 'POST',
@@ -285,6 +322,9 @@ export default function PaymentForm({
         sessionStorage.setItem('payment_just_completed', 'true');
         dispatch(clearCartLocal());
       }
+
+      // Clear discount from session (use correct key)
+      sessionStorage.removeItem('checkout_discounts');
 
       // Redirect to success page
       router.push(`/checkout/success?order=${orderNumber}`);

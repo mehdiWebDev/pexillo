@@ -11,6 +11,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { code, subtotal, items } = body;
 
+    console.log('🔍 Discount validation request:', {
+      code,
+      userId: user?.id || 'GUEST',
+      userEmail: user?.email || 'NO EMAIL',
+      subtotal,
+      itemsCount: items?.length
+    });
+
     if (!code) {
       return NextResponse.json(
         { error: 'Discount code is required' },
@@ -39,6 +47,7 @@ export async function POST(request: NextRequest) {
     }));
 
     // Validate the discount code
+    console.log('🚀 Calling validateDiscountCode with userId:', user?.id || 'NULL');
     const result = await discountService.validateDiscountCode(
       code,
       subtotal || 0,
@@ -46,7 +55,14 @@ export async function POST(request: NextRequest) {
       user?.id
     );
 
+    console.log('📊 Validation result:', {
+      isValid: result.isValid,
+      reason: result.reason,
+      discountId: result.discountId
+    });
+
     if (!result.isValid) {
+      console.log('❌ Discount validation failed:', result.reason);
       return NextResponse.json(
         {
           isValid: false,
@@ -56,15 +72,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get auto-apply discounts if no code was applied
-    let autoApplyDiscount = null;
-    if (!result.discountId) {
-      autoApplyDiscount = await discountService.getAutoApplyDiscounts(
-        user?.id || null,
-        subtotal || 0,
-        cartItems
-      );
-    }
+    // Auto-apply functionality removed - handled separately
+    const autoApplyDiscount = null;
+
+    console.log('🎯 Discount validation result:', {
+      discountId: result.discountId,
+      discountType: result.discountType,
+      amountOff: result.amountOff,
+    });
 
     return NextResponse.json({
       isValid: true,
@@ -75,6 +90,7 @@ export async function POST(request: NextRequest) {
       amountOff: result.amountOff || 0,
       message: result.reason,
       display: discountService.formatDiscountDisplay(result),
+      stackable: result.stackable || false,
       autoApplyDiscount,
     });
   } catch (error) {
