@@ -767,7 +767,13 @@
         "addedToCart": "Ajouté au panier",
         "inCart": "dans le panier",
         "savings": "Vous économisez",
-        "productDiscounts": "Réductions sur les produits"
+        "productDiscounts": "Réductions sur les produits",
+        "cannotAddMore": "Impossible d'ajouter plus",
+        "maxQuantityInCart": "Vous avez déjà la quantité maximale disponible ({quantity}) dans votre panier",
+        "quantityAdjusted": "Quantité ajustée",
+        "limitedQuantityAdded": "Seulement {quantity} de plus disponible. {quantity} ajouté au panier.",
+        "addedSuccessfully": "{name} ajouté avec succès",
+        "failedToAddItem": "Échec de l'ajout de l'article au panier"
     },
     "checkout": {
         "pageTitle": "Paiement",

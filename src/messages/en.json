@@ -767,7 +767,13 @@
         "cartCleared": "Cart cleared successfully",
         "clearFailed": "Failed to clear cart",
         "maxQuantityExceeded": "Maximum available quantity is {max}",
-        "inCart": "in cart"
+        "inCart": "in cart",
+        "cannotAddMore": "Cannot add more",
+        "maxQuantityInCart": "You already have the maximum available quantity ({quantity}) in your cart",
+        "quantityAdjusted": "Quantity adjusted",
+        "limitedQuantityAdded": "Only {quantity} more available. Added {quantity} to cart.",
+        "addedSuccessfully": "{name} added successfully",
+        "failedToAddItem": "Failed to add item to cart"
     },
     "checkout": {
         "pageTitle": "Checkout",

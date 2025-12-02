@@ -11,7 +11,6 @@ import {
     openCart,
     updateCartItemLocal
 } from '@/src/store/slices/cartSlice';
-import { toast } from '@/src/hooks/use-toast';
 
 export function useCart() {
     const dispatch = useDispatch<AppDispatch>();
@@ -84,20 +83,13 @@ export function useCart() {
                 const availableToAdd = productDetails.maxQuantity - currentQuantityInCart;
                 
                 if (availableToAdd <= 0) {
-                    toast({
-                        title: 'Cannot add more',
-                        description: `You already have the maximum available quantity (${productDetails.maxQuantity}) in your cart`,
-                        variant: 'destructive',
-                    });
+                    // Silently prevent adding more than max quantity
                     return false;
                 }
-                
+
                 // Adjust quantity to max available
                 quantity = availableToAdd;
-                toast({
-                    title: 'Quantity adjusted',
-                    description: `Only ${availableToAdd} more available. Added ${availableToAdd} to cart.`,
-                });
+                // No toast for quantity adjustment
             }
 
             if (isAuth && user?.id) {
@@ -114,18 +106,13 @@ export function useCart() {
                         ? productDetails.originalPrice - productDetails.unitPrice
                         : undefined,
                 })).unwrap();
-                
-                toast({
-                    title: 'Added to cart',
-                    description: `${productDetails.name} added successfully`,
-                });
             } else {
                 // For anonymous users
                 if (existingItem) {
                     // Update existing item
-                    dispatch(updateCartItemLocal({ 
-                        itemId: existingItem.id, 
-                        quantity: currentQuantityInCart + quantity 
+                    dispatch(updateCartItemLocal({
+                        itemId: existingItem.id,
+                        quantity: currentQuantityInCart + quantity
                     }));
                 } else {
                     // Add new item
@@ -157,22 +144,15 @@ export function useCart() {
                     };
                     dispatch(addToCartLocal(cartItem));
                 }
-                
-                toast({
-                    title: 'Added to cart',
-                    description: `${productDetails.name} added successfully`,
-                });
             }
+
+            // No toast notification - just open cart
 
             dispatch(openCart());
             return true;
         } catch (error) {
             console.error('Add to cart error:', error);
-            toast({
-                title: 'Error',
-                description: 'Failed to add item to cart',
-                variant: 'destructive',
-            });
+            // No error toast - handle silently
             return false;
         }
     }, [isAuth, user?.id, dispatch, cart.items]);
