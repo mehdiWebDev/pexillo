@@ -64,6 +64,9 @@ interface Product {
   badge?: 'NEW' | 'HOT' | 'SALE' | 'LIMITED' | null;
   base_price: number;
   primary_image_url: string;
+  in_stock: boolean;
+  average_rating?: number;
+  review_count?: number;
   translations?: Record<string, {
     name?: string;
     short_description?: string;
@@ -336,8 +339,42 @@ export default function ProductDetailPageClient({ productSlug }: ProductDetailPa
 
   const productIsFavorited = isFavorite(product.id);
 
+  // Generate structured data for SEO
+  const structuredData = translatedProduct ? {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: translatedProduct.name,
+    description: translatedProduct.description || translatedProduct.short_description || '',
+    image: translatedProduct.images?.map((img: ApiProductImage) => img.image_url) || [translatedProduct.primary_image_url],
+    brand: {
+      '@type': 'Brand',
+      name: 'Pexillo'
+    },
+    offers: {
+      '@type': 'Offer',
+      url: `https://pexillo.com/products/${translatedProduct.slug}`,
+      priceCurrency: 'USD',
+      price: getDisplayPrice(),
+      availability: product.in_stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      priceValidUntil: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
+    },
+    aggregateRating: (translatedProduct.average_rating && translatedProduct.average_rating > 0) ? {
+      '@type': 'AggregateRating',
+      ratingValue: translatedProduct.average_rating,
+      reviewCount: translatedProduct.review_count || 0
+    } : undefined
+  } : null;
+
   return (
     <div className="bg-white min-h-screen">
+      {/* Structured Data for SEO */}
+      {structuredData && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+      )}
+
       {/* Breadcrumbs */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-4">
         <nav className="text-[10px] font-bold text-gray-400 uppercase tracking-wider" aria-label="Breadcrumb">

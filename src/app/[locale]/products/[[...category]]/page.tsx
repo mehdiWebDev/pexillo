@@ -63,19 +63,32 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const supabase = createClient();
   const { data: product } = await supabase
     .from('products')
-    .select('name, short_description')
+    .select('name, short_description, meta_title, meta_description, primary_image_url, base_price, discounted_price, has_discount')
     .eq('slug', slug)
     .eq('is_active', true)
     .single();
 
   if (product) {
+    // Use meta fields if available, fallback to product fields
+    const title = product.meta_title || `${product.name} | Pexillo`;
+    const description = product.meta_description ||
+                       product.short_description ||
+                       `Shop ${product.name} at Pexillo. Premium quality products at great prices.`;
+
     return {
-      title: `${product.name} | Pexillo`,
-      description: product.short_description || `Shop ${product.name} at Pexillo.`,
+      title,
+      description,
       openGraph: {
-        title: `${product.name} | Pexillo`,
-        description: product.short_description || `Shop ${product.name} at Pexillo.`,
+        title,
+        description,
+        images: product.primary_image_url ? [{ url: product.primary_image_url }] : [],
         type: 'website',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: product.primary_image_url ? [product.primary_image_url] : [],
       },
     };
   }

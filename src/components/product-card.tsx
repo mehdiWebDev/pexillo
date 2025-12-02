@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {
-  ShoppingCart, Heart, ArrowRight,
+  ShoppingCart, Heart,
   AlertCircle, Check, Loader2
 } from 'lucide-react';
 import { useCart } from '@/src/hooks/useCart';
 import { toast } from '@/src/hooks/use-toast';
+import { useTranslations } from 'next-intl';
 
 // --- Interfaces (Kept from your code) ---
 export interface ProductVariant {
@@ -71,32 +72,17 @@ export default function ProductCard({
   showColorSwitcher = true,
   showSizePicker = false,
 }: ProductCardProps) {
-  // Mock translation for demo purposes if hook fails
-  const t = (key: string, params?: { count?: number }) => {
-    const dict: Record<string, string> = {
-      addToFavorites: 'Favorite',
-      viewDetails: 'View',
-      colorsAvailable: 'Colors',
-      color: 'Color',
-      size: 'Size',
-      addToCart: 'Add',
-      inCart: 'in bag',
-      lastOne: 'Last one!',
-      onlyXLeft: `Only ${params?.count} left`,
-      outOfStock: 'Sold Out'
-    };
-    return dict[key] || key;
-  };
-  
+  const t = useTranslations('productCard');
   const router = useRouter();
   const { addToCart, getCartQuantity } = useCart();
 
-  // --- Logic extracted from your code ---
+  // Extract unique colors from variants
   const availableColors = product.variants
-    ? Array.from(new Map(product.variants.map(v => [v.color, { color: v.color, hex: v.color_hex }])).values())
+    ? Array.from(new Map(product.variants.map(v => [v.color.toLowerCase(), { color: v.color, hex: v.color_hex }])).values())
     : [];
 
-  const [selectedColor, setSelectedColor] = useState<string>(availableColors.length > 0 ? availableColors[0].color : '');
+  // State management
+  const [selectedColor, setSelectedColor] = useState<string>('');
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [showBackView, setShowBackView] = useState(false);
@@ -104,38 +90,81 @@ export default function ProductCard({
   const [isImageChanging, setIsImageChanging] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
+  // Cart and stock calculations
   const currentCartQuantity = selectedVariant ? getCartQuantity(selectedVariant.id) : 0;
-  const canAddMore = selectedVariant ? currentCartQuantity < selectedVariant.inventory_count : false;
-  const remainingAvailable = selectedVariant ? selectedVariant.inventory_count - currentCartQuantity : 0;
+  const remainingStock = selectedVariant ? selectedVariant.inventory_count - currentCartQuantity : 0;
+
+  // Stock status checks
+  const hasVariants = product.variants && product.variants.length > 0;
+  const allVariantsOutOfStock = hasVariants && product.variants ? product.variants.every(v => v.inventory_count === 0) : false;
+  const isProductOutOfStock = !product.in_stock || allVariantsOutOfStock;
+  const isVariantOutOfStock = selectedVariant ? selectedVariant.inventory_count === 0 : false;
+  const canAddToCart = selectedVariant && remainingStock > 0 && !isProductOutOfStock && !isVariantOutOfStock;
 
   const getSizesWithStock = () => {
     if (!product.variants || !selectedColor) return [];
     const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
     const sizesMap = new Map<string, number>();
-    product.variants.filter(v => v.color === selectedColor).forEach(v => sizesMap.set(v.size, v.inventory_count));
+    // Case-insensitive color matching
+    product.variants
+      .filter(v => v.color.toLowerCase() === selectedColor.toLowerCase())
+      .forEach(v => sizesMap.set(v.size, v.inventory_count));
     return Array.from(sizesMap.entries())
       .sort((a, b) => sizeOrder.indexOf(a[0]) - sizeOrder.indexOf(b[0]))
       .map(([size, stock]) => ({ size, inStock: stock > 0, stockCount: stock }));
   };
 
   const sizesWithStock = getSizesWithStock();
-  const availableSizes = sizesWithStock.filter(s => s.inStock).map(s => s.size);
 
+  // Initialize with first available color on mount
   useEffect(() => {
-    if (availableSizes.length > 0 && !availableSizes.includes(selectedSize)) {
-      setSelectedSize(availableSizes[0]);
-    } else if (availableSizes.length === 0) {
-      setSelectedSize('');
+    if (!selectedColor && availableColors.length > 0 && product.variants) {
+      // Find first color that has at least one variant in stock
+      const firstAvailableColor = availableColors.find(({ color }) =>
+        product.variants?.some(v => v.color.toLowerCase() === color.toLowerCase() && v.inventory_count > 0)
+      );
+      if (firstAvailableColor) {
+        setSelectedColor(firstAvailableColor.color);
+      } else if (availableColors.length > 0) {
+        // If no color has stock, just set the first color
+        setSelectedColor(availableColors[0].color);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedColor, availableSizes]); // Removed selectedSize from deps to avoid loop
+  }, []); // Only run on mount
 
+  // Auto-select size when color changes
+  useEffect(() => {
+    if (selectedColor && sizesWithStock.length > 0) {
+      // Try to keep the current size if it's available
+      const currentSizeAvailable = sizesWithStock.find(s => s.size === selectedSize && s.inStock);
+      if (!currentSizeAvailable) {
+        // Otherwise select the first available size
+        const availableSize = sizesWithStock.find(s => s.inStock);
+        if (availableSize) {
+          setSelectedSize(availableSize.size);
+        } else if (sizesWithStock.length > 0) {
+          // If no sizes have stock, select the first one anyway
+          setSelectedSize(sizesWithStock[0].size);
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedColor, sizesWithStock]);
+
+  // Update selected variant when color/size changes
   useEffect(() => {
     if (selectedColor && selectedSize && product.variants) {
-      const variant = product.variants.find(v => v.color === selectedColor && v.size === selectedSize);
+      // Case-insensitive comparison for better matching
+      const variant = product.variants.find(v =>
+        v.color.toLowerCase() === selectedColor.toLowerCase() &&
+        v.size === selectedSize
+      );
       setSelectedVariant(variant || null);
       setIsImageChanging(true);
       setTimeout(() => setIsImageChanging(false), 300);
+    } else {
+      setSelectedVariant(null);
     }
   }, [selectedColor, selectedSize, product.variants]);
 
@@ -199,16 +228,14 @@ export default function ProductCard({
 
   const getStockInfo = () => {
     if (!selectedVariant) return null;
-    const stockToShow = remainingAvailable;
-    if (stockToShow === 0) return null;
-    if (stockToShow <= 5) { // Adjusted threshold for "hype" feel
-      return { count: stockToShow, isCritical: stockToShow <= 2 };
+    if (remainingStock === 0) return null;
+    if (remainingStock <= 5) { // Adjusted threshold for "hype" feel
+      return { count: remainingStock, isCritical: remainingStock <= 2 };
     }
     return null;
   };
 
   const stockInfo = getStockInfo();
-  const isCurrentVariantInStock = selectedVariant ? selectedVariant.inventory_count > 0 : product.in_stock;
 
   // --- Handlers ---
   const handleColorSelect = (color: string) => {
@@ -223,10 +250,10 @@ export default function ProductCard({
     e.preventDefault();
     e.stopPropagation();
     if (!selectedVariant) {
-      toast({ title: 'Select Options', description: 'Please select size and color', variant: 'destructive' });
+      toast({ title: t('selectSizeAndColor'), description: t('selectSize') + ' & ' + t('selectColor'), variant: 'destructive' });
       return;
     }
-    if (!canAddMore) return;
+    if (!canAddToCart) return;
 
     setIsAddingToCart(true);
     try {
@@ -252,7 +279,7 @@ export default function ProductCard({
 
   // --- Styles Helpers ---
   const getBadgeStyle = (badge: string) => {
-    switch(badge) {
+    switch (badge) {
       case 'NEW': return 'bg-brand-yellow text-brand-dark border-brand-dark';
       case 'HOT': return 'bg-brand-red text-white border-white';
       case 'SALE': return 'bg-brand-dark text-white border-gray-500';
@@ -262,22 +289,22 @@ export default function ProductCard({
   };
 
   return (
-    <div 
+    <div
       className="group relative flex flex-col h-full cursor-pointer"
       onClick={() => router.push(`/products/${product.slug}`)}
     >
       {/* Main Card Body - Flat Design, No Shadow */}
       <div className="relative flex-1 bg-white border border-gray-200 rounded-2xl overflow-hidden transition-all duration-300 hover:border-brand-red hover:-translate-y-1">
-        
+
         {/* Image Section */}
-        <div 
+        <div
           className="relative aspect-[4/5] overflow-hidden bg-brand-gray"
           onMouseEnter={() => canFlip && setShowBackView(true)}
           onMouseLeave={() => canFlip && setShowBackView(false)}
         >
           <Image
             src={getCurrentImage()}
-            alt={product.name}
+            alt={`${product.name} - ${selectedColor || 'product'} ${selectedSize ? `size ${selectedSize}` : ''} ${showBackView ? 'back view' : 'front view'}`.trim()}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 33vw"
             className={`object-cover transition-transform duration-700 ease-out ${isImageChanging ? 'opacity-80 blur-sm' : 'opacity-100'} group-hover:scale-105`}
@@ -311,11 +338,11 @@ export default function ProductCard({
           </button>
 
           {/* Out of Stock Overlay */}
-          {(!isCurrentVariantInStock && selectedVariant) && (
-            <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center z-10">
-              <span className="bg-brand-dark text-white px-4 py-2 font-bold uppercase tracking-widest transform -rotate-6 border-2 border-white shadow-lg">
+          {(isProductOutOfStock || isVariantOutOfStock) && (
+            <div className="absolute inset-0 bg-white/75 backdrop-blur-[2px] flex items-center justify-center z-10">
+              <div className="bg-brand-dark text-white px-3 sm:px-4 py-1.5 sm:py-2 font-bold text-xs sm:text-sm uppercase tracking-widest transform -rotate-6 border-2 border-white shadow-xl">
                 {t('outOfStock')}
-              </span>
+              </div>
             </div>
           )}
         </div>
@@ -331,13 +358,21 @@ export default function ProductCard({
               </h3>
               {/* Mobile/Compact Price View */}
               <div className="flex flex-row sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0">
-                <span className={`font-black text-base sm:text-lg ${hasDiscount ? 'text-brand-red' : 'text-brand-dark'}`}>
-                  ${displayPrice.toFixed(2)}
-                </span>
-                {hasDiscount && (
-                  <span className="text-[10px] sm:text-xs text-gray-400 line-through font-medium">
-                    ${originalPrice.toFixed(2)}
+                {isProductOutOfStock ? (
+                  <span className="font-black text-base sm:text-lg text-gray-400">
+                    {t('outOfStock')}
                   </span>
+                ) : (
+                  <>
+                    <span className={`font-black text-base sm:text-lg ${hasDiscount ? 'text-brand-red' : 'text-brand-dark'}`}>
+                      ${displayPrice.toFixed(2)}
+                    </span>
+                    {hasDiscount && (
+                      <span className="text-[10px] sm:text-xs text-gray-400 line-through font-medium">
+                        ${originalPrice.toFixed(2)}
+                      </span>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -353,7 +388,7 @@ export default function ProductCard({
 
             {/* Color Switcher */}
             {showColorSwitcher && availableColors.length > 0 && (
-              <div className="flex items-center gap-1.5 sm:gap-2" onClick={(e) => e.stopPropagation()}>
+              <div className={`flex items-center gap-1.5 sm:gap-2 ${isProductOutOfStock ? 'opacity-50 pointer-events-none' : ''}`} onClick={(e) => e.stopPropagation()}>
                 {availableColors.map(({ color, hex }) => (
                   <button
                     key={color}
@@ -363,9 +398,11 @@ export default function ProductCard({
                         ? 'w-7 h-7 sm:w-8 sm:h-8 ring-2 ring-black ring-offset-2 shadow-lg scale-110'
                         : 'w-5 h-5 sm:w-6 sm:h-6 border border-gray-300 hover:scale-110 hover:border-gray-400'
                       }
+                      ${isProductOutOfStock ? 'cursor-not-allowed' : ''}
                     `}
                     style={{ backgroundColor: hex }}
-                    onClick={() => handleColorSelect(color)}
+                    onClick={() => !isProductOutOfStock && handleColorSelect(color)}
+                    disabled={isProductOutOfStock}
                     title={color}
                   >
                     {selectedColor === color && (
@@ -373,8 +410,8 @@ export default function ProductCard({
                         <svg
                           className={`w-3 h-3 sm:w-4 sm:h-4 ${
                             // Use white check for dark colors, black for light colors
-                            parseInt(hex.replace('#', ''), 16) > 0xffffff/2 ? 'text-gray-800' : 'text-white'
-                          } drop-shadow-md`}
+                            parseInt(hex.replace('#', ''), 16) > 0xffffff / 2 ? 'text-gray-800' : 'text-white'
+                            } drop-shadow-md`}
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -393,21 +430,21 @@ export default function ProductCard({
 
             {/* Size Picker - Flat Design */}
             {showSizePicker && sizesWithStock.length > 0 && (
-              <div className="flex flex-wrap gap-1.5" onClick={(e) => e.stopPropagation()}>
+              <div className={`flex flex-wrap gap-1.5 ${isProductOutOfStock ? 'opacity-50 pointer-events-none' : ''}`} onClick={(e) => e.stopPropagation()}>
                 {sizesWithStock.map(({ size, inStock }) => (
                   <button
                     key={size}
                     className={`
                       px-2.5 py-1 text-xs font-bold border rounded transition-all
-                      ${selectedSize === size 
-                        ? 'bg-brand-dark text-white border-brand-dark' 
-                        : inStock 
-                          ? 'bg-white text-brand-dark border-gray-200 hover:border-brand-dark' 
+                      ${selectedSize === size
+                        ? 'bg-brand-dark text-white border-brand-dark'
+                        : inStock && !isProductOutOfStock
+                          ? 'bg-white text-brand-dark border-gray-200 hover:border-brand-dark'
                           : 'bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed line-through'
                       }
                     `}
-                    onClick={() => inStock && setSelectedSize(size)}
-                    disabled={!inStock}
+                    onClick={() => inStock && !isProductOutOfStock && setSelectedSize(size)}
+                    disabled={!inStock || isProductOutOfStock}
                   >
                     {size}
                   </button>
@@ -422,7 +459,7 @@ export default function ProductCard({
             {/* Left Side: Status Indicators */}
             <div className="flex flex-col gap-0.5 sm:gap-1">
               {/* Low Stock Warning */}
-              {stockInfo && canAddMore && (
+              {stockInfo && canAddToCart && (
                 <span className={`text-[9px] sm:text-[10px] font-bold flex items-center gap-0.5 sm:gap-1 ${stockInfo.isCritical ? 'text-brand-red' : 'text-orange-500'}`}>
                   <AlertCircle size={8} className="sm:w-[10px] sm:h-[10px]" />
                   {stockInfo.count === 1 ? t('lastOne') : t('onlyXLeft', { count: stockInfo.count })}
@@ -441,23 +478,24 @@ export default function ProductCard({
             <button
               className={`
                 flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md sm:rounded-lg font-bold text-xs sm:text-sm transition-all w-full sm:w-auto
-                ${!canAddMore && selectedVariant
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-white border sm:border-2 border-brand-dark text-brand-dark hover:bg-brand-dark hover:text-white sm:hover:-translate-y-0.5'
+                ${isProductOutOfStock || isVariantOutOfStock
+                  ? 'bg-gray-100 text-gray-500 cursor-not-allowed border border-gray-200'
+                  : !canAddToCart
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white border sm:border-2 border-brand-dark text-brand-dark hover:bg-brand-dark hover:text-white sm:hover:-translate-y-0.5'
                 }
               `}
               onClick={handleAddToCart}
-              disabled={isAddingToCart || isLoading || !selectedVariant || !canAddMore}
+              disabled={isAddingToCart || isLoading || !canAddToCart || isProductOutOfStock || isVariantOutOfStock}
             >
-              {isAddingToCart ? (
-                <Loader2 size={14} className="animate-spin sm:w-4 sm:h-4" />
-              ) : !selectedVariant ? (
-                <>Select <ArrowRight size={12} className="sm:w-[14px] sm:h-[14px]" /></>
-              ) : !canAddMore ? (
-                <span className="text-[10px] sm:text-xs">Max</span>
-              ) : (
-                <>Add <ShoppingCart size={14} className="sm:w-4 sm:h-4" /></>
-              )}
+              {(() => {
+                if (isAddingToCart) return <Loader2 size={14} className="animate-spin sm:w-4 sm:h-4" />;
+                if (isProductOutOfStock || isVariantOutOfStock) return <span>{t('outOfStock')}</span>;
+                if (remainingStock === 0 && selectedVariant) return <span className="text-[10px] sm:text-xs">{t('maxInCart')}</span>;
+                if (!selectedSize && showSizePicker) return <span className="text-[10px] sm:text-xs">{t('selectSize')}</span>;
+                if (!selectedColor && showColorSwitcher) return <span className="text-[10px] sm:text-xs">{t('selectColor')}</span>;
+                return <> {t('addToCart')} <ShoppingCart size={14} className="sm:w-4 sm:h-4" /></>;
+              })()}
             </button>
           </div>
         </div>
