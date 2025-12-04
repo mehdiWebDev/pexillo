@@ -196,8 +196,12 @@ export function useProductFilters() {
 
   // Remove single filter
   const removeFilter = useCallback(
-    (filterType: keyof FilterState, value?: string) => {
+    (filterType: keyof FilterState | 'priceRange', value?: string) => {
       switch (filterType) {
+        case 'priceRange':
+          // Remove both price filters in a single update
+          updateFilters({ minPrice: undefined, maxPrice: undefined });
+          break;
         case 'minPrice':
           updateFilters({ minPrice: undefined });
           break;

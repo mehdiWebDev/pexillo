@@ -9,7 +9,7 @@ import type { FilterOptions } from '@/src/services/productListingService';
 interface ActiveFiltersProps {
   filters: FilterState;
   filterOptions?: FilterOptions;
-  onRemoveFilter: (filterType: keyof FilterState, value?: string) => void;
+  onRemoveFilter: (filterType: keyof FilterState | 'priceRange', value?: string) => void;
   onResetAll: () => void;
 }
 
@@ -55,10 +55,7 @@ export default function ActiveFilters({
               {filters.maxPrice || filterOptions?.max_price || 1000}
             </span>
             <button
-              onClick={() => {
-                onRemoveFilter('minPrice');
-                onRemoveFilter('maxPrice');
-              }}
+              onClick={() => onRemoveFilter('priceRange')}
               aria-label={t('remove')}
               className="flex items-center justify-center w-4.5 h-4.5 bg-gray-100 rounded text-gray-600 hover:bg-gray-200 hover:text-black transition-all"
             >

@@ -4,7 +4,10 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { UseFormReturn } from 'react-hook-form';
+import { ArrowLeft } from 'lucide-react';
 import { CANADIAN_PROVINCES } from '@/src/data/canadianProvinces';
+import AddressSelector from './AddressSelector';
+import { type Address } from '@/src/services/addressService';
 
 // TypeScript declarations for Google Maps
 interface GoogleMapsPlacePrediction {
@@ -100,14 +103,19 @@ interface ShippingFormProps {
   form: UseFormReturn<CheckoutFormData>;
   onAddressChange: (address: { state: string; country: string }) => void;
   isAuth: boolean;
+  userId?: string;
 }
 
-export default function ShippingForm({ form, onAddressChange, isAuth }: ShippingFormProps) {
+export default function ShippingForm({ form, onAddressChange, isAuth, userId }: ShippingFormProps) {
   const t = useTranslations('checkout');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const shippingAutocompleteInitialized = useRef(false);
   const billingAutocompleteInitialized = useRef(false);
+  const [showAddressSelector, setShowAddressSelector] = useState(Boolean(isAuth && userId));
+  const [showManualEntry, setShowManualEntry] = useState(!isAuth || !userId);
+  const [selectedShippingAddress, setSelectedShippingAddress] = useState<Address | null>(null);
+  const [selectedBillingAddress, setSelectedBillingAddress] = useState<Address | null>(null);
 
   const {
     register,
@@ -118,6 +126,58 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
 
   const sameAsShipping = watch('sameAsShipping');
   const createAccount = watch('createAccount');
+
+  // Handle address selection from saved addresses
+  const handleSelectShippingAddress = useCallback((address: Address | null) => {
+    if (address) {
+      setSelectedShippingAddress(address);
+      // Fill form with selected address
+      setValue('shipping.firstName', address.first_name);
+      setValue('shipping.lastName', address.last_name);
+      setValue('shipping.address', address.address_line_1);
+      setValue('shipping.apartment', address.address_line_2 || '');
+      setValue('shipping.city', address.city);
+      setValue('shipping.state', address.state_province);
+      setValue('shipping.postalCode', address.postal_code);
+      setValue('shipping.country', address.country || 'CA');
+
+      // Trigger address change for tax calculation
+      onAddressChange({
+        state: address.state_province,
+        country: address.country || 'CA'
+      });
+    }
+  }, [setValue, onAddressChange]);
+
+  const handleSelectBillingAddress = useCallback((address: Address | null) => {
+    if (address) {
+      setSelectedBillingAddress(address);
+      // Fill form with selected address
+      setValue('billing.firstName', address.first_name);
+      setValue('billing.lastName', address.last_name);
+      setValue('billing.address', address.address_line_1);
+      setValue('billing.apartment', address.address_line_2 || '');
+      setValue('billing.city', address.city);
+      setValue('billing.state', address.state_province);
+      setValue('billing.postalCode', address.postal_code);
+      setValue('billing.country', address.country || 'CA');
+    }
+  }, [setValue]);
+
+  const handleAddNewShippingAddress = () => {
+    setShowAddressSelector(false);
+    setShowManualEntry(true);
+  };
+
+  const handleBackToSavedAddresses = () => {
+    setShowAddressSelector(true);
+    setShowManualEntry(false);
+  };
+
+  const handleAddNewBillingAddress = () => {
+    // For billing, we just show the manual entry form
+    // The selector remains visible
+  };
 
   // Function to fill in the address form fields
   const fillInAddress = useCallback(async (placePrediction: GoogleMapsPlacePrediction, type: 'shipping' | 'billing') => {
@@ -577,7 +637,36 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
       {/* Shipping Address */}
       <div>
         <h2 className="text-xl font-black text-gray-900 mb-4">{t('shippingAddress')}</h2>
-        <div className="grid gap-4">
+
+        {/* Show address selector for authenticated users with saved addresses */}
+        {isAuth && userId && showAddressSelector && (
+          <div className="mb-6">
+            <AddressSelector
+              userId={userId}
+              type="shipping"
+              onSelectAddress={handleSelectShippingAddress}
+              onAddNewAddress={handleAddNewShippingAddress}
+              selectedAddressId={selectedShippingAddress?.id}
+            />
+          </div>
+        )}
+
+        {/* Show manual entry form for guests or when adding new address */}
+        {(!isAuth || showManualEntry) && (
+        <div className="space-y-4">
+          {/* Back to saved addresses button - only for authenticated users */}
+          {isAuth && userId && !showAddressSelector && (
+            <button
+              type="button"
+              onClick={handleBackToSavedAddresses}
+              className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              {t('backToSavedAddresses')}
+            </button>
+          )}
+
+          <div className="grid gap-4">
           {/* Country Select */}
           <div className="col-span-2">
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
@@ -761,7 +850,9 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
             {...register('shipping.country')}
             value="CA"
           />
+          </div>
         </div>
+        )}
       </div>
 
       {/* Shipping Method */}
@@ -808,7 +899,22 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
         </div>
 
         {!sameAsShipping && (
-          <div className="grid gap-4 pt-4">
+          <>
+            {/* Show address selector for authenticated users with saved addresses */}
+            {isAuth && userId && (
+              <div className="mb-6">
+                <AddressSelector
+                  userId={userId}
+                  type="billing"
+                  onSelectAddress={handleSelectBillingAddress}
+                  onAddNewAddress={handleAddNewBillingAddress}
+                  selectedAddressId={selectedBillingAddress?.id}
+                />
+              </div>
+            )}
+
+            {/* Always show manual entry form for billing (in case they want to enter different) */}
+            <div className="grid gap-4 pt-4">
             {/* Billing Name Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-2">
               <div>
@@ -963,6 +1069,7 @@ export default function ShippingForm({ form, onAddressChange, isAuth }: Shipping
               value="CA"
             />
           </div>
+          </>
         )}
       </div>
     </div>

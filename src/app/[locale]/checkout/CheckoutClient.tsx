@@ -464,6 +464,7 @@ export default function CheckoutClient() {
                                     form={form}
                                     onAddressChange={handleAddressChange}
                                     isAuth={isAuth}
+                                    userId={user?.id || createdUserId || undefined}
                                 />
 
                                 {/* Continue to Payment Button */}

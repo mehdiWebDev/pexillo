@@ -15,6 +15,9 @@ import {
 import { toast } from '@/src/hooks/use-toast';
 import { clearCartLocal, clearCartDB } from '@/src/store/slices/cartSlice';
 import { RootState } from '@/src/store';
+import { addressService } from '@/src/services/addressService';
+import { paymentMethodService, type PaymentMethod } from '@/src/services/paymentMethodService';
+import PaymentMethodSelector from './PaymentMethodSelector';
 
 interface CartItem {
   product_id: string;
@@ -84,6 +87,7 @@ interface PaymentFormProps {
 
 export default function PaymentForm({
   form,
+  clientSecret,
   total,
   tax,
   shipping,
@@ -101,9 +105,30 @@ export default function PaymentForm({
   const { isAuth, user } = useSelector((state: RootState) => state.auth);
   const [isProcessing, setIsProcessing] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [saveAddress, setSaveAddress] = useState(true);
+  const [savePaymentMethod, setSavePaymentMethod] = useState(true);
+  const [showSavedPayments] = useState(true);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
+  const [useNewPayment, setUseNewPayment] = useState(false);
 
   // Debug logging for discounts
   console.log('🎁 PaymentForm received appliedDiscounts:', appliedDiscounts);
+
+  // Check if user should see saved payment methods
+  const currentUserId = user?.id || createdUserId;
+  const shouldShowSavedPayments = (isAuth || createdUserId) && currentUserId && showSavedPayments && !useNewPayment;
+
+  const handleSelectPaymentMethod = (paymentMethod: PaymentMethod | null) => {
+    setSelectedPaymentMethod(paymentMethod);
+    if (paymentMethod) {
+      setUseNewPayment(false);
+    }
+  };
+
+  const handleAddNewPaymentMethod = () => {
+    setUseNewPayment(true);
+    setSelectedPaymentMethod(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,28 +155,50 @@ export default function PaymentForm({
 
       // ✅ STEP 1: Confirm payment with Stripe FIRST (before creating order)
       console.log('💳 Step 1: Confirming payment with Stripe...');
-      const { error: paymentError, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/checkout/success`,
-          payment_method_data: {
-            billing_details: {
-              name: `${billingAddress?.firstName || formData.shipping.firstName} ${billingAddress?.lastName || formData.shipping.lastName}`,
-              email: formData.email,
-              phone: formData.phone,
-              address: {
-                line1: billingAddress?.address || formData.shipping.address,
-                line2: billingAddress?.apartment || formData.shipping.apartment || undefined,
-                city: billingAddress?.city || formData.shipping.city,
-                state: billingAddress?.state || formData.shipping.state,
-                postal_code: billingAddress?.postalCode || formData.shipping.postalCode,
-                country: billingAddress?.country || formData.shipping.country,
+
+      let paymentError, paymentIntent;
+
+      // Check if using a saved payment method
+      if (selectedPaymentMethod && selectedPaymentMethod.stripe_payment_method_id) {
+        console.log('Using saved payment method:', selectedPaymentMethod.stripe_payment_method_id);
+
+        // Confirm payment with saved payment method
+        const result = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: selectedPaymentMethod.stripe_payment_method_id,
+        });
+
+        paymentError = result.error;
+        paymentIntent = result.paymentIntent;
+      } else {
+        // Use new payment method from PaymentElement
+        console.log('Using new payment method from form');
+
+        const result = await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            return_url: `${window.location.origin}/checkout/success`,
+            payment_method_data: {
+              billing_details: {
+                name: `${billingAddress?.firstName || formData.shipping.firstName} ${billingAddress?.lastName || formData.shipping.lastName}`,
+                email: formData.email,
+                phone: formData.phone,
+                address: {
+                  line1: billingAddress?.address || formData.shipping.address,
+                  line2: billingAddress?.apartment || formData.shipping.apartment || undefined,
+                  city: billingAddress?.city || formData.shipping.city,
+                  state: billingAddress?.state || formData.shipping.state,
+                  postal_code: billingAddress?.postalCode || formData.shipping.postalCode,
+                  country: billingAddress?.country || formData.shipping.country,
+                }
               }
             }
-          }
-        },
-        redirect: 'if_required',
-      });
+          },
+          redirect: 'if_required',
+        });
+
+        paymentError = result.error;
+        paymentIntent = result.paymentIntent;
+      }
 
       // If payment fails, stop here - don't create order
       if (paymentError) {
@@ -184,7 +231,7 @@ export default function PaymentForm({
       const subtotal = items.reduce((sum, item) => sum + item.total_price, 0);
 
       // Determine userId: use authenticated user's ID, or createdUserId from checkout
-      const userId = user?.id || createdUserId || null;
+      const orderUserId = user?.id || createdUserId || null;
 
       // Log discount info for debugging
       console.log('💰 Applied discounts:', appliedDiscounts);
@@ -193,7 +240,7 @@ export default function PaymentForm({
       const totalDiscountAmount = appliedDiscounts.reduce((sum, discount) => sum + (discount.amountOff || 0), 0);
 
       const orderData = {
-        user_id: userId, // Use the userId directly
+        user_id: orderUserId, // Use the orderUserId directly
         email: formData.email,
         phone: formData.phone,
         shipping_address: formData.shipping,
@@ -315,6 +362,121 @@ export default function PaymentForm({
         console.error('Error updating order status:', error);
       }
 
+      // Save address and payment method for authenticated users
+      const currentUserId = user?.id || createdUserId;
+      if ((isAuth || createdUserId) && currentUserId) {
+        try {
+          // Save shipping address if user opted to
+          if (saveAddress) {
+            const shippingAddress = formData.shipping;
+            // Check if address already exists (from selector) or is new
+            const existingAddresses = await addressService.getUserAddresses(currentUserId);
+            const addressExists = existingAddresses.some(addr =>
+              addr.address_line_1 === shippingAddress.address &&
+              addr.city === shippingAddress.city &&
+              addr.postal_code === shippingAddress.postalCode
+            );
+
+            if (!addressExists) {
+              await addressService.createAddressFromCheckout(
+                currentUserId,
+                {
+                  firstName: shippingAddress.firstName,
+                  lastName: shippingAddress.lastName,
+                  address: shippingAddress.address,
+                  apartment: shippingAddress.apartment,
+                  city: shippingAddress.city,
+                  state: shippingAddress.state,
+                  postalCode: shippingAddress.postalCode,
+                  country: shippingAddress.country,
+                },
+                'shipping',
+                true // Set as default
+              );
+              console.log('✅ Shipping address saved to profile');
+            }
+
+            // Save billing address if different
+            if (!formData.sameAsShipping && formData.billing) {
+              const billingAddress = formData.billing;
+              const billingExists = existingAddresses.some(addr =>
+                addr.address_line_1 === billingAddress.address &&
+                addr.city === billingAddress.city &&
+                addr.postal_code === billingAddress.postalCode &&
+                addr.type === 'billing'
+              );
+
+              if (!billingExists && billingAddress.address) {
+                await addressService.createAddressFromCheckout(
+                  currentUserId,
+                  {
+                    firstName: billingAddress.firstName || '',
+                    lastName: billingAddress.lastName || '',
+                    address: billingAddress.address || '',
+                    apartment: billingAddress.apartment,
+                    city: billingAddress.city || '',
+                    state: billingAddress.state || '',
+                    postalCode: billingAddress.postalCode || '',
+                    country: billingAddress.country || 'CA',
+                  },
+                  'billing',
+                  true // Set as default
+                );
+                console.log('✅ Billing address saved to profile');
+              }
+            }
+          }
+
+          // Save payment method if user opted to and used a new payment method
+          if (savePaymentMethod && paymentIntent.payment_method && !selectedPaymentMethod) {
+            try {
+              // Get payment method details from Stripe
+              const paymentMethodResponse = await fetch('/api/stripe/get-payment-method', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  paymentMethodId: paymentIntent.payment_method,
+                }),
+              });
+
+              if (paymentMethodResponse.ok) {
+                const { paymentMethod } = await paymentMethodResponse.json();
+
+                // Check if payment method already exists
+                const exists = await paymentMethodService.checkPaymentMethodExists(
+                  currentUserId,
+                  paymentMethod.id
+                );
+
+                if (!exists && paymentMethod.card) {
+                  // Save to database
+                  await paymentMethodService.savePaymentMethod(
+                    currentUserId,
+                    paymentMethod.id,
+                    {
+                      brand: paymentMethod.card.brand,
+                      last4: paymentMethod.card.last4,
+                      exp_month: paymentMethod.card.exp_month,
+                      exp_year: paymentMethod.card.exp_year,
+                    },
+                    `${formData.shipping.firstName} ${formData.shipping.lastName}`,
+                    undefined, // billing address ID if needed
+                    true // Set as default
+                  );
+                  console.log('✅ Payment method saved to profile');
+                }
+              }
+            } catch (error) {
+              console.error('Error saving payment method:', error);
+              // Don't fail the order, just log the error
+            }
+          }
+        } catch (error) {
+          console.error('Error saving address/payment method:', error);
+          // Don't fail the order, just log the error
+        }
+      }
+
       // Clear cart
       if (isAuth && user?.id) {
         await dispatch(clearCartDB(user.id));
@@ -346,31 +508,81 @@ export default function PaymentForm({
       {/* Payment Section */}
       <div>
         <h2 className="text-lg md:text-xl font-black text-gray-900 mb-3 md:mb-4">{t('payment')}</h2>
-        <div className="border-2 border-gray-200 rounded-xl overflow-hidden">
-          <div className="p-4 border-b border-gray-200 bg-gray-50">
-            <label className="flex items-center justify-between cursor-pointer">
-              <div className="flex items-center gap-3">
-                <input type="radio" name="payment" className="w-5 h-5 accent-gray-900" defaultChecked />
-                <span className="font-bold text-gray-900">{t('paymentMethod')}</span>
-              </div>
-              <div className="flex gap-1">
-                <div className="w-8 h-5 bg-white border border-gray-200 rounded"></div>
-                <div className="w-8 h-5 bg-white border border-gray-200 rounded"></div>
-              </div>
-            </label>
-          </div>
-          <div className="p-4 md:p-6 bg-white">
-            <PaymentElement
-              options={{
-                layout: 'tabs',
-                fields: {
-                  billingDetails: 'never'
-                }
-              }}
+
+        {/* Show saved payment methods for authenticated users */}
+        {shouldShowSavedPayments && currentUserId && (
+          <div className="mb-6">
+            <PaymentMethodSelector
+              userId={currentUserId}
+              onSelectPaymentMethod={handleSelectPaymentMethod}
+              onAddNewPaymentMethod={handleAddNewPaymentMethod}
+              selectedPaymentMethodId={selectedPaymentMethod?.id}
             />
           </div>
-        </div>
+        )}
+
+        {/* Show new payment form if no saved methods or user chose to add new */}
+        {(!shouldShowSavedPayments || useNewPayment) && (
+          <div className="border-2 border-gray-200 rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-gray-200 bg-gray-50">
+              <label className="flex items-center justify-between cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <input type="radio" name="payment" className="w-5 h-5 accent-gray-900" defaultChecked />
+                  <span className="font-bold text-gray-900">{t('paymentMethod')}</span>
+                </div>
+                <div className="flex gap-1">
+                  <div className="w-8 h-5 bg-white border border-gray-200 rounded"></div>
+                  <div className="w-8 h-5 bg-white border border-gray-200 rounded"></div>
+                </div>
+              </label>
+            </div>
+            <div className="p-4 md:p-6 bg-white">
+              <PaymentElement
+                options={{
+                  layout: 'tabs',
+                  fields: {
+                    billingDetails: 'never'
+                  }
+                }}
+              />
+
+              {/* Option to save payment method */}
+              {currentUserId && (
+                <div className="mt-4">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={savePaymentMethod}
+                      onChange={(e) => setSavePaymentMethod(e.target.checked)}
+                      className="w-5 h-5 border-2 border-gray-300 rounded accent-gray-900"
+                    />
+                    <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900">
+                      {t('savePaymentMethodToProfile')}
+                    </span>
+                  </label>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Save Address Option for Authenticated Users */}
+      {currentUserId && (
+        <div className="space-y-3">
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={saveAddress}
+              onChange={(e) => setSaveAddress(e.target.checked)}
+              className="w-5 h-5 border-2 border-gray-300 rounded accent-gray-900"
+            />
+            <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900">
+              {t('saveAddressToProfile')}
+            </span>
+          </label>
+        </div>
+      )}
 
       {/* Terms Checkbox */}
       <label className="flex items-center gap-3 cursor-pointer group">

@@ -54,6 +54,7 @@ export default function AddressesSection({ userId }: AddressesSectionProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const ADDRESS_TYPES = [
     { value: 'shipping', label: t('shipping'), icon: Home },
@@ -120,6 +121,7 @@ export default function AddressesSection({ userId }: AddressesSectionProps) {
     });
     setEditingId(null);
     setIsFormOpen(false);
+    setFormErrors({});
   };
 
   const handleEdit = (address: Address) => {
@@ -138,11 +140,44 @@ export default function AddressesSection({ userId }: AddressesSectionProps) {
     });
     setEditingId(address.id);
     setIsFormOpen(true);
+    setFormErrors({});
+  };
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.first_name.trim()) {
+      errors.first_name = t('firstNameRequired');
+    }
+    if (!formData.last_name.trim()) {
+      errors.last_name = t('lastNameRequired');
+    }
+    if (!formData.address_line_1.trim()) {
+      errors.address_line_1 = t('addressRequired');
+    }
+    if (!formData.city.trim()) {
+      errors.city = t('cityRequired');
+    }
+    if (!formData.state_province) {
+      errors.state_province = t('provinceRequired');
+    }
+    if (!formData.postal_code.trim()) {
+      errors.postal_code = t('postalCodeRequired');
+    } else {
+      // Validate Canadian postal code format (e.g., K1A 0B1)
+      const postalCodeRegex = /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/;
+      if (!postalCodeRegex.test(formData.postal_code)) {
+        errors.postal_code = t('invalidPostalCode');
+      }
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSave = async () => {
     // Validation
-    if (!formData.first_name || !formData.last_name || !formData.address_line_1 || !formData.city || !formData.state_province || !formData.postal_code) {
+    if (!validateForm()) {
       toast({
         title: t('validationError'),
         description: t('fillRequiredFields'),
@@ -330,19 +365,35 @@ export default function AddressesSection({ userId }: AddressesSectionProps) {
                 <Label className="font-bold text-brand-dark">{t('firstName')} *</Label>
                 <Input
                   value={formData.first_name}
-                  onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, first_name: e.target.value });
+                    if (formErrors.first_name) {
+                      setFormErrors({ ...formErrors, first_name: '' });
+                    }
+                  }}
                   placeholder={t('firstNamePlaceholder')}
-                  className="border-gray-200"
+                  className={`border-gray-200 ${formErrors.first_name ? 'border-red-500' : ''}`}
                 />
+                {formErrors.first_name && (
+                  <p className="text-sm text-red-500">{formErrors.first_name}</p>
+                )}
               </div>
               <div className="grid gap-2">
                 <Label className="font-bold text-brand-dark">{t('lastName')} *</Label>
                 <Input
                   value={formData.last_name}
-                  onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, last_name: e.target.value });
+                    if (formErrors.last_name) {
+                      setFormErrors({ ...formErrors, last_name: '' });
+                    }
+                  }}
                   placeholder={t('lastNamePlaceholder')}
-                  className="border-gray-200"
+                  className={`border-gray-200 ${formErrors.last_name ? 'border-red-500' : ''}`}
                 />
+                {formErrors.last_name && (
+                  <p className="text-sm text-red-500">{formErrors.last_name}</p>
+                )}
               </div>
             </div>
 
@@ -362,10 +413,18 @@ export default function AddressesSection({ userId }: AddressesSectionProps) {
               <Label className="font-bold text-brand-dark">{t('streetAddress')} *</Label>
               <Input
                 value={formData.address_line_1}
-                onChange={(e) => setFormData({ ...formData, address_line_1: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, address_line_1: e.target.value });
+                  if (formErrors.address_line_1) {
+                    setFormErrors({ ...formErrors, address_line_1: '' });
+                  }
+                }}
                 placeholder={t('streetAddressPlaceholder')}
-                className="border-gray-200"
+                className={`border-gray-200 ${formErrors.address_line_1 ? 'border-red-500' : ''}`}
               />
+              {formErrors.address_line_1 && (
+                <p className="text-sm text-red-500">{formErrors.address_line_1}</p>
+              )}
             </div>
 
             {/* Address Line 2 */}
@@ -385,15 +444,31 @@ export default function AddressesSection({ userId }: AddressesSectionProps) {
                 <Label className="font-bold text-brand-dark">{t('city')} *</Label>
                 <Input
                   value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, city: e.target.value });
+                    if (formErrors.city) {
+                      setFormErrors({ ...formErrors, city: '' });
+                    }
+                  }}
                   placeholder={t('cityPlaceholder')}
-                  className="border-gray-200"
+                  className={`border-gray-200 ${formErrors.city ? 'border-red-500' : ''}`}
                 />
+                {formErrors.city && (
+                  <p className="text-sm text-red-500">{formErrors.city}</p>
+                )}
               </div>
               <div className="grid gap-2">
                 <Label className="font-bold text-brand-dark">{t('province')} *</Label>
-                <Select value={formData.state_province} onValueChange={(value) => setFormData({ ...formData, state_province: value })}>
-                  <SelectTrigger className="border-gray-200">
+                <Select
+                  value={formData.state_province}
+                  onValueChange={(value) => {
+                    setFormData({ ...formData, state_province: value });
+                    if (formErrors.state_province) {
+                      setFormErrors({ ...formErrors, state_province: '' });
+                    }
+                  }}
+                >
+                  <SelectTrigger className={`border-gray-200 ${formErrors.state_province ? 'border-red-500' : ''}`}>
                     <SelectValue placeholder={t('selectProvince')} />
                   </SelectTrigger>
                   <SelectContent>
@@ -404,6 +479,9 @@ export default function AddressesSection({ userId }: AddressesSectionProps) {
                     ))}
                   </SelectContent>
                 </Select>
+                {formErrors.state_province && (
+                  <p className="text-sm text-red-500">{formErrors.state_province}</p>
+                )}
               </div>
             </div>
 
@@ -412,11 +490,19 @@ export default function AddressesSection({ userId }: AddressesSectionProps) {
               <Label className="font-bold text-brand-dark">{t('postalCode')} *</Label>
               <Input
                 value={formData.postal_code}
-                onChange={(e) => setFormData({ ...formData, postal_code: e.target.value.toUpperCase() })}
+                onChange={(e) => {
+                  setFormData({ ...formData, postal_code: e.target.value.toUpperCase() });
+                  if (formErrors.postal_code) {
+                    setFormErrors({ ...formErrors, postal_code: '' });
+                  }
+                }}
                 placeholder={t('postalCodePlaceholder')}
-                className="border-gray-200"
+                className={`border-gray-200 ${formErrors.postal_code ? 'border-red-500' : ''}`}
                 maxLength={7}
               />
+              {formErrors.postal_code && (
+                <p className="text-sm text-red-500">{formErrors.postal_code}</p>
+              )}
             </div>
 
             {/* Default Address Checkbox */}
