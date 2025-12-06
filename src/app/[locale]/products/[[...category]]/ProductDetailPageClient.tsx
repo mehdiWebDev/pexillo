@@ -65,6 +65,9 @@ interface Product {
   base_price: number;
   primary_image_url: string;
   in_stock: boolean;
+  has_discount: boolean;
+  discount_percentage: number;
+  discounted_price: number;
   average_rating?: number;
   review_count?: number;
   translations?: Record<string, {
@@ -193,40 +196,71 @@ export default function ProductDetailPageClient({ productSlug }: ProductDetailPa
       }));
   };
 
-  // Calculate price based on variant and discount
-  const getDisplayPrice = () => {
-    if (!product) return 0;
-
-    if (selectedVariant) {
-      // Use variant-specific discounted price if available
-      if (selectedVariant.has_discount && selectedVariant.discounted_price) {
-        return selectedVariant.discounted_price;
-      }
-      // Use variant final price (base + adjustment)
-      if (selectedVariant.final_price) {
-        return selectedVariant.final_price;
-      }
-      // Calculate from base + adjustment
-      return product.base_price + (selectedVariant.price_adjustment || 0);
+  // Calculate display price, original price, and discount info
+  const getPriceInfo = () => {
+    if (!product) {
+      return {
+        displayPrice: 0,
+        originalPrice: 0,
+        hasDiscount: false,
+        discountPercentage: 0
+      };
     }
 
-    return product.base_price;
-  };
-
-  const getOriginalPrice = () => {
-    if (!product) return 0;
-
+    // When a variant is selected
     if (selectedVariant) {
-      return product.base_price + (selectedVariant.price_adjustment || 0);
+      const variantBasePrice = product.base_price + (selectedVariant.price_adjustment || 0);
+
+      // Check if variant has its own discount
+      if (selectedVariant.has_discount && selectedVariant.discounted_price && selectedVariant.discounted_price > 0) {
+        return {
+          displayPrice: selectedVariant.discounted_price,
+          originalPrice: variantBasePrice,
+          hasDiscount: true,
+          discountPercentage: selectedVariant.discount_percentage || 0
+        };
+      }
+
+      // Variant has NO variant-specific discount - fall back to product-level discount
+      if (product.has_discount && product.discount_percentage > 0) {
+        const discountedVariantPrice = variantBasePrice * (1 - product.discount_percentage / 100);
+        return {
+          displayPrice: discountedVariantPrice,
+          originalPrice: variantBasePrice,
+          hasDiscount: true,
+          discountPercentage: product.discount_percentage
+        };
+      }
+
+      // No discount at all
+      return {
+        displayPrice: variantBasePrice,
+        originalPrice: variantBasePrice,
+        hasDiscount: false,
+        discountPercentage: 0
+      };
     }
 
-    return product.base_price;
+    // No variant selected - show product-level pricing
+    if (product.has_discount && product.discounted_price && product.discounted_price > 0) {
+      return {
+        displayPrice: product.discounted_price,
+        originalPrice: product.base_price,
+        hasDiscount: true,
+        discountPercentage: product.discount_percentage || 0
+      };
+    }
+
+    // No discount at all
+    return {
+      displayPrice: product.base_price,
+      originalPrice: product.base_price,
+      hasDiscount: false,
+      discountPercentage: 0
+    };
   };
 
-  const hasDiscount = selectedVariant?.has_discount || false;
-  const discountPercentage = selectedVariant?.discount_percentage || 0;
-  const displayPrice = getDisplayPrice();
-  const originalPrice = getOriginalPrice();
+  const { displayPrice, originalPrice, hasDiscount, discountPercentage } = getPriceInfo();
 
   // Update selected variant when color/size changes
   useEffect(() => {
@@ -354,7 +388,7 @@ export default function ProductDetailPageClient({ productSlug }: ProductDetailPa
       '@type': 'Offer',
       url: `https://pexillo.com/products/${translatedProduct.slug}`,
       priceCurrency: 'USD',
-      price: getDisplayPrice(),
+      price: displayPrice,
       availability: product.in_stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       priceValidUntil: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
     },

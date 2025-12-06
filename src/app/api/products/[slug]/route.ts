@@ -67,20 +67,46 @@ export async function GET(
       .eq('product_id', product.id)
       .order('display_order', { ascending: true });
 
-    // Get product-level discount (only shows if show_on_products = true)
-    const { data: productDiscountData } = await supabaseAdmin.rpc('get_product_best_discount', {
-      p_product_id: product.id,
-      p_category_id: product.category_id,
-      p_base_price: product.base_price
-    });
+    // Get product-level discount (excluding variant-specific discounts)
+    const { data: productDiscountData } = await supabaseAdmin
+      .from('discount_codes')
+      .select('*')
+      .eq('is_active', true)
+      .eq('show_on_products', true)
+      .lte('valid_from', new Date().toISOString())
+      .or(`valid_until.is.null,valid_until.gte.${new Date().toISOString()}`)
+      .or(`applicable_to.eq.all,and(applicable_to.eq.product,applicable_ids.cs.{${product.id}}),and(applicable_to.eq.category,applicable_ids.cs.{${product.category_id}})`)
+      .neq('applicable_to', 'variant') // Exclude variant-specific discounts
+      .order('priority', { ascending: false })
+      .order('discount_value', { ascending: false })
+      .limit(1)
+      .single();
 
-    const productDiscount = productDiscountData?.[0] || {
-      has_discount: false,
-      discount_percentage: 0,
-      discounted_price: product.base_price,
-      discount_type: null,
-      discount_value: null
-    };
+    let productDiscount;
+    if (productDiscountData) {
+      const discountPercentage = productDiscountData.discount_type === 'percentage'
+        ? productDiscountData.discount_value
+        : Math.round((productDiscountData.discount_value / product.base_price) * 100);
+      const discountedPrice = productDiscountData.discount_type === 'percentage'
+        ? product.base_price * (1 - productDiscountData.discount_value / 100)
+        : Math.max(product.base_price - productDiscountData.discount_value, 0);
+
+      productDiscount = {
+        has_discount: true,
+        discount_percentage: discountPercentage,
+        discounted_price: discountedPrice,
+        discount_type: productDiscountData.discount_type,
+        discount_value: productDiscountData.discount_value
+      };
+    } else {
+      productDiscount = {
+        has_discount: false,
+        discount_percentage: 0,
+        discounted_price: product.base_price,
+        discount_type: null,
+        discount_value: null
+      };
+    }
 
     // Get variant discounts
     const variantsWithDiscounts = await Promise.all(

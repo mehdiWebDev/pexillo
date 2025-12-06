@@ -243,7 +243,7 @@ export default function OrderSummary({
               </p>
               {item.discount_percentage && (
                 <p className="text-[10px] sm:text-xs text-green-600 font-bold">
-                  -{item.discount_percentage}% OFF
+                  -{Math.round(item.discount_percentage)}% OFF
                 </p>
               )}
             </div>
